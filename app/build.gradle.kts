@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "es.uji.smallaris"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "es.uji.smallaris"
