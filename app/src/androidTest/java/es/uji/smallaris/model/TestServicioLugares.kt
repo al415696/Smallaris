@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 
-class ServicioLugaresTest {
+class TestServicioLugares {
 
     @Test
     fun addLugar_R2HU01_darDeAltaLugarOK() {

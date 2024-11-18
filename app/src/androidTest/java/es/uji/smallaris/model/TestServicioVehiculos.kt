@@ -1,12 +1,5 @@
-package es.uji.smallaris
+package es.uji.smallaris.model
 
-import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.RepositorioFirebase
-import es.uji.smallaris.model.RepositorioVehiculos
-import es.uji.smallaris.model.ServicioVehiculos
-import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.model.VehicleAlredyExistsException
-import es.uji.smallaris.model.Vehiculo
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
