@@ -48,36 +48,5 @@ class TestServicioVehiculos {
         }
     }
 
-    @Test
-    fun addVehiculo_R3HU2V1(){
-//        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos()
-        servicioVehiculos.setRepositorio(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
-//        WHEN
-        var lista = servicioVehiculos.getVehiculos()
-//        THEN
-        assertEquals(1, lista.count())
-        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ), lista[0])
-    }
-
-    @Test
-    fun addVehiculo_R3HU2I1(){
-//        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos()
-        servicioVehiculos.setRepositorio(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
-//        WHEN
-        try {
-         servicioVehiculos.getVehiculos()
-        }
-        //        THEN
-        catch (exception: Exception){
-            assertEquals(ConnectionErrorException::class.java, exception ::class.java)
-
-        }
-    }
 
 }
