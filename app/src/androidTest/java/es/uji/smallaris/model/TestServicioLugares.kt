@@ -11,10 +11,10 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU01_darDeAltaLugarOK() {
         // Given
-        val servicioAPIs = ServicioAPIs()
+        val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
 
         // When
         val resultado = servicioLugares.addLugar(-0.0376709F, 39.986F)
@@ -30,10 +30,10 @@ class TestServicioLugares {
         var resultado: UbicationErrorException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs()
+        val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
         servicioLugares.addLugar(-0.0376709F, 39.986F, "Castellón de la Plana")
 
         // When
@@ -56,10 +56,10 @@ class TestServicioLugares {
         var resultado: UbicationErrorException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs()
+        val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
 
         // When
         try {
@@ -80,10 +80,10 @@ class TestServicioLugares {
         var resultado: UbicationErrorException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs()
+        val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
 
         // When
         try {
