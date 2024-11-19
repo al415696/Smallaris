@@ -1,9 +1,14 @@
 package es.uji.smallaris.model
 
-class ServicioVehiculos {
+class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
-    lateinit var vehiculos: List<Vehiculo>
-    lateinit var repositorio: RepositorioVehiculos
+    private val vehiculos = mutableListOf<Vehiculo>()
+
+    init {
+        this.vehiculos.addAll(repositorio.getVehiculos())
+    }
+
+
     fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
 
 
@@ -13,12 +18,10 @@ class ServicioVehiculos {
         repositorio.addVehiculos(vehiculo)
         return null
     }
+
     fun getVehiculos(): List<Vehiculo>{
-        repositorio.getVehiculos()
         return listOf()
     }
-    fun setRepositorio(repositorioVehiculos: RepositorioVehiculos){
-        repositorio = repositorioVehiculos
-    }
+
 
 }
