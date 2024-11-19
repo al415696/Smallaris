@@ -4,14 +4,13 @@ import kotlin.jvm.Throws
 
 class ServicioLugares(
     private val repositorioLugares: RepositorioLugares,
-    lugares: MutableList<LugarInteres>,
     private val apiObtenerNombres: ServicioAPIs
 ) {
 
     private val lugares = mutableListOf<LugarInteres>()
 
     init {
-        this.lugares.addAll(lugares)
+        this.lugares.addAll(repositorioLugares.getLugares())
     }
 
     @Throws(UbicationErrorException::class)

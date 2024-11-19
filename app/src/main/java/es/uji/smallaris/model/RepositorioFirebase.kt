@@ -1,6 +1,6 @@
 package es.uji.smallaris.model
 
-class repositorioFirebase : RepositorioLugares {
+class RepositorioFirebase : RepositorioLugares {
     override fun getLugares(): List<LugarInteres> {
         return mutableListOf()
     }
