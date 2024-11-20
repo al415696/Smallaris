@@ -98,4 +98,45 @@ class TestServicioLugares {
         assertEquals(0, servicioLugares.getLugares().size)
     }
 
+    @Test
+    fun getLugares_R2HU03_obtenerListaLugares1Elemento() {
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Castellón de la Plana")
+
+        // When
+        val resultado = servicioLugares.getLugares()
+
+        //Then
+        assertEquals(1, resultado.size)
+        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Castellón de la Plana"), repositorioLugares.getLugares()[0])
+
+    }
+
+    @Test
+    fun getLugares_R2HU03_faltaConexionBBDD() {
+
+        var resultado: ConnectionErrorException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+
+        // When
+        try {
+            servicioLugares.getLugares()
+        } catch (e: ConnectionErrorException) {
+            resultado = e
+        }
+
+        // Then
+        assertNotNull(resultado)
+        assertTrue(resultado is ConnectionErrorException)
+
+    }
+
 }
