@@ -15,18 +15,8 @@ class ServicioLugares(
 
     @Throws(UbicationErrorException::class)
     fun addLugar(longitud: Float, latitud: Float, nombre: String = ""): LugarInteres {
-        // Regla de negocio, si unas coordenadas no tienen un topónimo asociado,
-        // le asignamos las propias coordenadas como el nombre identificativo de la ubicación
-        var nombreLugar: String = nombre
-        if (nombre.isBlank()) {
-            nombreLugar = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-            if (nombreLugar.isBlank()) {
-                nombreLugar = "$longitud, $latitud"
-            }
-        }
-        // Creamos el objeto LugarInteres y lo guardamos en la lista de lugares,
-        // además de en el repositorio
-        val lugar = LugarInteres(longitud, latitud, nombreLugar)
+
+        val lugar = LugarInteres(0F, 0F, "No implementado")
         lugares.add(lugar)
         repositorioLugares.addLugar(lugar)
         // Devolvemos el lugar creado como indicador de que se ha guardado correctamente
