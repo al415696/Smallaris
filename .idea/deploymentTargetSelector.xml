@@ -8,6 +8,12 @@
       <SelectionState runConfigName="registrarUsuario_R1HU01V1()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="TestServicioLugares">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="getLugares_R2HU03_obtenerListaLugares1Elemento()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

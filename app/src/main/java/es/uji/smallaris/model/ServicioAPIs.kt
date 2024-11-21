@@ -1,6 +1,6 @@
 package es.uji.smallaris.model
 
-class ServicioAPIs {
+object ServicioAPIs {
 
     public fun getToponimoCercano(longitud: Float, latitud: Float): String {
         return ""
