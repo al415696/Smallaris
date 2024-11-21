@@ -13,7 +13,7 @@ class TestServicioLugares {
         // Given
         val servicioAPIs = ServicioAPIs()
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
 
         // When
@@ -32,7 +32,7 @@ class TestServicioLugares {
         // Given
         val servicioAPIs = ServicioAPIs()
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
         servicioLugares.addLugar(-0.0376709F, 39.986F, "Castellón de la Plana")
 
@@ -58,7 +58,7 @@ class TestServicioLugares {
         // Given
         val servicioAPIs = ServicioAPIs()
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
 
         // When
@@ -82,7 +82,7 @@ class TestServicioLugares {
         // Given
         val servicioAPIs = ServicioAPIs()
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = repositorioFirebase()
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, mutableListOf(), servicioAPIs)
 
         // When
