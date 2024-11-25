@@ -1,6 +1,6 @@
 package es.uji.smallaris.model
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios{
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
     override fun getVehiculos(): List<Vehiculo> {
         TODO("Not yet implemented")
     }
@@ -27,5 +27,9 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override fun iniciarSesion(correo: String, contrasena: String): Usuario {
         TODO("Not yet implemented")
+    }
+
+    override fun enFuncionamiento(): Boolean {
+        return false
     }
 }

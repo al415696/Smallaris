@@ -1,6 +1,6 @@
 package es.uji.smallaris.model
 
-interface RepositorioVehiculos {
+interface RepositorioVehiculos: Repositorio {
     fun  getVehiculos() : List<Vehiculo>
 
     fun  addVehiculos(nuevo: Vehiculo) : Boolean

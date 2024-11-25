@@ -43,7 +43,7 @@ class ServicioLugares(
 
     @Throws(ConnectionErrorException::class)
     fun getLugares(): List<LugarInteres> {
-        return listOf()
+        return lugares
     }
 
 }
