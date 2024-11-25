@@ -5,6 +5,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+
+import java.util.Date
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
 
@@ -40,11 +43,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     // Función suspendida que verifica si Firestore está funcionando correctamente
     override fun enFuncionamiento(): Boolean {
+        val fechaActual = Date()
+        val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val fechaFormateada = formato.format(fechaActual)
         return runBlocking {
             try {
                 db.collection("test")
                     .document("testConnection")
-                    .set(mapOf("status" to "active"))
+                    .set(mapOf("status" to "active $fechaFormateada UTC"))
                     .await()
                 true
             } catch (e: Exception) {
