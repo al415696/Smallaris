@@ -23,7 +23,6 @@ class ServicioToponimos {
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
             if (responseBody != null) {
-                println("Respuesta de la API: $responseBody")  // Para depurar
                 // Parseamos el JSON para obtener la respuesta en un formato "tratable"
                 val jsonElement = JsonParser.parseString(responseBody)
                 val features = jsonElement.asJsonObject.getAsJsonArray("features")

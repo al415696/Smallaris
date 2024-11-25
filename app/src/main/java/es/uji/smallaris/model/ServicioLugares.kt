@@ -29,6 +29,12 @@ class ServicioLugares(
         }
 
         val lugar = LugarInteres(longitud, latitud, identificador)
+
+        // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
+        if (lugares.contains(lugar)) {
+            throw UbicationErrorException("Ya existe un lugar con la misma ubicación")
+        }
+
         lugares.add(lugar)
         repositorioLugares.addLugar(lugar)
         // Devolvemos el lugar creado como indicador de que se ha guardado correctamente

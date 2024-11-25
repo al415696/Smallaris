@@ -5,13 +5,13 @@
       <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarLongitudInvalida()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="testInternetConnection()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarOK()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarYaExistente()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
