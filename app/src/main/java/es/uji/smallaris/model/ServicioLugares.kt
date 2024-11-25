@@ -42,7 +42,9 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class)
-    fun getLugares(): List<LugarInteres> {
+    suspend fun getLugares(): List<LugarInteres> {
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException()
         return lugares
     }
 
