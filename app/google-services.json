@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "365325310327",
-    "project_id": "smallaris-latriada",
-    "storage_bucket": "smallaris-latriada.firebasestorage.app"
+    "project_number": "516296871123",
+    "project_id": "es-uji-smallaris",
+    "storage_bucket": "es-uji-smallaris.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:365325310327:android:4423c3529953cc3491e972",
+        "mobilesdk_app_id": "1:516296871123:android:bf572b8a967913ba015826",
         "android_client_info": {
           "package_name": "es.uji.smallaris"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBIROHmvqTnucshEA8KMPdjg84vsFPsiSo"
+          "current_key": "AIzaSyBWHlhwFB07G2XkARQKW8YLCATLME20K1g"
         }
       ],
       "services": {
