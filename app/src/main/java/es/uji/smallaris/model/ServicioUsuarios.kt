@@ -5,14 +5,12 @@ import kotlin.jvm.Throws
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
     @Throws(UserAlreadyExistsException::class)
-    fun registrarUsuario(correo: String, contrasena: String): Usuario? {
-        repositorioUsuarios.registrarUsuario(correo, contrasena)
-        return null
+    suspend fun registrarUsuario(correo: String, contrasena: String): Usuario? {
+        return repositorioUsuarios.registrarUsuario(correo, contrasena)
     }
 
     @Throws(UnregisteredUserException::class)
-    fun iniciarSesion(correo: String, contrasena: String): Usuario? {
-        repositorioUsuarios.iniciarSesion(correo, contrasena)
-        return null
+    suspend fun iniciarSesion(correo: String, contrasena: String): Usuario? {
+        return repositorioUsuarios.iniciarSesion(correo, contrasena)
     }
 }

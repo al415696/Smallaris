@@ -1,11 +1,15 @@
 package es.uji.smallaris.model
 
+import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
 
     override fun getVehiculos(): List<Vehiculo> {
         TODO("Not yet implemented")
@@ -27,16 +31,49 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override fun registrarUsuario(correo: String, contrasena: String): Usuario {
-        TODO("Not yet implemented")
+    override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario? {
+        return try {
+            val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
+            val usuario = resultadoAutenticacion.user
+
+            if (usuario != null) {
+                val usuarioData = mapOf(
+                    "correo" to usuario.email,
+                    "uid" to usuario.uid
+                )
+
+                db.collection("usuarios")
+                    .document(usuario.uid)
+                    .set(usuarioData)
+                    .await()
+
+                Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error registrando usuario: ${e.message}")
+            null
+        }
     }
 
-    override fun iniciarSesion(correo: String, contrasena: String): Usuario {
-        TODO("Not yet implemented")
+    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario? {
+        return try {
+            val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
+            val usuario = resultadoAutenticacion.user
+            if (usuario != null) {
+                Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error iniciando sesión: ${e.message}")
+            null
+        }
     }
 
     // Función suspendida que verifica si Firestore está funcionando correctamente
-    suspend override fun enFuncionamiento(): Boolean {
+    override suspend fun enFuncionamiento(): Boolean {
         return try {
             // Intentamos escribir un documento en la colección 'test'
             db.collection("test")
