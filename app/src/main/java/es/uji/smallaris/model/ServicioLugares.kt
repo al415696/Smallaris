@@ -15,7 +15,8 @@ class ServicioLugares(
 
     @Throws(UbicationErrorException::class)
     fun addLugar(longitud: Float, latitud: Float, nombre: String = ""): LugarInteres {
-
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException()
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
@@ -42,7 +43,7 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class)
-    suspend fun getLugares(): List<LugarInteres> {
+    fun getLugares(): List<LugarInteres> {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException()
         return lugares
