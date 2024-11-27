@@ -11,7 +11,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         try {
             return repositorioUsuarios.registrarUsuario(correo, contrasena)
         } catch (e: UserAlreadyExistsException) {
-            throw UserAlreadyExistsException("Ya existe un usuario con el correo $correo.")
+            throw UserAlreadyExistsException()
         } catch (e: Exception) {
             throw Exception("Error inesperado al registrar el usuario: '${e.message}'.")
         }
@@ -24,7 +24,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         try {
             return repositorioUsuarios.iniciarSesion(correo, contrasena)
         } catch (e: UnregisteredUserException) {
-            throw UnregisteredUserException("Usuario no registrado con el correo $correo.")
+            throw UnregisteredUserException()
         } catch (e: Exception) {
             throw Exception("Error inesperado al iniciar sesión: ${e.message}.")
         }
