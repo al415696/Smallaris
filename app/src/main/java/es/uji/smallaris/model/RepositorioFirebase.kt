@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -12,6 +11,9 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    override fun obtenerAuth(): FirebaseAuth {
+        return auth
+    }
 
     override fun getVehiculos(): List<Vehiculo> {
         TODO("Not yet implemented")
@@ -33,47 +35,37 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario? {
-        return try {
-            val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
-            val usuario = resultadoAutenticacion.user
+    override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
+        val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
+        val usuario = resultadoAutenticacion.user
 
-            if (usuario != null) {
-                val usuarioData = mapOf(
-                    "correo" to usuario.email,
-                    "uid" to usuario.uid
-                )
+        if (usuario != null) {
+            val usuarioData = mapOf(
+                "correo" to usuario.email,
+                "uid" to usuario.uid
+            )
 
-                db.collection("usuarios")
-                    .document(usuario.uid)
-                    .set(usuarioData)
-                    .await()
+            db.collection("usuarios")
+                .document(usuario.uid)
+                .set(usuarioData)
+                .await()
 
-                Usuario(correo = usuario.email ?: "", uid = usuario.uid)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Error registrando usuario: ${e.message}")
-            null
+            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+        } else {
+            throw Exception("Error creando el usuario.")
         }
     }
 
-    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario? {
-        return try {
-            val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
-            val usuario = resultadoAutenticacion.user
-            if (usuario != null) {
-                Usuario(correo = usuario.email ?: "", uid = usuario.uid)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Error iniciando sesión: ${e.message}")
-            null
+    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
+        val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
+        val usuario = resultadoAutenticacion.user
+
+        if (usuario != null) {
+            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+        } else {
+            throw Exception("Usuario no encontrado o credenciales incorrectas.")
         }
     }
-
 
     override suspend fun enFuncionamiento(): Boolean {
         val fechaActual = Date()

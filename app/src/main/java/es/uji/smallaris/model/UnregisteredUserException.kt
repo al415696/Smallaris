@@ -1,4 +1,3 @@
 package es.uji.smallaris.model
 
-class UnregisteredUserException: Throwable() {
-}
+class UnregisteredUserException(message: String) : Exception(message)
