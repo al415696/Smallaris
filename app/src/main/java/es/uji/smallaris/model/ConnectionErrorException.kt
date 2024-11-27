@@ -1,4 +1,4 @@
 package es.uji.smallaris.model
 
-class ConnectionErrorException : Throwable() {
+class ConnectionErrorException(message: String) : Exception(message) {
 }

@@ -18,4 +18,8 @@ class LugarInteres(val longitud: Float, val latitud: Float, val nombre: String) 
         if (nombre != other.nombre) return false
         return true
     }
+
+    override fun toString(): String {
+        return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre')"
+    }
 }

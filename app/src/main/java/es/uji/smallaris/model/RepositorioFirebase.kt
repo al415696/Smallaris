@@ -1,6 +1,17 @@
 package es.uji.smallaris.model
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios{
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+
+import java.util.Date
+
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
+
+    private val db: FirebaseFirestore = Firebase.firestore
+
     override fun getVehiculos(): List<Vehiculo> {
         return mutableListOf()
     }
@@ -13,11 +24,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return false
     }
 
-    override fun getLugares(): List<LugarInteres> {
+    override suspend fun getLugares(): List<LugarInteres> {
         return mutableListOf()
     }
 
-    override fun addLugar(lugar: LugarInteres): Boolean {
+    override suspend fun addLugar(lugar: LugarInteres): Boolean {
         return true
     }
 
@@ -28,4 +39,21 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override fun iniciarSesion(correo: String, contrasena: String): Usuario {
         TODO("Not yet implemented")
     }
+
+    override suspend fun enFuncionamiento(): Boolean {
+        val fechaActual = Date()
+        val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val fechaFormateada = formato.format(fechaActual)
+
+        return try {
+            db.collection("test")
+                .document("testConnection")
+                .set(mapOf("status" to "active $fechaFormateada UTC"))
+                .await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 }
