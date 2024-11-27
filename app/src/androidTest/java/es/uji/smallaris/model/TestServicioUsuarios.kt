@@ -16,11 +16,34 @@ class TestServicioUsuarios {
     @After
     fun tearDown() {
         runBlocking {
-            // Eliminar el usuario para poder registrar el mismo usuario de nuevo
             val auth = repositorioUsuarios.obtenerAuth()
-            auth.currentUser?.delete()?.await()
+            val firestore = repositorioUsuarios.obtenerFirestore()
+
+            // Guardar UID antes de eliminar al usuario
+            val usuarioId = auth.currentUser?.uid
+
+            // Eliminar usuario de Firebase Authentication
+            try {
+                auth.currentUser?.delete()?.await()
+                println("Usuario autenticado eliminado correctamente.")
+            } catch (e: Exception) {
+                println("Error al eliminar usuario autenticado: ${e.localizedMessage}")
+            }
+
+            // Eliminar documentos relacionados en Firestore usando el UID
+            if (usuarioId != null) {
+                try {
+                    firestore.collection("usuarios").document(usuarioId).delete().await()
+                    println("Documento del usuario eliminado de Firestore.")
+                } catch (e: Exception) {
+                    println("Error al eliminar documento de Firestore: ${e.localizedMessage}")
+                }
+            } else {
+                println("No se pudo obtener el UID del usuario para borrar datos en Firestore.")
+            }
         }
     }
+
 
 
     @Test
@@ -33,7 +56,6 @@ class TestServicioUsuarios {
             val usuario = servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
             // Entonces
             assertEquals(Usuario(uid = "", correo = "al415617@uji.es"), usuario)
-
         }
     }
 

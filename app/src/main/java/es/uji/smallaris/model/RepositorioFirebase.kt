@@ -6,13 +6,18 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
+    Repositorio {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     override fun obtenerAuth(): FirebaseAuth {
         return auth
+    }
+
+    override fun obtenerFirestore(): FirebaseFirestore {
+        return db
     }
 
     override fun getVehiculos(): List<Vehiculo> {
@@ -36,17 +41,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
-        // Verificar si dicho usuario ya existe
-        val usuarioExistente = db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .get()
-            .await()
-
-        if (!usuarioExistente.isEmpty) {
-            throw UserAlreadyExistsException()
-        }
-
-        // Intentar registrar dicho usuario
         val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
         val usuario = resultadoAutenticacion.user
 
@@ -63,20 +57,12 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
         } else {
-            throw Exception()
+            throw Exception("No se pudo crear el usuario y la colección asociada.")
         }
     }
 
-    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
-        // Verificar si dicho usuario está registrado
-        val usuarioExistente = db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .get()
-            .await()
 
-        if (usuarioExistente.isEmpty) {
-            throw UnregisteredUserException()
-        }
+    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Intentar iniciar sesión
         val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
@@ -85,7 +71,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         if (usuario != null) {
             return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
         } else {
-            throw Exception()
+            throw Exception("No se pudo iniciar sesión correctamente")
         }
     }
 
