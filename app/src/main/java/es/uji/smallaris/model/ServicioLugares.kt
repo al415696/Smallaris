@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
 class ServicioLugares(
@@ -10,6 +11,12 @@ class ServicioLugares(
     private val lugares = mutableListOf<LugarInteres>()
 
     init {
+        runBlocking {
+            inicializarLugares()
+        }
+    }
+
+    private suspend fun inicializarLugares() {
         this.lugares.addAll(repositorioLugares.getLugares())
     }
 
