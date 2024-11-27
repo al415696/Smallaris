@@ -4,7 +4,7 @@ import kotlin.jvm.Throws
 
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
-    @Throws(UserAlreadyExistsException::class)
+    @Throws(UserAlreadyExistsException::class, ConnectionErrorException::class)
     suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
         if ( !repositorioUsuarios.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible.")
@@ -17,7 +17,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         }
     }
 
-    @Throws(UnregisteredUserException::class)
+    @Throws(UnregisteredUserException::class, ConnectionErrorException::class)
     suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
         if ( !repositorioUsuarios.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible.")
