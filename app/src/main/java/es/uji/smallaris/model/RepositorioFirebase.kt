@@ -41,7 +41,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         TODO("Not yet implemented")
     }
 
-    // Función suspendida que verifica si Firestore está funcionando correctamente
     override fun enFuncionamiento(): Boolean {
         val fechaActual = Date()
         val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
