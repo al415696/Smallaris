@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,7 +10,7 @@ import org.junit.Test
 class TestServicioLugares {
 
     @Test
-    fun addLugar_R2HU01_darDeAltaLugarOK() {
+    fun addLugar_R2HU01_darDeAltaLugarOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
@@ -25,7 +26,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun addLugar_R2HU01_darDeAltaLugarYaExistente() {
+    fun addLugar_R2HU01_darDeAltaLugarYaExistente()  = runBlocking {
 
         var resultado: UbicationErrorException? = null
 
@@ -51,7 +52,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun addLugar_R2HU01_darDeAltaLugarLatitudInvalida() {
+    fun addLugar_R2HU01_darDeAltaLugarLatitudInvalida()  = runBlocking {
 
         var resultado: UbicationErrorException? = null
 
@@ -75,7 +76,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun addLugar_R2HU01_darDeAltaLugarLongitudInvalida() {
+    fun addLugar_R2HU01_darDeAltaLugarLongitudInvalida() = runBlocking {
 
         var resultado: UbicationErrorException? = null
 
@@ -99,7 +100,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU03_obtenerListaLugares1Elemento() {
+    fun getLugares_R2HU03_obtenerListaLugares1Elemento()  = runBlocking {
 
         // Given
         val servicioAPIs = ServicioAPIs
@@ -116,7 +117,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU03_faltaConexionBBDD() {
+    fun getLugares_R2HU03_faltaConexionBBDD()  = runBlocking {
 
         var resultado: ConnectionErrorException? = null
 
