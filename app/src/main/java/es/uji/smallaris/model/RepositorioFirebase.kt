@@ -3,7 +3,6 @@ package es.uji.smallaris.model
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 
@@ -25,11 +24,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         TODO("Not yet implemented")
     }
 
-    override fun getLugares(): List<LugarInteres> {
+    override suspend fun getLugares(): List<LugarInteres> {
         return mutableListOf()
     }
 
-    override fun addLugar(lugar: LugarInteres): Boolean {
+    override suspend fun addLugar(lugar: LugarInteres): Boolean {
         return true
     }
 
@@ -41,20 +40,20 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         TODO("Not yet implemented")
     }
 
-    override fun enFuncionamiento(): Boolean {
+    override suspend fun enFuncionamiento(): Boolean {
         val fechaActual = Date()
         val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val fechaFormateada = formato.format(fechaActual)
-        return runBlocking {
-            try {
-                db.collection("test")
-                    .document("testConnection")
-                    .set(mapOf("status" to "active $fechaFormateada UTC"))
-                    .await()
-                true
-            } catch (e: Exception) {
-                false
-            }
+
+        return try {
+            db.collection("test")
+                .document("testConnection")
+                .set(mapOf("status" to "active $fechaFormateada UTC"))
+                .await()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
+
 }
