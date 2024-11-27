@@ -5,7 +5,7 @@ import org.junit.Test
 
 class TestServicioVehiculos {
     @Test
-    fun addVehiculo_R3HU1V1(){
+    fun addVehiculo_R3HU1V1_anyadirVehiculoListaVaciaOk(){
         //      GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -15,12 +15,12 @@ class TestServicioVehiculos {
 
         //      THEN
         assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ))
-        assertEquals(true, repositorioVehiculos.getVehiculos().contains(vehiculo))
-        assertEquals(1, repositorioVehiculos.getVehiculos().count())
+        assertEquals(true, servicioVehiculos.getVehiculos().contains(vehiculo))
+        assertEquals(1, servicioVehiculos.getVehiculos().count())
 
     }
     @Test
-    fun addVehiculo_R3HU1I1(){
+    fun addVehiculo_R3HU1I1_anyadirVehiculoconMismoYaEnLista(){
         //      GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -40,7 +40,7 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun addVehiculo_R3HU2V1(){
+    fun getVehiculo_R3HU2V1_getListaCon1Vehiculo(){
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -53,7 +53,7 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun addVehiculo_R3HU2I1(){
+    fun getVehiculo_R3HU2I1_getListaErrorConexion(){
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)

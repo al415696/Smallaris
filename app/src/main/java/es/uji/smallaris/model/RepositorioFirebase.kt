@@ -2,15 +2,15 @@ package es.uji.smallaris.model
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios{
     override fun getVehiculos(): List<Vehiculo> {
-        TODO("Not yet implemented")
+        return mutableListOf()
     }
 
     override fun addVehiculos(nuevo: Vehiculo): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun getLugares(): List<LugarInteres> {

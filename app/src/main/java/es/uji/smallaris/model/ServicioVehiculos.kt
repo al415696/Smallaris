@@ -15,11 +15,13 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         if (checkValidezVehiculo(nombre, consumo, matricula, tipo)){
             vehiculo = Vehiculo(nombre = nombre, consumo = consumo, matricula = matricula, tipo = tipo)
             if (!checkUnicidadVehiculo(nombre, matricula))
-                throw VehicleAlredyExistsException()
+                throw VehicleAlredyExistsException("vehiculo ya existe")
             //        Se ejecuta el método add del repositorio
 
-            repositorio.addVehiculos(vehiculo)
-            return vehiculo
+            if (repositorio.addVehiculos(vehiculo)){
+                vehiculos.add(vehiculo)
+                return vehiculo
+            }
         }
         return null
     }
@@ -39,7 +41,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     fun getVehiculos(): List<Vehiculo>{
-        return listOf()
+        return vehiculos
     }
 
 
