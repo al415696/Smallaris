@@ -3,7 +3,10 @@ package es.uji.smallaris.model
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
 
@@ -72,18 +75,21 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    // Función suspendida que verifica si Firestore está funcionando correctamente
-    override suspend fun enFuncionamiento(): Boolean {
-        return try {
-            // Intentamos escribir un documento en la colección 'test'
-            db.collection("test")
-                .document("testConnection")
-                .set(mapOf("status" to "active"))
-                .await() // Usamos await() para suspender la función hasta que se complete la operación
 
-            true // Si la operación fue exitosa, retornamos true
-        } catch (e: Exception) {
-            false // Si ocurre un error (como un fallo de conexión), retornamos false
+    override fun enFuncionamiento(): Boolean {
+        val fechaActual = Date()
+        val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val fechaFormateada = formato.format(fechaActual)
+        return runBlocking {
+            try {
+                db.collection("test")
+                    .document("testConnection")
+                    .set(mapOf("status" to "active $fechaFormateada UTC"))
+                    .await()
+                true
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 }
