@@ -20,7 +20,7 @@ class TestServicioLugares {
         val resultado = servicioLugares.addLugar(-0.0376709F, 39.986F)
 
         //Then
-        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Castellón de la Plana"), resultado)
+        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España"), resultado)
         assertEquals(1, servicioLugares.getLugares().size)
     }
 
@@ -34,7 +34,7 @@ class TestServicioLugares {
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-        servicioLugares.addLugar(-0.0376709F, 39.986F, "Castellón de la Plana")
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
 
         // When
         try {
@@ -47,7 +47,7 @@ class TestServicioLugares {
         assertNotNull(resultado)
         assertTrue(resultado is UbicationErrorException)
         assertEquals(1, servicioLugares.getLugares().size)
-        assertEquals(servicioLugares.getLugares()[0].nombre, "Castellón de la Plana")
+        assertEquals(servicioLugares.getLugares()[0].nombre, "Mercado Central, Castellón de la Plana, VC, España")
     }
 
     @Test
@@ -105,15 +105,14 @@ class TestServicioLugares {
         val servicioAPIs = ServicioAPIs
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-        servicioLugares.addLugar(-0.0376709F, 39.986F, "Castellón de la Plana")
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
 
         // When
         val resultado = servicioLugares.getLugares()
 
         //Then
         assertEquals(1, resultado.size)
-        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Castellón de la Plana"), repositorioLugares.getLugares()[0])
-
+        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España"), servicioLugares.getLugares()[0])
     }
 
     @Test
@@ -136,7 +135,6 @@ class TestServicioLugares {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
-
     }
 
 }
