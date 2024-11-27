@@ -1,16 +1,24 @@
 package es.uji.smallaris.model
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
-
 import java.util.Date
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, Repositorio{
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
+    Repositorio {
 
-    private val db: FirebaseFirestore = Firebase.firestore
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    override fun obtenerAuth(): FirebaseAuth {
+        return auth
+    }
+
+    override fun obtenerFirestore(): FirebaseFirestore {
+        return db
+    }
 
     override fun getVehiculos(): List<Vehiculo> {
         return mutableListOf()
@@ -32,12 +40,39 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override fun registrarUsuario(correo: String, contrasena: String): Usuario {
-        TODO("Not yet implemented")
+    override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
+        val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
+        val usuario = resultadoAutenticacion.user
+
+        if (usuario != null) {
+            val usuarioData = mapOf(
+                "correo" to usuario.email,
+                "uid" to usuario.uid
+            )
+
+            db.collection("usuarios")
+                .document(usuario.uid)
+                .set(usuarioData)
+                .await()
+
+            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+        } else {
+            throw Exception("No se pudo crear el usuario y la colección asociada.")
+        }
     }
 
-    override fun iniciarSesion(correo: String, contrasena: String): Usuario {
-        TODO("Not yet implemented")
+
+    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
+
+        // Intentar iniciar sesión
+        val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
+        val usuario = resultadoAutenticacion.user
+
+        if (usuario != null) {
+            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+        } else {
+            throw Exception("No se pudo iniciar sesión correctamente")
+        }
     }
 
     override suspend fun enFuncionamiento(): Boolean {

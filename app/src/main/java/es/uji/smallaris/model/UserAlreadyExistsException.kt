@@ -1,4 +1,3 @@
 package es.uji.smallaris.model
 
-class UserAlreadyExistsException: Throwable() {
-}
+class UserAlreadyExistsException(message: String = "El usuario ya existe.") : Exception(message)
