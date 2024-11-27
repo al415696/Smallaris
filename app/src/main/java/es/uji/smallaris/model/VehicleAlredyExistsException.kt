@@ -1,5 +1,5 @@
 package es.uji.smallaris.model
 
-class VehicleAlredyExistsException : Throwable() {
+class VehicleAlredyExistsException(message: String) : Exception(message) {
 
 }

@@ -13,15 +13,15 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     private val db: FirebaseFirestore = Firebase.firestore
 
     override fun getVehiculos(): List<Vehiculo> {
-        TODO("Not yet implemented")
+        return mutableListOf()
     }
 
     override fun addVehiculos(nuevo: Vehiculo): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
