@@ -6,7 +6,7 @@ import okhttp3.Request
 import com.google.gson.JsonParser
 
 class ServicioToponimos {
-    fun getToponimoCercano(longitud: Float, latitud: Float): String {
+    fun getToponimoCercano(longitud: Double, latitud: Double): String {
 
         if (longitud < -180 || longitud > 180 || latitud < -90 || latitud > 90) {
             throw UbicationErrorException("Las coordenadas deben estar entre -180 y 180 grados de longitud y -90 y 90 grados de latitud")
