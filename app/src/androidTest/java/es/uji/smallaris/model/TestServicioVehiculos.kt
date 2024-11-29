@@ -1,6 +1,8 @@
 package es.uji.smallaris.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TestServicioVehiculos {
@@ -58,15 +60,18 @@ class TestServicioVehiculos {
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        var resultado : Exception? = null
 //        WHEN
         try {
             servicioVehiculos.getVehiculos()
         }
-        //        THEN
         catch (exception: Exception){
-            assertEquals(ConnectionErrorException::class.java, exception ::class.java)
-
+            resultado = exception
         }
+//        THEN
+        assertNotNull(resultado)
+        assertTrue(resultado is ConnectionErrorException)
+
     }
 
 }
