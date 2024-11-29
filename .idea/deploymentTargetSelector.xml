@@ -13,6 +13,12 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
+      <SelectionState runConfigName="getVehiculo_setFavorito_R5HU4V1_asignarVehiculoComoFavorito()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
