@@ -1,11 +1,13 @@
 package es.uji.smallaris.model
 
 abstract class Favoritable {
-    var favorito : Boolean = false
+    private var favorito : Boolean = false
     fun isFavorito(): Boolean{
-        return false
+        return favorito
     }
     fun setFavorito(boolean: Boolean): Boolean{
-        return false
+        var result = boolean != favorito
+        favorito = boolean
+        return result
     }
 }
