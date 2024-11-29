@@ -138,4 +138,64 @@ class TestServicioLugares {
         assertTrue(resultado is ConnectionErrorException)
     }
 
+    @Test
+    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoFavorito() = runBlocking{
+        var resultado: ConnectionErrorException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
+
+        // When
+        var lista = servicioLugares.getLugares()
+        var cambiado = lista[0].setFavorito(true)
+
+        // Then
+        assertTrue(cambiado)
+        assertTrue(servicioLugares.getLugares()[0].isFavorito())
+    }
+    @Test
+    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoFavorito() = runBlocking{
+        var resultado: ConnectionErrorException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.getLugares()[0].setFavorito(true)
+
+        // When
+        var lista = servicioLugares.getLugares()
+        var cambiado = lista[0].setFavorito(true)
+
+        // Then
+        assertTrue(cambiado)
+        assertTrue(servicioLugares.getLugares()[0].isFavorito())
+    }
+    @Test
+    fun getLugares_R5HU03_LugaresFavoritosPrimero()  = runBlocking {
+
+        var resultado: ConnectionErrorException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.addLugar(39.8856508F, -0.08128F, "Pizzeria Borriana, Burriana, VC, España").setFavorito(true)
+        servicioLugares.addLugar(39.8614095F, -0.18500F, "Camp de Futbol, Villavieja, VC, España")
+
+
+
+        // When
+        var lista = servicioLugares.getLugares()
+
+
+        // Then
+        assertEquals(lista[0],LugarInteres(39.8856508F, -0.08128F, "Pizzeria Borriana, Burriana, VC, España") )
+    }
+
 }
