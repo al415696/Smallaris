@@ -18,10 +18,10 @@ class TestServicioLugares {
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
 
         // When
-        val resultado = servicioLugares.addLugar(-0.0376709F, 39.986F)
+        val resultado = servicioLugares.addLugar(-0.0376709, 39.986)
 
         //Then
-        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España"), resultado)
+        assertEquals(LugarInteres(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España"), resultado)
         assertEquals(1, servicioLugares.getLugares().size)
     }
 
@@ -35,11 +35,11 @@ class TestServicioLugares {
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
 
         // When
         try {
-            servicioLugares.addLugar(-0.0376709F, 39.986F)
+            servicioLugares.addLugar(-0.0376709, 39.986)
         } catch (e: UbicationErrorException) {
             resultado = e
         }
@@ -64,7 +64,7 @@ class TestServicioLugares {
 
         // When
         try {
-            servicioLugares.addLugar(-0.0376709F, 95.0F)
+            servicioLugares.addLugar(-0.0376709, 95.0)
         } catch (e: UbicationErrorException) {
             resultado = e
         }
@@ -88,7 +88,7 @@ class TestServicioLugares {
 
         // When
         try {
-            servicioLugares.addLugar(-200.0F, 39.986F)
+            servicioLugares.addLugar(-200.0, 39.986)
         } catch (e: UbicationErrorException) {
             resultado = e
         }
@@ -106,14 +106,14 @@ class TestServicioLugares {
         val servicioAPIs = ServicioAPIs
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-        servicioLugares.addLugar(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
 
         // When
         val resultado = servicioLugares.getLugares()
 
         //Then
         assertEquals(1, resultado.size)
-        assertEquals(LugarInteres(-0.0376709F, 39.986F, "Mercado Central, Castellón de la Plana, VC, España"), servicioLugares.getLugares()[0])
+        assertEquals(LugarInteres(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España"), servicioLugares.getLugares()[0])
     }
 
     @Test
@@ -136,6 +136,61 @@ class TestServicioLugares {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
+    }
+
+    @Test
+    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoFavorito() = runBlocking{
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
+
+        // When
+        var lista = servicioLugares.getLugares()
+        var cambiado = lista[0].setFavorito(true)
+
+        // Then
+        assertTrue(cambiado)
+        assertTrue(servicioLugares.getLugares()[0].isFavorito())
+    }
+    @Test
+    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoFavorito() = runBlocking{
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.getLugares()[0].setFavorito(true)
+
+        // When
+        var lista = servicioLugares.getLugares()
+        var cambiado = lista[0].setFavorito(true)
+
+        // Then
+        assertTrue(!cambiado)
+        assertTrue(servicioLugares.getLugares()[0].isFavorito())
+    }
+    @Test
+    fun getLugares_R5HU03_LugaresFavoritosPrimero()  = runBlocking {
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
+        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, VC, España").setFavorito(true)
+        servicioLugares.addLugar(39.8614095, -0.18500, "Camp de Futbol, Villavieja, VC, España")
+
+
+
+        // When
+        var lista = servicioLugares.getLugares()
+
+
+        // Then
+        assertEquals(lista[0],LugarInteres(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, VC, España") )
     }
 
 }

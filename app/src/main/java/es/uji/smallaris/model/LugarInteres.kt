@@ -1,9 +1,9 @@
 package es.uji.smallaris.model
 
-class LugarInteres(val longitud: Float, val latitud: Float, val nombre: String) {
+class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String) : Favoritable() {
 
-    private fun redondear(valor: Float, decimales: Int): Float {
-        val factor = Math.pow(10.0, decimales.toDouble()).toFloat()
+    private fun redondear(valor: Double, decimales: Int): Double {
+        val factor = Math.pow(10.0, decimales.toDouble())
         return Math.round(valor * factor) / factor
     }
 

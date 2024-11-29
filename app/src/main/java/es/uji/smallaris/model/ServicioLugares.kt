@@ -21,7 +21,7 @@ class ServicioLugares(
     }
 
     @Throws(UbicationErrorException::class)
-    suspend fun addLugar(longitud: Float, latitud: Float, nombre: String = ""): LugarInteres {
+    suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
@@ -53,7 +53,12 @@ class ServicioLugares(
     suspend fun getLugares(): List<LugarInteres> {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
-        return lugares
+        return lugares.sortedWith(
+            compareBy<LugarInteres>{
+                if (it.isFavorito()) 0 else 1
+            }.thenBy{
+                it.nombre
+            })
     }
 
 }
