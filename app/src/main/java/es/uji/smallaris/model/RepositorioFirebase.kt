@@ -6,7 +6,7 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, RepositorioRutas,
     Repositorio {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -73,6 +73,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } else {
             throw Exception("No se pudo iniciar sesión correctamente")
         }
+    }
+
+    override suspend fun getRutas(): List<Ruta> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addRuta(ruta: Ruta): Boolean {
+        TODO("Not yet implemented")
     }
 
     override suspend fun enFuncionamiento(): Boolean {
