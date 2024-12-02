@@ -83,7 +83,7 @@ class TestServicioVehiculos {
         servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
         servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-        servicioVehiculos.getVehiculo(nombre= "Zyxcrieg",matricula = "4444XXX")?.setFavorito(true)
+            ?.let { servicioVehiculos.setFavorito(it) }
         servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina)
 
 
@@ -105,8 +105,8 @@ class TestServicioVehiculos {
 
 
         //      WHEN
-        var lista = servicioVehiculos.getVehiculos()
-        var cambiado = lista[0].setFavorito(true)
+        val lista = servicioVehiculos.getVehiculos()
+        val cambiado = servicioVehiculos.setFavorito(lista[0])
 
         //      THEN
         assertTrue(cambiado)
@@ -115,15 +115,16 @@ class TestServicioVehiculos {
     @Test
     fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito(){
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+            ?.let { servicioVehiculos.setFavorito(it) }
         servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
 
 
         //      WHEN
-        var lista = servicioVehiculos.getVehiculos()
-        var cambiado = lista[0].setFavorito(true)
+        val lista = servicioVehiculos.getVehiculos()
+        val cambiado = servicioVehiculos.setFavorito(lista[0])
 
         //      THEN
         assertFalse(cambiado)
