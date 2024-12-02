@@ -40,6 +40,15 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
+    override suspend fun getRutas(): List<Ruta> {
+        return mutableListOf()
+    }
+
+    override suspend fun addRuta(ruta: Ruta): Boolean {
+        return true
+    }
+
+
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
         val resultadoAutenticacion = auth.createUserWithEmailAndPassword(correo, contrasena).await()
         val usuario = resultadoAutenticacion.user
@@ -61,7 +70,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Intentar iniciar sesión
@@ -73,14 +81,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } else {
             throw Exception("No se pudo iniciar sesión correctamente")
         }
-    }
-
-    override suspend fun getRutas(): List<Ruta> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun addRuta(ruta: Ruta): Boolean {
-        TODO("Not yet implemented")
     }
 
     override suspend fun enFuncionamiento(): Boolean {

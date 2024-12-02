@@ -3,8 +3,8 @@ package es.uji.smallaris.model
 import com.mapbox.geojson.LineString
 
 class RutaBuilder: IBuilderRutas {
-    private var inicio: LugarInteres = LugarInteres(0.0F, 0.0F, "")
-    private var fin: LugarInteres = LugarInteres(0.0F, 0.0F, "")
+    private var inicio: LugarInteres = LugarInteres(0.0, 0.0, "")
+    private var fin: LugarInteres = LugarInteres(0.0, 0.0, "")
     private var vehiculo: Vehiculo = Vehiculo("Desconocido", 0.0, "", TipoVehiculo.Desconocido)
     private var tipo: TipoRuta = TipoRuta.Desconocida
     private var trayecto: LineString = LineString.fromLngLats(listOf())
@@ -24,14 +24,30 @@ class RutaBuilder: IBuilderRutas {
 
     override fun setDistancia(distancia: Float): IBuilderRutas = apply { this.distancia = distancia }
 
-    override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.distancia = distancia }
+    override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.duracion = duracion }
 
-    override fun setCoste(coste: Float): IBuilderRutas = apply { this.duracion = duracion }
+    override fun setCoste(coste: Float): IBuilderRutas = apply { this.coste = coste }
+
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
+    fun getVehiculo(): Vehiculo {
+        return vehiculo
+    }
+
+    fun getTipo(): TipoRuta {
+        return tipo
+    }
 
     override fun reset() {
         // Restablecer todos los atributos a sus valores iniciales
-        inicio = LugarInteres(0.0F, 0.0F, "")
-        fin = LugarInteres(0.0F, 0.0F, "")
+        inicio = LugarInteres(0.0, 0.0, "")
+        fin = LugarInteres(0.0, 0.0, "")
         vehiculo = Vehiculo("Desconocido", 0.0, "", TipoVehiculo.Desconocido)
         tipo = TipoRuta.Desconocida
         trayecto = LineString.fromLngLats(listOf())
@@ -47,10 +63,10 @@ class RutaBuilder: IBuilderRutas {
             throw IllegalArgumentException("El origen y el destino no pueden estar vacíos")
         }
         if (vehiculo.tipo == TipoVehiculo.Desconocido) {
-            throw IllegalArgumentException("Debes configurar un vehiculo")
+            throw VehicleException("Debes configurar un vehiculo")
         }
         if (distancia <= 0 || duracion <= 0 || coste < 0) {
-            throw IllegalArgumentException("Distancia, duración y coste deben ser mayores que 0")
+            throw IllegalArgumentException("Distancia($distancia), duración($duracion) y coste($coste) deben ser mayores que 0")
         }
 
         val ruta = Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste)

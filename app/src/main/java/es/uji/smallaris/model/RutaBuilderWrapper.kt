@@ -12,7 +12,7 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
 
     // Método para construir y guardar la ruta
     @Throws(IllegalArgumentException::class)
-    fun buildAndSave(): Ruta {
+    suspend fun buildAndSave(): Ruta {
 
         // Hacer los cálculos necesarios aquí
         calculorRuta.terminarRuta(builder)
