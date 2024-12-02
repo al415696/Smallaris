@@ -15,8 +15,8 @@ class TestServicioRutas {
 
         val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina)
         val origen =
-            LugarInteres(-0.067893F, 39.991907F, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474F, 39.971408F, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
@@ -39,8 +39,8 @@ class TestServicioRutas {
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
         val origen =
-            LugarInteres(-0.067893F, 39.991907F, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474F, 39.971408F, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
@@ -55,5 +55,44 @@ class TestServicioRutas {
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
         assertEquals(0, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun addRuta_R4HU02_costeCorrecto() {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).buildAndSave()
+
+        // Then
+        assert(ruta.getCoste() > 0)
+    }
+
+    @Test
+    fun addRuta_R4HU02_costeFaltaVehiculo() {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setInicio(origen).setFin(destino)
+            .setTipo(TipoRuta.Corta).buildAndSave()
+
+        // Then
+        assert(ruta.getCoste() > 0)
     }
 }

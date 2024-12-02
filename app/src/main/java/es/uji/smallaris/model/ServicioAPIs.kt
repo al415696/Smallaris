@@ -16,6 +16,7 @@ object ServicioAPIs {
         when (servicio) {
             API.TOPONIMO -> return compruebaToponimos()
             API.RUTA -> return compruebaRutas()
+            API.COSTE -> return compruebaCoste()
         }
     }
 
@@ -39,6 +40,10 @@ object ServicioAPIs {
     }
 
     private fun compruebaRutas(): Boolean {
+        return true
+    }
+
+    private fun compruebaCoste(): Boolean {
         return true
     }
 }
