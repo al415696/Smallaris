@@ -16,6 +16,9 @@
       <SelectionState runConfigName="TestServicioVehiculos">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="TestServicioLugares">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
