@@ -15,6 +15,7 @@ object ServicioAPIs {
     fun apiEnFuncionamiento(servicio: API): Boolean {
         when (servicio) {
             API.TOPONIMO -> return compruebaToponimos()
+            API.RUTA -> return compruebaRutas()
         }
     }
 
@@ -35,5 +36,9 @@ object ServicioAPIs {
         } catch (e: Exception) {
             false
         }
+    }
+
+    private fun compruebaRutas(): Boolean {
+        return true
     }
 }

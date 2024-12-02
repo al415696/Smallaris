@@ -1,5 +1,8 @@
 package es.uji.smallaris.model
 
 enum class TipoVehiculo {
-    Gasolina, Diesel, Electrico
+    Gasolina,
+    Desconocido, 
+    Diesel, 
+    Electrico
 }
