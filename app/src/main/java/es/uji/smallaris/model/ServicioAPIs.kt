@@ -8,7 +8,7 @@ object ServicioAPIs {
 
     private val servicioToponimos: ServicioToponimos = ServicioToponimos()
 
-    fun getToponimoCercano(longitud: Float, latitud: Float): String {
+    fun getToponimoCercano(longitud: Double, latitud: Double): String {
         return servicioToponimos.getToponimoCercano(longitud, latitud)
     }
 

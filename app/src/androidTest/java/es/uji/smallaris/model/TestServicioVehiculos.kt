@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,7 +43,7 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculo_R3HU2V1_getListaCon1Vehiculo(){
+    fun getVehiculos_R3HU2V1_getListaCon1Vehiculo(){
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -55,7 +56,7 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculo_R3HU2I1_getListaErrorConexion(){
+    fun getVehiculos_R3HU2I1_getListaErrorConexion(){
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -74,4 +75,58 @@ class TestServicioVehiculos {
 
     }
 
+    @Test
+    fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero(){
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
+        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+        servicioVehiculos.getVehiculo(nombre= "Zyxcrieg",matricula = "4444XXX")?.setFavorito(true)
+        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina)
+
+
+        //      WHEN
+        var lista = servicioVehiculos.getVehiculos()
+
+        //      THEN
+        assertEquals("Zyxcrieg", lista[0].nombre)
+        assertEquals("Abobamasnow", lista[1].nombre)
+        assertEquals("Zulom", lista[lista.size-1].nombre)
+
+    }
+    @Test
+    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoFavorito(){
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+
+
+        //      WHEN
+        var lista = servicioVehiculos.getVehiculos()
+        var cambiado = lista[0].setFavorito(true)
+
+        //      THEN
+        assertTrue(cambiado)
+        assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
+    }
+    @Test
+    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito(){
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+        servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
+
+
+        //      WHEN
+        var lista = servicioVehiculos.getVehiculos()
+        var cambiado = lista[0].setFavorito(true)
+
+        //      THEN
+        assertFalse(cambiado)
+        assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
+    }
 }

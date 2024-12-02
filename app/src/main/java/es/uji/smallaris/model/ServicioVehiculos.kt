@@ -41,7 +41,21 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     fun getVehiculos(): List<Vehiculo>{
-        return vehiculos
+        return vehiculos.sortedWith(
+            compareBy<Vehiculo>{
+                if (it.isFavorito()) 0 else 1
+            }.thenBy{
+                it.nombre
+            }
+        )
+    }
+    fun getVehiculo(nombre: String, matricula: String): Vehiculo? {
+        for (otro in vehiculos){
+            if (nombre == otro.nombre && matricula == otro.matricula){
+                return otro
+            }
+        }
+        return null
     }
 
 
