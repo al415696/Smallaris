@@ -6,16 +6,21 @@ import okhttp3.Request
 
 object ServicioAPIs {
 
-    private val servicioToponimos: ServicioToponimos = ServicioToponimos()
+    private val servicioORS: ServicioORS = ServicioORS()
 
     fun getToponimoCercano(longitud: Double, latitud: Double): String {
-        return servicioToponimos.getToponimoCercano(longitud, latitud)
+        return servicioORS.getToponimoCercano(longitud, latitud)
+    }
+
+    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): String {
+        return servicioORS.getRuta(inicio, fin, tipo)
     }
 
     fun apiEnFuncionamiento(servicio: API): Boolean {
         when (servicio) {
             API.TOPONIMO -> return compruebaToponimos()
             API.RUTA -> return compruebaRutas()
+            API.COSTE -> return compruebaCoste()
         }
     }
 
@@ -39,6 +44,10 @@ object ServicioAPIs {
     }
 
     private fun compruebaRutas(): Boolean {
+        return true
+    }
+
+    private fun compruebaCoste(): Boolean {
         return true
     }
 }
