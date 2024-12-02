@@ -6,11 +6,12 @@ class Vehiculo : Favoritable {
     lateinit var matricula : String
     lateinit var tipo : TipoVehiculo
 
-    constructor(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) {
+    constructor(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo, favorito: Boolean = false) {
         this.nombre = nombre
         this.consumo = consumo
         this.matricula = matricula
         this.tipo = tipo
+        this.setFavorito(favorito)
     }
 
     override fun equals(other: Any?): Boolean {

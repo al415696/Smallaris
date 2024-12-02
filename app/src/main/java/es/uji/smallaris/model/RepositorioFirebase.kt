@@ -24,12 +24,17 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return mutableListOf()
     }
 
+
     override fun addVehiculos(nuevo: Vehiculo): Boolean {
         return true
     }
 
     override fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
         return false
+    }
+
+    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean {
+        return true
     }
 
     override suspend fun getLugares(): List<LugarInteres> {

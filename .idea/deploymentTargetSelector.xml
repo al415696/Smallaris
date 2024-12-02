@@ -13,13 +13,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioRutas">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="TestServicioLugares">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="addRuta_R4HU01_calcularRutaOK()">
+      <SelectionState runConfigName="TestServicioVehiculos">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
