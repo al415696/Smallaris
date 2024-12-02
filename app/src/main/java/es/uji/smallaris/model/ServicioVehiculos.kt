@@ -58,5 +58,16 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return null
     }
 
+    fun setFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
+        if (vehiculo.isFavorito() == favorito)
+            return false
+        vehiculo.setFavorito(favorito)
+        if (vehiculos.contains(vehiculo)){
+            repositorio.setVehiculoFavorito(vehiculo, favorito)
+            return true
+        }
+        return false
+    }
+
 
 }

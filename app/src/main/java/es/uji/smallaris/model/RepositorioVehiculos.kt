@@ -6,4 +6,6 @@ interface RepositorioVehiculos: Repositorio {
     fun  addVehiculos(nuevo: Vehiculo) : Boolean
 
     fun  updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo) : Boolean
+
+    fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean
 }
