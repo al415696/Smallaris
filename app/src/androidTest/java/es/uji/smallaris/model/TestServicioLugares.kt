@@ -147,8 +147,8 @@ class TestServicioLugares {
         servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
 
         // When
-        var lista = servicioLugares.getLugares()
-        var cambiado = lista[0].setFavorito(true)
+        val lista = servicioLugares.getLugares()
+        val cambiado = servicioLugares.setFavorito(lista[0],true)
 
         // Then
         assertTrue(cambiado)
@@ -162,11 +162,10 @@ class TestServicioLugares {
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
         servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
-        servicioLugares.getLugares()[0].setFavorito(true)
-
+            .let { servicioLugares.setFavorito(it) }
         // When
-        var lista = servicioLugares.getLugares()
-        var cambiado = lista[0].setFavorito(true)
+        val lista = servicioLugares.getLugares()
+        val cambiado = servicioLugares.setFavorito(lista[0],true)
 
         // Then
         assertTrue(!cambiado)
@@ -180,7 +179,8 @@ class TestServicioLugares {
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
         servicioLugares.addLugar(-0.0376709, 39.986, "Mercado Central, Castellón de la Plana, VC, España")
-        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, VC, España").setFavorito(true)
+        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, VC, España")
+            .let { servicioLugares.setFavorito(it) }
         servicioLugares.addLugar(39.8614095, -0.18500, "Camp de Futbol, Villavieja, VC, España")
 
 

@@ -52,6 +52,9 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override suspend fun addRuta(ruta: Ruta): Boolean {
         return true
     }
+    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean) :Boolean {
+        return true
+    }
 
 
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
