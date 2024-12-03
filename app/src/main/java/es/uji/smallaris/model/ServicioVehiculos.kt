@@ -10,7 +10,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         this.vehiculos.addAll(repositorio.getVehiculos())
     }
 
-    @Throws(VehicleAlredyExistsException::class)
+    @Throws(VehicleAlredyExistsException::class, ConnectionErrorException::class)
     suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -35,9 +35,11 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return nombre.isNotEmpty() && matricula.isNotEmpty() && consumo >=0
     }
     private fun checkUnicidadVehiculo(nombre: String,  matricula: String){
+        var nombreRep: Boolean
+        var matriculaRep: Boolean
         for (otro in vehiculos){
-            var nombreRep = nombre == otro.nombre
-            var matriculaRep = matricula == otro.matricula
+            nombreRep = (nombre == otro.nombre)
+            matriculaRep = (matricula == otro.matricula)
             if (nombreRep || matriculaRep){
                 var errorMessage = StringBuilder("Vehiculo con ")
                 if (nombreRep){
@@ -52,7 +54,10 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         }
     }
 
-    fun getVehiculos(): List<Vehiculo>{
+    @Throws(ConnectionErrorException::class)
+    suspend fun getVehiculos(): List<Vehiculo>{
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         return vehiculos.sortedWith(
             compareBy<Vehiculo>{
                 if (it.isFavorito()) 0 else 1
@@ -61,7 +66,11 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             }
         )
     }
-    fun getVehiculo(nombre: String, matricula: String): Vehiculo? {
+
+    @Throws(ConnectionErrorException::class)
+    suspend fun getVehiculo(nombre: String, matricula: String): Vehiculo? {
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         for (otro in vehiculos){
             if (nombre == otro.nombre && matricula == otro.matricula){
                 return otro
