@@ -55,15 +55,11 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     @Throws(ConnectionErrorException::class)
-    suspend fun getVehiculos(): List<Vehiculo>{
+    suspend fun getVehiculos(ordenVehiculos: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE): List<Vehiculo>{
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         return vehiculos.sortedWith(
-            compareBy<Vehiculo>{
-                if (it.isFavorito()) 0 else 1
-            }.thenBy{
-                it.nombre
-            }
+            ordenVehiculos.comparator()
         )
     }
 
@@ -79,7 +75,10 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return null
     }
 
-    fun setFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
+    @Throws(ConnectionErrorException::class)
+    suspend fun setFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculo.isFavorito() == favorito)
             return false
         vehiculo.setFavorito(favorito)
