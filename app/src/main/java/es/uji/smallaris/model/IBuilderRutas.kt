@@ -10,7 +10,7 @@ interface IBuilderRutas {
     fun setTrayecto(trayecto: LineString): IBuilderRutas
     fun setDistancia(distancia: Float): IBuilderRutas
     fun setDuracion(duracion: Float): IBuilderRutas
-    fun setCoste(coste: Float): IBuilderRutas
+    fun setCoste(coste: Double): IBuilderRutas
     fun reset()
     fun getRuta(): Ruta
 }

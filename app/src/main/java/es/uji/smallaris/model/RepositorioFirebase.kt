@@ -76,11 +76,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getRutas(): List<Ruta> {
-        TODO("Not yet implemented")
+        return listOf()
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override suspend fun enFuncionamiento(): Boolean {

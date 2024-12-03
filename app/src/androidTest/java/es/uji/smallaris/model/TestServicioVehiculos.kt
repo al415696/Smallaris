@@ -14,10 +14,10 @@ class TestServicioVehiculos {
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
 
         //      WHEN
-        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         //      THEN
-        assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ))
+        assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95))
         assertEquals(true, servicioVehiculos.getVehiculos().contains(vehiculo))
         assertEquals(1, servicioVehiculos.getVehiculos().count())
 
@@ -27,12 +27,12 @@ class TestServicioVehiculos {
         //      GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
 
         //      WHEN
         try {
-            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         }
         //THEN
@@ -47,12 +47,12 @@ class TestServicioVehiculos {
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 //        WHEN
         var lista = servicioVehiculos.getVehiculos()
 //        THEN
         assertEquals(1, lista.count())
-        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ), lista[0])
+        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95), lista[0])
     }
 
     @Test
@@ -60,7 +60,7 @@ class TestServicioVehiculos {
 //        GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var resultado : Exception? = null
 //        WHEN
         try {
@@ -81,10 +81,10 @@ class TestServicioVehiculos {
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
-        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina95)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
         servicioVehiculos.getVehiculo(nombre= "Zyxcrieg",matricula = "4444XXX")?.setFavorito(true)
-        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina95)
 
 
         //      WHEN

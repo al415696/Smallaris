@@ -1,15 +1,32 @@
 package es.uji.smallaris.model
 
+import kotlinx.coroutines.runBlocking
+
 class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
 
     private val repositorioRutas: RepositorioRutas = RepositorioFirebase()
     private val rutas = mutableListOf<Ruta>()
 
-    fun addRuta(ruta: Ruta): Ruta {
-        TODO("Not yet implemented")
+    init {
+        runBlocking {
+            inicializarRutas()
+        }
     }
-    fun getRutas(): List<Ruta> {
-        TODO("Not yet implemented")
+
+    private suspend fun inicializarRutas() {
+        this.rutas.addAll(repositorioRutas.getRutas())
+    }
+
+    suspend fun addRuta(ruta: Ruta): Ruta {
+        rutas.add(ruta)
+        repositorioRutas.addRuta(ruta)
+        return ruta
+    }
+
+    suspend fun getRutas(): List<Ruta> {
+        if ( !repositorioRutas.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        return rutas
     }
 
     fun build(): RutaBuilderWrapper {

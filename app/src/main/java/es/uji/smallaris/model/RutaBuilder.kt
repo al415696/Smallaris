@@ -10,7 +10,7 @@ class RutaBuilder: IBuilderRutas {
     private var trayecto: LineString = LineString.fromLngLats(listOf())
     private var distancia: Float = 0.0f
     private var duracion: Float = 0.0f
-    private var coste: Float = 0.0f
+    private var coste: Double = 0.0
 
     override fun setInicio(inicio: LugarInteres): IBuilderRutas = apply { this.inicio = inicio }
 
@@ -24,9 +24,25 @@ class RutaBuilder: IBuilderRutas {
 
     override fun setDistancia(distancia: Float): IBuilderRutas = apply { this.distancia = distancia }
 
-    override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.distancia = distancia }
+    override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.duracion = duracion }
 
-    override fun setCoste(coste: Float): IBuilderRutas = apply { this.duracion = duracion }
+    override fun setCoste(coste: Double): IBuilderRutas = apply { this.coste = coste }
+
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
+    fun getVehiculo(): Vehiculo {
+        return vehiculo
+    }
+
+    fun getTipo(): TipoRuta {
+        return tipo
+    }
 
     override fun reset() {
         // Restablecer todos los atributos a sus valores iniciales
@@ -37,7 +53,7 @@ class RutaBuilder: IBuilderRutas {
         trayecto = LineString.fromLngLats(listOf())
         distancia = 0.0f
         duracion = 0.0f
-        coste = 0.0f
+        coste = 0.0
     }
 
     @Throws(IllegalArgumentException::class)
@@ -47,10 +63,10 @@ class RutaBuilder: IBuilderRutas {
             throw IllegalArgumentException("El origen y el destino no pueden estar vacíos")
         }
         if (vehiculo.tipo == TipoVehiculo.Desconocido) {
-            throw IllegalArgumentException("Debes configurar un vehiculo")
+            throw VehicleException("Debes configurar un vehiculo")
         }
         if (distancia <= 0 || duracion <= 0 || coste < 0) {
-            throw IllegalArgumentException("Distancia, duración y coste deben ser mayores que 0")
+            throw IllegalArgumentException("Distancia($distancia), duración($duracion) y coste($coste) deben ser mayores que 0")
         }
 
         val ruta = Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste)
