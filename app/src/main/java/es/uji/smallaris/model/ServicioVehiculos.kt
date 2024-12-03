@@ -1,5 +1,7 @@
 package es.uji.smallaris.model
 
+import kotlin.jvm.Throws
+
 class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
     private val vehiculos = mutableListOf<Vehiculo>()
@@ -8,16 +10,19 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         this.vehiculos.addAll(repositorio.getVehiculos())
     }
 
-
-    fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
+    @Throws(VehicleAlredyExistsException::class)
+    suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         var vehiculo: Vehiculo
         //        Checks de validez de datos tienen que estar aquí no en las clases que use
         if (checkValidezVehiculo(nombre, consumo, matricula, tipo)){
             vehiculo = Vehiculo(nombre = nombre, consumo = consumo, matricula = matricula, tipo = tipo)
-            if (!checkUnicidadVehiculo(nombre, matricula))
-                throw VehicleAlredyExistsException("vehiculo ya existe")
-            //        Se ejecuta el método add del repositorio
 
+            // Revisa si el nombre y la matricula son originales, excepción si no
+            checkUnicidadVehiculo(nombre, matricula)
+
+            // Se ejecuta el método add del repositorio
             if (repositorio.addVehiculos(vehiculo)){
                 vehiculos.add(vehiculo)
                 return vehiculo
@@ -26,18 +31,25 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return null
     }
     private fun checkValidezVehiculo(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Boolean{
+        // Hay un nombre, una matriculo, y el consumo no es negativo
         return nombre.isNotEmpty() && matricula.isNotEmpty() && consumo >=0
     }
-    private fun checkUnicidadVehiculo(nombre: String,  matricula: String): Boolean{
+    private fun checkUnicidadVehiculo(nombre: String,  matricula: String){
         for (otro in vehiculos){
-            if (nombre == otro.nombre){
-                return false
-            }
-            if (matricula == otro.matricula){
-                return false
+            var nombreRep = nombre == otro.nombre
+            var matriculaRep = matricula == otro.matricula
+            if (nombreRep || matriculaRep){
+                var errorMessage = StringBuilder("Vehiculo con ")
+                if (nombreRep){
+                    errorMessage.append("nombre \"$nombre\"")
+                    if (matriculaRep)
+                        errorMessage.append("y matricula \"$matricula\"")
+                }else
+                    errorMessage.append("matricula \"$matricula\"")
+                errorMessage.append(" ya existe")
+                throw VehicleAlredyExistsException(errorMessage.toString())
             }
         }
-        return true
     }
 
     fun getVehiculos(): List<Vehiculo>{
