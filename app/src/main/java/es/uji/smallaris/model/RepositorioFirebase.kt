@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -11,13 +12,18 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val usuarioActual: FirebaseUser? = auth.currentUser
+
+    override fun obtenerFirestore(): FirebaseFirestore {
+        return db
+    }
 
     override fun obtenerAuth(): FirebaseAuth {
         return auth
     }
 
-    override fun obtenerFirestore(): FirebaseFirestore {
-        return db
+    override fun obtenerUsuarioActual(): FirebaseUser? {
+        return usuarioActual
     }
 
     override fun getVehiculos(): List<Vehiculo> {
@@ -99,4 +105,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+    override suspend fun cerrarSesion(): Boolean{
+        TODO("Not yet implemented")
+    }
 }

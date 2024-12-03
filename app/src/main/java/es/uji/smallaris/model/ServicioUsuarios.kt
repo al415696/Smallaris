@@ -6,7 +6,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import kotlin.jvm.Throws
+import com.google.firebase.auth.FirebaseUser
+import kotlin.Throws
 
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
@@ -50,5 +51,14 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         } catch (e: Exception) {
             throw Exception("Error inesperado: ${e.localizedMessage}")
         }
+    }
+
+    @Throws(UnloggedUserException::class, ConnectionErrorException::class)
+    suspend fun cerrarSesion(): Boolean {
+        return repositorioUsuarios.cerrarSesion()
+    }
+
+    fun obtenerUsuarioActual(): FirebaseUser? {
+        return repositorioUsuarios.obtenerUsuarioActual()
     }
 }

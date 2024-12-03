@@ -4,9 +4,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+
 
 class TestServicioUsuarios {
 
@@ -109,5 +112,39 @@ class TestServicioUsuarios {
         // Entonces
         assertNotNull(resultado)
         assertTrue(resultado is UnregisteredUserException)
+    }
+
+    @Test
+    fun cerrarSesion_R1HU03_cerrarSesionExito() {
+        runBlocking {
+            // Dado
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+
+            // Cuando
+            val resultado = servicioUsuarios.cerrarSesion()
+
+            // Entonces
+            assertTrue("Devuelve true solo en caso de cerrar sesión con éxito.", resultado)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
+        }
+    }
+
+    @Test
+    fun cerrarSesion_R1HU03_cerrarSesionSinIniciarSesion() {
+        runBlocking {
+            // Dado
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+
+            // Cuando
+            val resultado = servicioUsuarios.cerrarSesion()
+
+            // Entonces
+            assertFalse("Devuelve false si no se ha podido cerrar sesión.", resultado)
+            assertNotNull(servicioUsuarios.obtenerUsuarioActual())
+        }
     }
 }
