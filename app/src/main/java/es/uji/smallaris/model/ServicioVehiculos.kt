@@ -9,7 +9,9 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
 
-    fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
+    suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         var vehiculo: Vehiculo
         //        Checks de validez de datos tienen que estar aquí no en las clases que use
         if (checkValidezVehiculo(nombre, consumo, matricula, tipo)){
@@ -26,6 +28,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return null
     }
     private fun checkValidezVehiculo(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Boolean{
+        // Hay un nombre, una matriculo, y el consumo no es negativo
         return nombre.isNotEmpty() && matricula.isNotEmpty() && consumo >=0
     }
     private fun checkUnicidadVehiculo(nombre: String,  matricula: String): Boolean{
