@@ -20,7 +20,7 @@ class ServicioLugares(
         this.lugares.addAll(repositorioLugares.getLugares())
     }
 
-    @Throws(UbicationErrorException::class)
+    @Throws(ConnectionErrorException::class, UbicationErrorException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -50,27 +50,23 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class)
-    suspend fun getLugares(): List<LugarInteres> {
+    suspend fun getLugares(ordenLugares: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE): List<LugarInteres> {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         return lugares.sortedWith(
-            compareBy<LugarInteres>{
-                if (it.isFavorito()) 0 else 1
-            }.thenBy{
-                it.nombre
-            })
+            ordenLugares.comparator()
+        )
     }
     @Throws(UbicationErrorException::class)
     suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
-        if (lugarInteres.isFavorito() == favorito)
-            return false
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+        if (lugarInteres.isFavorito() == favorito)
+            return false
         lugarInteres.setFavorito(favorito)
         if (lugares.contains(lugarInteres)) {
             return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
         }
         return false
     }
-
 }

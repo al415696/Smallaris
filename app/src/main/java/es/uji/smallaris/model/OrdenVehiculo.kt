@@ -28,5 +28,5 @@ enum class OrdenVehiculo{
             }
         }
     };
-    abstract fun comparator(): java.util.Comparator<in Vehiculo>
+    abstract fun comparator(): Comparator<Vehiculo>
 }
