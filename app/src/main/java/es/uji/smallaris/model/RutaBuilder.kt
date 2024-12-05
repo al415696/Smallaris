@@ -3,8 +3,8 @@ package es.uji.smallaris.model
 import com.mapbox.geojson.LineString
 
 class RutaBuilder: IBuilderRutas {
-    private var inicio: LugarInteres = LugarInteres(0.0, 0.0, "")
-    private var fin: LugarInteres = LugarInteres(0.0, 0.0, "")
+    private var inicio: LugarInteres = LugarInteres(0.0, 0.0, "", "")
+    private var fin: LugarInteres = LugarInteres(0.0, 0.0, "", "")
     private var vehiculo: Vehiculo = Vehiculo("Desconocido", 0.0, "", TipoVehiculo.Desconocido)
     private var tipo: TipoRuta = TipoRuta.Desconocida
     private var trayecto: LineString = LineString.fromLngLats(listOf())
@@ -46,8 +46,8 @@ class RutaBuilder: IBuilderRutas {
 
     override fun reset() {
         // Restablecer todos los atributos a sus valores iniciales
-        inicio = LugarInteres(0.0, 0.0, "")
-        fin = LugarInteres(0.0, 0.0, "")
+        inicio = LugarInteres(0.0, 0.0, "", "")
+        fin = LugarInteres(0.0, 0.0, "", "")
         vehiculo = Vehiculo("Desconocido", 0.0, "", TipoVehiculo.Desconocido)
         tipo = TipoRuta.Desconocida
         trayecto = LineString.fromLngLats(listOf())

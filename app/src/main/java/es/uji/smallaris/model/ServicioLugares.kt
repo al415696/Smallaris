@@ -28,15 +28,18 @@ class ServicioLugares(
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
+
         var identificador = nombre
+        var municipio = ""
         if (identificador.isEmpty()) {
             identificador = apiObtenerNombres.getToponimoCercano(longitud, latitud)
+            municipio = identificador.split(",").get(1)
             if (identificador.isEmpty()) {
                 identificador = "$longitud, $latitud"
             }
         }
 
-        val lugar = LugarInteres(longitud, latitud, identificador)
+        val lugar = LugarInteres(longitud, latitud, identificador, municipio)
 
         // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
         if (lugares.contains(lugar)) {

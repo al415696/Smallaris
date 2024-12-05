@@ -137,7 +137,8 @@ class ServicioPrecio{
                 lugar = LugarInteres(
                     longitud = longitud,
                     latitud = latitud,
-                    nombre = nombre
+                    nombre = nombre,
+                    municipio = "municipio",
                 ),
                 gasolina95 = gasolina95,
                 gasolina98 = gasolina98,
