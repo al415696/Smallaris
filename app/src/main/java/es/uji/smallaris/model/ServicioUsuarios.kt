@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -55,7 +56,24 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
     @Throws(UnloggedUserException::class, ConnectionErrorException::class)
     suspend fun cerrarSesion(): Boolean {
-        return repositorioUsuarios.cerrarSesion()
+
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            throw UnloggedUserException("No hay usuario autenticado actualmente.")
+        }
+
+        try {
+            return repositorioUsuarios.cerrarSesion()
+        } catch (e: Exception) {
+            throw Exception("Error inesperado: ${e.localizedMessage}")
+        }
     }
 
     fun obtenerUsuarioActual(): FirebaseUser? {
