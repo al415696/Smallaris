@@ -16,8 +16,8 @@ class TestServicioRutas {
 
         val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
@@ -41,8 +41,8 @@ class TestServicioRutas {
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
@@ -67,8 +67,8 @@ class TestServicioRutas {
 
         val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
@@ -89,8 +89,8 @@ class TestServicioRutas {
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
 
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When

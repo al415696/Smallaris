@@ -4,7 +4,7 @@ import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
 
-class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String) : Favoritable() {
+class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String, val municipio: String) : Favoritable() {
 
     private fun redondear(valor: Double, decimales: Int): Double {
         val factor = Math.pow(10.0, decimales.toDouble())
