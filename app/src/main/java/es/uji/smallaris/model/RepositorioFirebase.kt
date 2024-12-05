@@ -44,13 +44,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun getRutas(): List<Ruta> {
-        return mutableListOf()
-    }
 
-    override suspend fun addRuta(ruta: Ruta): Boolean {
-        return true
-    }
+
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean) :Boolean {
         return true
     }
