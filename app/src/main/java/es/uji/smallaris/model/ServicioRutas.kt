@@ -24,6 +24,8 @@ class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
     }
 
     suspend fun getRutas(): List<Ruta> {
+        if ( !repositorioRutas.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
         return rutas
     }
 

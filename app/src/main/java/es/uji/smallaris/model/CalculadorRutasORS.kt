@@ -3,12 +3,12 @@ package es.uji.smallaris.model
 import com.google.gson.JsonParser
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
-import es.uji.smallaris.model.ServicioAPIs.getRuta
 
-class CalculadorRutasORS: CalculadorRutas() {
-    override fun calcularTrayecto(builder: RutaBuilder): Triple<LineString, Float, Float> {
+class CalculadorRutasORS : CalculadorRutas() {
+
+    override fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): Triple<LineString, Float, Float> {
         // Obtener el GeoJSON como String
-        val geoJsonResponse = getRuta(builder.getInicio(), builder.getFin(), builder.getTipo())
+        val geoJsonResponse = ServicioAPIs.getRuta(inicio, fin, tipo)
 
         // Usar JsonParser para convertir el GeoJSON en un JsonElement
         val jsonElement = JsonParser.parseString(geoJsonResponse).asJsonObject
@@ -51,11 +51,7 @@ class CalculadorRutasORS: CalculadorRutas() {
             .asJsonObject
             .get("duration").asFloat
 
-        // Retornar el trayecto (LineString), la distancia y la duración
-        return Triple(lineString, distance, duration)
-    }
-
-    override fun calcularCoste(): Float {
-        return 0.0f
+        // Retornar el trayecto (LineString), la distancia(en KM) y la duración(en minutos)
+        return Triple(lineString, distance / 1000, duration / 60)
     }
 }

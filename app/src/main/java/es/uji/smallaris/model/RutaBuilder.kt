@@ -10,7 +10,7 @@ class RutaBuilder: IBuilderRutas {
     private var trayecto: LineString = LineString.fromLngLats(listOf())
     private var distancia: Float = 0.0f
     private var duracion: Float = 0.0f
-    private var coste: Float = 0.0f
+    private var coste: Double = 0.0
 
     override fun setInicio(inicio: LugarInteres): IBuilderRutas = apply { this.inicio = inicio }
 
@@ -26,7 +26,7 @@ class RutaBuilder: IBuilderRutas {
 
     override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.duracion = duracion }
 
-    override fun setCoste(coste: Float): IBuilderRutas = apply { this.coste = coste }
+    override fun setCoste(coste: Double): IBuilderRutas = apply { this.coste = coste }
 
     fun getInicio(): LugarInteres {
         return inicio
@@ -53,7 +53,7 @@ class RutaBuilder: IBuilderRutas {
         trayecto = LineString.fromLngLats(listOf())
         distancia = 0.0f
         duracion = 0.0f
-        coste = 0.0f
+        coste = 0.0
     }
 
     @Throws(IllegalArgumentException::class)

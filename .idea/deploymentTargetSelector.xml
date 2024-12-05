@@ -13,10 +13,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioVehiculos">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="TestServicioLugares">
+      <SelectionState runConfigName="TestServicioPrecio">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

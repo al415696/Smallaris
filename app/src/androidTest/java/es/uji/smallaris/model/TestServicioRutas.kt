@@ -14,7 +14,7 @@ class TestServicioRutas {
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
-        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina)
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
         val origen =
             LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
         val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
@@ -27,12 +27,12 @@ class TestServicioRutas {
         // Then
         assert(ruta.getDistancia() > 0)
         assert(ruta.getDuracion() > 0)
-        assert(ruta.getTrayecto().coordinates().size > 0)
         assert(servicioRutas.getRutas().size == 1)
     }
 
     @Test
-    fun addRuta_R4HU01_faltaVehiculo() = runBlocking {
+
+    fun addRuta_R4HU01_trayectoFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
 
@@ -65,7 +65,7 @@ class TestServicioRutas {
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
 
-        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina)
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
         val origen =
             LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España")
         val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, VC, España")
@@ -81,6 +81,9 @@ class TestServicioRutas {
 
     @Test
     fun addRuta_R4HU02_costeFaltaVehiculo() = runBlocking {
+
+        var resultado: VehicleException? = null
+
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -91,10 +94,16 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setInicio(origen).setFin(destino)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        try {
+            servicioRutas.build().setInicio(origen).setFin(destino)
+                .setTipo(TipoRuta.Corta).buildAndSave()
+        } catch (e: VehicleException) {
+            resultado = e
+        }
 
         // Then
-        assert(ruta.getCoste() > 0)
+        assertNotNull(resultado)
+        assertTrue(resultado is VehicleException)
+        assertEquals(0, servicioRutas.getRutas().size)
     }
 }

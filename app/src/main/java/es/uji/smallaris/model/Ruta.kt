@@ -10,7 +10,7 @@ class Ruta(
     private val trayecto: LineString,
     private val distancia: Float,
     private val duracion: Float,
-    private val coste: Float
+    private val coste: Double
 ) {
     fun getTrayecto(): LineString {
         return trayecto
@@ -24,7 +24,7 @@ class Ruta(
         return duracion
     }
 
-    fun getCoste(): Float {
+    fun getCoste(): Double {
         return coste
     }
 }

@@ -24,7 +24,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return mutableListOf()
     }
 
-
     override fun addVehiculos(nuevo: Vehiculo): Boolean {
         return true
     }
@@ -78,6 +77,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Intentar iniciar sesión
@@ -89,6 +89,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } else {
             throw Exception("No se pudo iniciar sesión correctamente")
         }
+    }
+
+    override suspend fun getRutas(): List<Ruta> {
+        return listOf()
+    }
+
+    override suspend fun addRuta(ruta: Ruta): Boolean {
+        return true
     }
 
     override suspend fun enFuncionamiento(): Boolean {

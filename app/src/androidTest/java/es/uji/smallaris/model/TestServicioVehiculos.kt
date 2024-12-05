@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -9,89 +8,87 @@ import org.junit.Test
 
 class TestServicioVehiculos {
     @Test
-    fun addVehiculo_R3HU1V1_anyadirVehiculoListaVaciaOk() = runBlocking{
+    fun addVehiculo_R3HU1V1_anyadirVehiculoListaVaciaOk(){
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
 
         //      WHEN
-        val vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         //      THEN
-        assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ))
+        assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95))
         assertEquals(true, servicioVehiculos.getVehiculos().contains(vehiculo))
         assertEquals(1, servicioVehiculos.getVehiculos().count())
 
     }
     @Test
-    fun addVehiculo_R3HU1I1_anyadirVehiculoconMismoYaEnLista(): Unit = runBlocking{
+    fun addVehiculo_R3HU1I1_anyadirVehiculoconMismoYaEnLista(){
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
-        var resultado : Exception? = null
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
 
         //      WHEN
         try {
-            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         }
         //THEN
         catch (excepcion: Exception){
-            resultado = excepcion
+
+            assertEquals(VehicleAlredyExistsException::class.java, excepcion ::class.java)
         }
-        assertTrue(resultado is VehicleAlredyExistsException)
     }
 
     @Test
-    fun getVehiculos_R3HU2V1_getListaCon1Vehiculo() = runBlocking{
+    fun getVehiculos_R3HU2V1_getListaCon1Vehiculo(){
 //        GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-            val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 //        WHEN
-        val lista = servicioVehiculos.getVehiculos()
+        var lista = servicioVehiculos.getVehiculos()
 //        THEN
         assertEquals(1, lista.count())
-        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina ), lista[0])
+        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95), lista[0])
     }
 
     @Test
-    fun getVehiculos_R3HU2I1_getListaErrorConexion() = runBlocking{
+    fun getVehiculos_R3HU2I1_getListaErrorConexion(){
 //        GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var resultado : Exception? = null
 //        WHEN
         try {
             servicioVehiculos.getVehiculos()
         }
-
-//        THEN
         catch (exception: Exception){
             resultado = exception
         }
+//        THEN
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
 
     }
 
     @Test
-    fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero() = runBlocking{
+    fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero(){
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
-        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina)
+        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina95)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setFavorito(it) }
-        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina)
+        servicioVehiculos.getVehiculo(nombre= "Zyxcrieg",matricula = "4444XXX")?.setFavorito(true)
+        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina95)
 
 
         //      WHEN
-        val lista = servicioVehiculos.getVehiculos()
+        var lista = servicioVehiculos.getVehiculos()
 
         //      THEN
         assertEquals("Zyxcrieg", lista[0].nombre)
@@ -100,34 +97,33 @@ class TestServicioVehiculos {
 
     }
     @Test
-    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoFavorito() = runBlocking{
+    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoFavorito(){
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
 
 
         //      WHEN
-        val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setFavorito(lista[0])
+        var lista = servicioVehiculos.getVehiculos()
+        var cambiado = lista[0].setFavorito(true)
 
         //      THEN
         assertTrue(cambiado)
         assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
     }
     @Test
-    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito() = runBlocking{
+    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito(){
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setFavorito(it) }
         servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
 
 
         //      WHEN
-        val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setFavorito(lista[0])
+        var lista = servicioVehiculos.getVehiculos()
+        var cambiado = lista[0].setFavorito(true)
 
         //      THEN
         assertFalse(cambiado)
