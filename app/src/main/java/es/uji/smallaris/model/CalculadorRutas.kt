@@ -10,7 +10,7 @@ abstract class CalculadorRutas {
         this.strategy = strategy
     }
 
-    fun terminarRuta(builder: RutaBuilder) {
+    suspend fun terminarRuta(builder: RutaBuilder) {
         // 1º paso: calcular trayecto, distancia y duración --> ORS
         val (trayecto, distancia, duracion) = calcularTrayecto(
             builder.getInicio(),
@@ -35,7 +35,7 @@ abstract class CalculadorRutas {
         tipo: TipoRuta
     ): Triple<LineString, Float, Float>
 
-    fun calcularCoste(
+    suspend fun calcularCoste(
         lugar: LugarInteres,
         distancia: Float,
         vehiculo: Vehiculo

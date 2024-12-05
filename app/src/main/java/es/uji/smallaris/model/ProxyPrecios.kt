@@ -8,27 +8,27 @@ class ProxyPrecios : IServicioPrecios {
     private val TTL_CARBURANTE = 30 * 60 * 1000L // 30 minutos en milisegundos
     private val TTL_ELECTRICIDAD = 24 * 60 * 60 * 1000L // 1 día en milisegundos
 
-    override fun getPrecioGasolina95(lugar: LugarInteres): Float {
+    override suspend  fun getPrecioGasolina95(lugar: LugarInteres): Float {
         val combustible = getCombustibleFromCacheOrFetch(lugar)
         return combustible.gasolina95.toFloat()
     }
 
-    override fun getPrecioGasolina98(lugar: LugarInteres): Float {
+    override suspend fun getPrecioGasolina98(lugar: LugarInteres): Float {
         val combustible = getCombustibleFromCacheOrFetch(lugar)
         return combustible.gasolina98.toFloat()
     }
 
-    override fun getPrecioDiesel(lugar: LugarInteres): Float {
+    override suspend fun getPrecioDiesel(lugar: LugarInteres): Float {
         val combustible = getCombustibleFromCacheOrFetch(lugar)
         return combustible.diesel.toFloat()
     }
 
-    override fun getPrecioElectrico(): Float {
+    override suspend fun getPrecioElectrico(): Float {
         return getElectricidadFromCacheOrFetch()
     }
 
     // Método para gestionar caché o actualizar precios de combustibles
-    private fun getCombustibleFromCacheOrFetch(lugar: LugarInteres): Combustible {
+    private suspend fun getCombustibleFromCacheOrFetch(lugar: LugarInteres): Combustible {
         val cacheKey = "${lugar.latitud},${lugar.longitud}"
         val currentTime = System.currentTimeMillis()
 
@@ -47,7 +47,7 @@ class ProxyPrecios : IServicioPrecios {
     }
 
     // Método para gestionar caché o actualizar precio de electricidad
-    private fun getElectricidadFromCacheOrFetch(): Float {
+    private suspend fun getElectricidadFromCacheOrFetch(): Float {
         val cacheKey = "globalElectricidad"
         val currentTime = System.currentTimeMillis()
 

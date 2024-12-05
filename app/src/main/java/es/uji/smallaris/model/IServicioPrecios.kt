@@ -1,8 +1,8 @@
 package es.uji.smallaris.model
 
 interface IServicioPrecios {
-    fun getPrecioGasolina95(lugar: LugarInteres): Float
-    fun getPrecioGasolina98(lugar: LugarInteres): Float
-    fun getPrecioDiesel(lugar: LugarInteres): Float
-    fun getPrecioElectrico(): Float
+    suspend fun getPrecioGasolina95(lugar: LugarInteres): Float
+    suspend fun getPrecioGasolina98(lugar: LugarInteres): Float
+    suspend fun getPrecioDiesel(lugar: LugarInteres): Float
+    suspend fun getPrecioElectrico(): Float
 }

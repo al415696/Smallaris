@@ -19,7 +19,7 @@ object ServicioAPIs {
         return servicioORS.getRuta(inicio, fin, tipo)
     }
 
-    fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Float {
+    suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Float {
         when (tipoVehiculo) {
             TipoVehiculo.Gasolina95 -> return servicioPrecios.getPrecioGasolina95(lugar)
             TipoVehiculo.Gasolina98 -> return servicioPrecios.getPrecioGasolina98(lugar)

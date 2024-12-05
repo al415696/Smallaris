@@ -1,7 +1,7 @@
 package es.uji.smallaris.model
 
 class CosteCarburanteSimple : Strategy {
-    override fun calculaCoste(
+    override suspend fun calculaCoste(
         lugar: LugarInteres,
         vehiculo: Vehiculo,
         distancia: Float
