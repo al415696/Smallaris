@@ -2,19 +2,22 @@ package es.uji.smallaris.model
 
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.lang.reflect.Type
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 class ServicioPrecio{
 
-    private val VALUE_FOR_NOT_PRESENT = -1.0 // 1 día en milisegundos
-    private var lastCombustibleUpdate = 0L
+    private val VALUE_FOR_NOT_PRESENT = -1.0 // valor negativo
     private lateinit var mapIdMunicipio : Map<String, String>
 
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo? = null): Combustible {
@@ -27,17 +30,11 @@ class ServicioPrecio{
         else
             getClosest(resultadoPeticion, lugar, tipoVehiculo)
 
-
     }
 
     suspend fun getPrecioElecticidad(): Double {
-        val todaysElec = obtenerPrecioMedioElec()
-
-        if (todaysElec != null) {
-            return todaysElec.price
-        }else{
-            return VALUE_FOR_NOT_PRESENT
-        }
+        val todaysElec = obtenerPrecioMedioElecHoy()
+        return todaysElec.precio
     }
 
     private fun getClosest(listCombustible: List<Combustible>,givenLocation: LugarInteres): Combustible {
@@ -60,6 +57,8 @@ class ServicioPrecio{
                 distanciaCloseset = givenLocation.distancia(closest.lugar)
             }
         }
+        if (closest[tipoVehiculo] == -1.0)
+            throw APIException("No se ha encontrado ninguna gasolinera con el combustible $tipoVehiculo")
         return closest
     }
 
@@ -227,13 +226,10 @@ private suspend fun initializeMapIdMunicipio(): Map<String, String> {
 }
 
 
-    private data class ArrayOfMunicipio (
-        @SerializedName("ArrayOfMunicipio") val municipios: List<Municipio>
-    )
-    private data class Municipio(
-        @SerializedName("Municipio") val nombre: String,
-        @SerializedName("IDMunicipio") val id: String,
-    )
+private data class Municipio(
+    @SerializedName("Municipio") val nombre: String,
+    @SerializedName("IDMunicipio") val id: String,
+)
 private suspend fun getMunicipios() : List<Municipio>? {
     return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
         val client = OkHttpClient()
@@ -246,11 +242,9 @@ private suspend fun getMunicipios() : List<Municipio>? {
             if (response.isSuccessful) {
                 val responseBody = response.body?.string()
                 if (responseBody != null) {
-                    var builder = GsonBuilder()
+                    val builder = GsonBuilder()
                     val gson = builder.create()
-                    val groupListType = object : TypeToken<ArrayList<Municipio?>?>(){}::class.java
                     val data = gson.fromJson(responseBody , Array<Municipio>::class.java).toList()
-//                    val data = gson.fromJson(responseBody, ArrayOfMunicipio::class.java)
                     return@withContext data
                 }
             }
@@ -263,47 +257,101 @@ private suspend fun getMunicipios() : List<Municipio>? {
 
 
 
-    data class Elec(
-        @SerializedName("date") val date: String,
-        @SerializedName("market") val market: String,
-        @SerializedName("price") val price: Double,
-        @SerializedName("units") val units: String
-
+    data class ElecResponse(
+        @SerializedName("included") val included: Array<ElecIncluded>
+    )
+    data class ElecIncluded(
+        @SerializedName("attributes") val attributes: ElecIncludedAttributes
+    )
+    data class ElecIncludedAttributes(
+        @SerializedName("values") val values: Array<Electricidad>
     )
 
-    // simple deserializer that always returns object with value x = 4444
-    class ElecDeserializer : JsonDeserializer<Elec> {
+    class ElecIncludedAttributesDeserializer : JsonDeserializer<ElecIncludedAttributes> {
         override fun deserialize(
             json: JsonElement?,
             typeOfT: Type?,
             context: JsonDeserializationContext?
-        ): Elec? {
+        ): ElecIncludedAttributes? {
 
-            var jsonObject = json?.asJsonObject
+            val jsonObject = json?.asJsonObject
 
             if (jsonObject != null) {
-                val date: String = jsonObject.get("date").asString
-                val market: String = jsonObject.get("market").asString
-                val price: Double = jsonObject.get("price").asString.replace(",", ".").toDouble()
-                val units: String = jsonObject.get("units").asString
-                return Elec(
-                    date,
-                    market,
-                    price,
-                    units
-                )
+                val builder = GsonBuilder()
+                    .registerTypeAdapter(Electricidad::class.java,
+                    ElecDeserializer())
+                val gson = builder.create()
 
+                val values = gson.fromJson(jsonObject.get("values").asJsonArray , Array<Electricidad>::class.java)
+
+                return ElecIncludedAttributes(
+                    values = values
+                )
             }
             return null
         }
-    }
 
+    }
+    class ElecDeserializer : JsonDeserializer<Electricidad> {
+        override fun deserialize(
+            json: JsonElement?,
+            typeOfT: Type?,
+            context: JsonDeserializationContext?
+        ): Electricidad? {
+
+            val jsonObject = json?.asJsonObject
+
+            if (jsonObject != null) {
+                val precio: Double = jsonObject.get("value").asDouble
+                val timestamp: Long = getTimeStampFromJSONObjectString(jsonObject.get("datetime").asString)
+                return Electricidad(
+                    precio = precio,
+                    timestamp= timestamp
+                )
+            }
+            return null
+        }
+        private fun getTimeStampFromJSONObjectString(string: String): Long{
+            val editedString = string.replace("T", " ").dropLast(6)
+            Timestamp.valueOf(editedString)
+            return 0L//if (string.isEmpty()) -1.0 else string.replace(",", ".").toDouble()
+        }
+    }
+    private suspend fun obtenerPrecioMedioElecHoy(): Electricidad{
+        val listElectricidades: List<Electricidad> = obtenerPreciosElecHoy() ?: listOf()
+        if (listElectricidades.isEmpty()){
+            throw APIException("No se ha podido obtener el precio de la luz de hoy")
+        }else{
+            val electricidadMedia: Electricidad
+            var sumPrecioElectricidad = 0.0
+            for (elec:Electricidad in listElectricidades){
+                sumPrecioElectricidad += elec.precio
+            }
+            electricidadMedia = Electricidad(
+                precio= sumPrecioElectricidad / listElectricidades.size,
+                timestamp= listElectricidades[0].timestamp
+            )
+            return electricidadMedia
+        }
+
+
+    }
     // Función suspendida para realizar la petición HTTP y obtener los datos
-    suspend fun obtenerPrecioMedioElec(): Elec? {
+    suspend private fun obtenerPreciosElecHoy(): List<Electricidad>? {
         return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
+            var dateHoy: String
+            try {
+                val date = Date()
+                val calendar = Calendar.getInstance()
+                calendar.setTimeInMillis(date.time)
+                dateHoy = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.time)
+            } catch (e: Exception) {
+                dateHoy = "2024-12-15"
+                e.printStackTrace()
+            }
             val client = OkHttpClient()
             val request = Request.Builder()
-                .url("https://api.preciodelaluz.org/v1/prices/avg?zone=PCB") // Precio elec medio
+                .url("https://apidatos.ree.es/es/datos/mercados/precios-mercados-tiempo-real?start_date=${dateHoy}T00:00&end_date=${dateHoy}T23:59&time_trunc=hour") // Precio elec medio
                 .build()
 
             try {
@@ -314,13 +362,14 @@ private suspend fun getMunicipios() : List<Municipio>? {
                         var builder = GsonBuilder()
                         builder =
                             builder.registerTypeAdapter(
-                                Elec::class.java,
+                                Electricidad::class.java,
                                 ElecDeserializer()
-                            )
+                            ).registerTypeAdapter(ElecIncludedAttributes::class.java,
+                                ElecIncludedAttributesDeserializer())
                         val gson = builder.create()
-                        val data = gson.fromJson(responseBody, Elec::class.java)
+                        val data = gson.fromJson(responseBody, ElecResponse::class.java)
 
-                        return@withContext data
+                        return@withContext data.included[0].attributes.values.toList()
                     }
                 }
             } catch (e: Exception) {

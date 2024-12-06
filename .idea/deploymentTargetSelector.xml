@@ -22,6 +22,9 @@
       <SelectionState runConfigName="testIsInitialized()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="getPrecioElectricidad_R4HU02_costeElectricidadHoy()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
