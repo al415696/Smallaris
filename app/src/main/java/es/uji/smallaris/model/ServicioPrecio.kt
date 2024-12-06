@@ -1,49 +1,38 @@
 package es.uji.smallaris.model
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
+import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import com.mapbox.geojson.Point
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.lang.reflect.Type
-import kotlin.coroutines.CoroutineContext
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.sin
-import org.w3c.dom.Element
-import org.w3c.dom.NodeList
-import javax.xml.parsers.DocumentBuilderFactory
-import com.google.gson.*
+
 
 class ServicioPrecio{
-    private val TTL_CARBURANTE = 30 * 60 * 1000L // 30 minutos en milisegundos
-    private val TTL_ELECTRICIDAD = 24 * 60 * 60 * 1000L // 1 día en milisegundos
+
+    private val VALUE_FOR_NOT_PRESENT = -1.0 // 1 día en milisegundos
     private var lastCombustibleUpdate = 0L
     private var listAllCombustibles: List<Combustible> = listOf()
+    private lateinit var mapIdMunicipio : Map<String, String>
 
-
-    suspend fun getPrecioCombustible(lugar: LugarInteres): Combustible {
-
-        if ((System.currentTimeMillis() - lastCombustibleUpdate) >= TTL_CARBURANTE)
-            updateListCombustibles()
-        return getClosest(lugar)
+    suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo? = null): Combustible {
+        if (!this::mapIdMunicipio.isInitialized)
+            mapIdMunicipio = initializeMapIdMunicipio()
+        val resultadoPeticion = obtenerPreciosCarburantes(lugar)
+            ?: throw ConnectionErrorException("No se ha obtenido resupuesta de REST carburantes")
+        return if (tipoVehiculo == null)
+            getClosest(resultadoPeticion, lugar)
+        else
+            getClosest(resultadoPeticion, lugar, tipoVehiculo)
 
 
     }
 
     suspend fun getPrecioElecticidad(): Float {
         val todaysElec = obtenerPrecioMedioElec()
-
-        println(todaysElec?.date)
-        println(todaysElec?.market)
-        println(todaysElec?.units)
-        println(todaysElec?.price)
 
         if (todaysElec != null) {
             return todaysElec.price.toFloat()
@@ -61,16 +50,37 @@ class ServicioPrecio{
         }
     }
 
-    private fun getClosest(givenLocation: LugarInteres): Combustible {
-        var closest: Combustible = listAllCombustibles[0]
+    private fun getClosest(listCombustible: List<Combustible>,givenLocation: LugarInteres): Combustible {
+        var closest: Combustible = listCombustible[0]
         var distanciaCloseset = givenLocation.distancia(closest.lugar)
-        for (gas in listAllCombustibles) {
+        for (gas in listCombustible) {
             if (givenLocation.distancia(gas.lugar) < distanciaCloseset) {
                 closest = gas
                 distanciaCloseset = givenLocation.distancia(closest.lugar)
             }
         }
         return closest
+    }
+    private fun getClosest(listCombustible: List<Combustible>, givenLocation: LugarInteres, tipoVehiculo: TipoVehiculo): Combustible {
+        var closest: Combustible = listCombustible[0]
+        var distanciaCloseset = givenLocation.distancia(closest.lugar)
+        for (gas in listCombustible) {
+            if (getCarburanteFromTipoVehiculo(gas,tipoVehiculo) != VALUE_FOR_NOT_PRESENT && givenLocation.distancia(gas.lugar) < distanciaCloseset) {
+                closest = gas
+                distanciaCloseset = givenLocation.distancia(closest.lugar)
+            }
+        }
+        return closest
+    }
+    private fun  getCarburanteFromTipoVehiculo(combustible: Combustible, tipoVehiculo: TipoVehiculo): Double{
+        when (tipoVehiculo) {
+            TipoVehiculo.Gasolina95 -> return combustible.gasolina95
+            TipoVehiculo.Gasolina98 -> return combustible.gasolina98
+            TipoVehiculo.Diesel -> return combustible.diesel
+            else -> {
+                return VALUE_FOR_NOT_PRESENT
+            }
+        }
     }
 
     private data class ResponseData(
@@ -79,9 +89,45 @@ class ServicioPrecio{
     )
     private suspend fun obtenerPreciosCarburantes(): List<Combustible>? {
         return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
-            val client = OkHttpClient()
+                val client = OkHttpClient()
             val request = Request.Builder()
                 .url("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/")
+                .build()
+
+            try {
+                val response: Response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+
+                    if (responseBody != null) {
+                        var builder = GsonBuilder()
+                        builder =
+                            builder.registerTypeAdapter(
+                                Combustible::class.java,
+                                CombustibleDeserializer()
+                            )
+                        val gson = builder.create()
+                        val data = gson.fromJson(responseBody, ResponseData::class.java)
+                        return@withContext data.gasolineras
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return@withContext null  // En caso de error o fallo en la solicitud
+        }
+    }
+    private suspend fun obtenerPreciosCarburantes(lugar: LugarInteres): List<Combustible>? {
+        val url: String
+        if (mapIdMunicipio.containsKey(lugar.municipio)){
+            url = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/"+ mapIdMunicipio[lugar.municipio]
+        }else{
+            return obtenerPreciosCarburantes()
+        }
+        return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(url)
                 .build()
 
             try {
@@ -116,29 +162,29 @@ class ServicioPrecio{
             val jsonObject = json.asJsonObject
             val longitud = jsonObject.get("Longitud (WGS84)").asString.replace(",",".").toDouble()
             val latitud = jsonObject.get("Latitud").asString.replace(",",".").toDouble()
+            val municipio = jsonObject.get("Municipio").asString
             val nombre =
-                jsonObject.get("Municipio").asString + ", " + jsonObject.get("Localidad").asString + ", " + jsonObject.get(
+                municipio + ", " + jsonObject.get("Localidad").asString + ", " + jsonObject.get(
                     "Rótulo"
                 ).asString
             val gasolina95 : Double
             val gasolina98 : Double
             val diesel : Double
-            jsonObject.get("Precio Gasolina 95 E10").asString.let{
-                gasolina95 = if(it.isEmpty()) -1.0 else it.replace(",",".").toDouble()
+            jsonObject.get("Precio Gasolina 95 E5").asString.let{
+                gasolina95 = getDoubleFromJSONObjectString(it)
             }
-            jsonObject.get("Precio Gasolina 98 E10").asString.let{
-                gasolina98 =if (it.isEmpty()) -1.0 else it.replace(",", ".").toDouble()
+            jsonObject.get("Precio Gasolina 98 E5").asString.let{
+                gasolina98 = getDoubleFromJSONObjectString(it)
             }
             jsonObject.get("Precio Gasoleo A").asString.let{
-                diesel = if (it.isEmpty()) -1.0 else it.replace(",", ".")
-                        .toDouble()
+                diesel = getDoubleFromJSONObjectString(it)
             }
             return Combustible(
                 lugar = LugarInteres(
                     longitud = longitud,
                     latitud = latitud,
                     nombre = nombre,
-                    municipio = "municipio",
+                    municipio = municipio,
                 ),
                 gasolina95 = gasolina95,
                 gasolina98 = gasolina98,
@@ -179,7 +225,64 @@ class ServicioPrecio{
             idCCAA = jsonObject.get("IDCCAA")
              */
         }
+        private fun getDoubleFromJSONObjectString(string: String): Double{
+            return if (string.isEmpty()) -1.0 else string.replace(",", ".").toDouble()
+        }
     }
+
+
+private suspend fun initializeMapIdMunicipio(): Map<String, String> {
+    val finalMap = mutableMapOf<String, String>()
+    val municipios = getMunicipios() ?: listOf()
+
+    for (municipio: Municipio in municipios){
+        if (municipio.nombre.contains("/")){
+            for (posibleNombre: String in municipio.nombre.split("/")){
+                finalMap[posibleNombre] = municipio.id
+            }
+        }else{
+            finalMap[municipio.nombre] = municipio.id
+        }
+    }
+    return  finalMap
+}
+
+
+    private data class ArrayOfMunicipio (
+        @SerializedName("ArrayOfMunicipio") val municipios: List<Municipio>
+    )
+    private data class Municipio(
+        @SerializedName("Municipio") val nombre: String,
+        @SerializedName("IDMunicipio") val id: String,
+    )
+private suspend fun getMunicipios() : List<Municipio>? {
+    return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/Municipios/")
+            .build()
+
+        try {
+            val response: Response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                if (responseBody != null) {
+                    var builder = GsonBuilder()
+                    val gson = builder.create()
+                    val groupListType = object : TypeToken<ArrayList<Municipio?>?>(){}::class.java
+                    val data = gson.fromJson(responseBody , Array<Municipio>::class.java).toList()
+//                    val data = gson.fromJson(responseBody, ArrayOfMunicipio::class.java)
+                    return@withContext data
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return@withContext null  // En caso de error o fallo en la solicitud
+    }
+}
+
+
 
     data class Elec(
         @SerializedName("date") val date: String,
