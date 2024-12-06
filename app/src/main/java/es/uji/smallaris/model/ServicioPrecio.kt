@@ -15,7 +15,6 @@ class ServicioPrecio{
 
     private val VALUE_FOR_NOT_PRESENT = -1.0 // 1 día en milisegundos
     private var lastCombustibleUpdate = 0L
-    private var listAllCombustibles: List<Combustible> = listOf()
     private lateinit var mapIdMunicipio : Map<String, String>
 
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo? = null): Combustible {
@@ -31,22 +30,13 @@ class ServicioPrecio{
 
     }
 
-    suspend fun getPrecioElecticidad(): Float {
+    suspend fun getPrecioElecticidad(): Double {
         val todaysElec = obtenerPrecioMedioElec()
 
         if (todaysElec != null) {
-            return todaysElec.price.toFloat()
+            return todaysElec.price
         }else{
-            return -1F
-        }
-    }
-    private suspend fun updateListCombustibles(){
-        val resultadoPeticion = obtenerPreciosCarburantes()
-        if (resultadoPeticion == null){
-            throw ConnectionErrorException("No se ha obtenido resupuesta de REST carburantes")
-        }else{
-            listAllCombustibles = resultadoPeticion
-            lastCombustibleUpdate = System.currentTimeMillis()
+            return VALUE_FOR_NOT_PRESENT
         }
     }
 
@@ -65,22 +55,12 @@ class ServicioPrecio{
         var closest: Combustible = listCombustible[0]
         var distanciaCloseset = givenLocation.distancia(closest.lugar)
         for (gas in listCombustible) {
-            if (getCarburanteFromTipoVehiculo(gas,tipoVehiculo) != VALUE_FOR_NOT_PRESENT && givenLocation.distancia(gas.lugar) < distanciaCloseset) {
+            if (gas[tipoVehiculo] != VALUE_FOR_NOT_PRESENT && givenLocation.distancia(gas.lugar) < distanciaCloseset) {
                 closest = gas
                 distanciaCloseset = givenLocation.distancia(closest.lugar)
             }
         }
         return closest
-    }
-    private fun  getCarburanteFromTipoVehiculo(combustible: Combustible, tipoVehiculo: TipoVehiculo): Double{
-        when (tipoVehiculo) {
-            TipoVehiculo.Gasolina95 -> return combustible.gasolina95
-            TipoVehiculo.Gasolina98 -> return combustible.gasolina98
-            TipoVehiculo.Diesel -> return combustible.diesel
-            else -> {
-                return VALUE_FOR_NOT_PRESENT
-            }
-        }
     }
 
     private data class ResponseData(
@@ -186,10 +166,9 @@ class ServicioPrecio{
                     nombre = nombre,
                     municipio = municipio,
                 ),
-                gasolina95 = gasolina95,
-                gasolina98 = gasolina98,
-                diesel = diesel
-            )
+            ).set(TipoVehiculo.Gasolina95, gasolina95)
+                .set(TipoVehiculo.Gasolina98,gasolina98)
+                .set(TipoVehiculo.Diesel, diesel)
             /*
             cp = jsonObject.get("C.P."),
             direccion = jsonObject.get("Dirección"),

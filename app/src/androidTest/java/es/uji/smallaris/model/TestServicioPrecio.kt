@@ -23,9 +23,9 @@ class TestServicioPrecio {
         var resultadoPeticionDiesel = 0.0
         // When
         try {
-            resultadoPeticion95 = servicioPrecio.getPrecioCombustible(origen).gasolina95
-            resultadoPeticion98 = servicioPrecio.getPrecioCombustible(origen).gasolina98
-            resultadoPeticionDiesel = servicioPrecio.getPrecioCombustible(origen).diesel
+            resultadoPeticion95 = servicioPrecio.getPrecioCombustible(origen, TipoVehiculo.Gasolina95)[TipoVehiculo.Gasolina95]
+            resultadoPeticion98 = servicioPrecio.getPrecioCombustible(origen, TipoVehiculo.Gasolina98)[TipoVehiculo.Gasolina98]
+            resultadoPeticionDiesel = servicioPrecio.getPrecioCombustible(origen, TipoVehiculo.Diesel)[TipoVehiculo.Diesel]
         } catch (e: Exception) {
             excepcion = e
         }
@@ -48,7 +48,7 @@ class TestServicioPrecio {
         val servicioPrecio = ServicioPrecio()
         val origen =
             LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
-        var resultadoPeticionElec = 0F
+        var resultadoPeticionElec = 0.0
         // When
         try {
             resultadoPeticionElec = servicioPrecio.getPrecioElecticidad()

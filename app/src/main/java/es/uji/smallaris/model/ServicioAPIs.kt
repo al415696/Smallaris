@@ -19,13 +19,11 @@ object ServicioAPIs {
         return servicioORS.getRuta(inicio, fin, tipo)
     }
 
-    suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Float {
-        when (tipoVehiculo) {
-            TipoVehiculo.Gasolina95 -> return servicioPrecios.getPrecioGasolina95(lugar)
-            TipoVehiculo.Gasolina98 -> return servicioPrecios.getPrecioGasolina98(lugar)
-            TipoVehiculo.Diesel -> return servicioPrecios.getPrecioDiesel(lugar)
-            TipoVehiculo.Electrico -> return servicioPrecios.getPrecioElectrico()
-            else -> throw VehicleException("Tipo de vehículo no soportado")
+    suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
+        return when (tipoVehiculo) {
+            TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
+            TipoVehiculo.Electrico -> servicioPrecios.getPrecioElectrico()
+            else -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
         }
     }
 

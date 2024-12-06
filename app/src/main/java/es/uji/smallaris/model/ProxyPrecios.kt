@@ -1,35 +1,29 @@
 package es.uji.smallaris.model
 
+import java.util.Locale
+import kotlin.text.*
+
 class ProxyPrecios : IServicioPrecios {
     private val cacheCarburante: MutableMap<String, Combustible> = mutableMapOf()
-    private var cacheElectrico: Electricidad = Electricidad(0f, 0)
+    private var cacheElectrico: Electricidad = Electricidad(0.0, 0)
     private val servicioReal: ServicioPrecio = ServicioPrecio()
 
     private val TTL_CARBURANTE = 30 * 60 * 1000L // 30 minutos en milisegundos
     private val TTL_ELECTRICIDAD = 24 * 60 * 60 * 1000L // 1 día en milisegundos
 
-    override suspend  fun getPrecioGasolina95(lugar: LugarInteres): Float {
-        val combustible = getCombustibleFromCacheOrFetch(lugar)
-        return combustible.gasolina95.toFloat()
+    override suspend  fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
+        val combustible = getCombustibleFromCacheOrFetch(lugar, tipoVehiculo)
+        return combustible[TipoVehiculo.Gasolina95]
     }
 
-    override suspend fun getPrecioGasolina98(lugar: LugarInteres): Float {
-        val combustible = getCombustibleFromCacheOrFetch(lugar)
-        return combustible.gasolina98.toFloat()
-    }
-
-    override suspend fun getPrecioDiesel(lugar: LugarInteres): Float {
-        val combustible = getCombustibleFromCacheOrFetch(lugar)
-        return combustible.diesel.toFloat()
-    }
-
-    override suspend fun getPrecioElectrico(): Float {
+    override suspend fun getPrecioElectrico(): Double {
         return getElectricidadFromCacheOrFetch()
     }
 
     // Método para gestionar caché o actualizar precios de combustibles
-    private suspend fun getCombustibleFromCacheOrFetch(lugar: LugarInteres): Combustible {
-        val cacheKey = "${lugar.latitud},${lugar.longitud}"
+    private suspend fun getCombustibleFromCacheOrFetch(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Combustible {
+//        val cacheKey = "${lugar.latitud},${lugar.longitud}"
+        val cacheKey = String.format(locale = Locale.US,"%.5f", lugar.latitud) + "," + String.format(locale = Locale.US,"%.5f", lugar.longitud) + "," + tipoVehiculo.toString()
         val currentTime = System.currentTimeMillis()
 
         val cached = cacheCarburante[cacheKey]
@@ -47,12 +41,12 @@ class ProxyPrecios : IServicioPrecios {
     }
 
     // Método para gestionar caché o actualizar precio de electricidad
-    private suspend fun getElectricidadFromCacheOrFetch(): Float {
+    private suspend fun getElectricidadFromCacheOrFetch(): Double {
         val cacheKey = "globalElectricidad"
         val currentTime = System.currentTimeMillis()
 
         val cached = cacheElectrico
-        if (cached.precio == 0.0F && (currentTime - cached.timestamp) <= TTL_ELECTRICIDAD) {
+        if (cached.precio == 0.0 && (currentTime - cached.timestamp) <= TTL_ELECTRICIDAD) {
             return cached.precio
         }
 
