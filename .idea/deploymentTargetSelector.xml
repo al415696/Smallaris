@@ -13,16 +13,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioPrecio">
+      <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getPrecioGasolina_R4HU02_costeTodosCarburantesCastellon()">
+      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarYaExistente()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testIsInitialized()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="getPrecioElectricidad_R4HU02_costeElectricidadHoy()">
+      <SelectionState runConfigName="TestServicioUsuarios">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

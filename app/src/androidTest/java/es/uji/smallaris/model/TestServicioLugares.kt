@@ -25,7 +25,7 @@ class TestServicioLugares {
             LugarInteres(
                 -0.0376709,
                 39.986,
-                "Mercado Central, Castellón de la Plana, VC, España",
+                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
                 "Castellón de la Plana"
             ), resultado
         )
@@ -35,7 +35,7 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU01_darDeAltaLugarYaExistente() = runBlocking {
 
-        var resultado: UbicationErrorException? = null
+        var resultado: UbicationException? = null
 
         // Given
         val servicioAPIs = ServicioAPIs
@@ -45,30 +45,30 @@ class TestServicioLugares {
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
 
         // When
         try {
             servicioLugares.addLugar(-0.0376709, 39.986)
-        } catch (e: UbicationErrorException) {
+        } catch (e: UbicationException) {
             resultado = e
         }
 
         //Then
         assertNotNull(resultado)
-        assertTrue(resultado is UbicationErrorException)
+        assertTrue(resultado is UbicationException)
         assertEquals(1, servicioLugares.getLugares().size)
         assertEquals(
             servicioLugares.getLugares()[0].nombre,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
     }
 
     @Test
     fun addLugar_R2HU01_darDeAltaLugarLatitudInvalida() = runBlocking {
 
-        var resultado: UbicationErrorException? = null
+        var resultado: UbicationException? = null
 
         // Given
         val servicioAPIs = ServicioAPIs
@@ -79,20 +79,20 @@ class TestServicioLugares {
         // When
         try {
             servicioLugares.addLugar(-0.0376709, 95.0)
-        } catch (e: UbicationErrorException) {
+        } catch (e: UbicationException) {
             resultado = e
         }
 
         //Then
         assertNotNull(resultado)
-        assertTrue(resultado is UbicationErrorException)
+        assertTrue(resultado is UbicationException)
         assertEquals(0, servicioLugares.getLugares().size)
     }
 
     @Test
     fun addLugar_R2HU01_darDeAltaLugarLongitudInvalida() = runBlocking {
 
-        var resultado: UbicationErrorException? = null
+        var resultado: UbicationException? = null
 
         // Given
         val servicioAPIs = ServicioAPIs
@@ -103,13 +103,13 @@ class TestServicioLugares {
         // When
         try {
             servicioLugares.addLugar(-200.0, 39.986)
-        } catch (e: UbicationErrorException) {
+        } catch (e: UbicationException) {
             resultado = e
         }
 
         //Then
         assertNotNull(resultado)
-        assertTrue(resultado is UbicationErrorException)
+        assertTrue(resultado is UbicationException)
         assertEquals(0, servicioLugares.getLugares().size)
     }
 
@@ -123,7 +123,7 @@ class TestServicioLugares {
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
 
         // When
@@ -135,7 +135,7 @@ class TestServicioLugares {
             LugarInteres(
                 -0.0376709,
                 39.986,
-                "Mercado Central, Castellón de la Plana, VC, España",
+                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
                 "Castellón de la Plana"
             ), servicioLugares.getLugares()[0]
         )
@@ -172,12 +172,12 @@ class TestServicioLugares {
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
 
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = lista[0].setFavorito(true)
+        val cambiado = servicioLugares.setFavorito(lista[0], true)
 
         // Then
         assertTrue(cambiado)
@@ -194,13 +194,12 @@ class TestServicioLugares {
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
-        servicioLugares.getLugares()[0].setFavorito(true)
-
+            .let { servicioLugares.setFavorito(it) }
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = lista[0].setFavorito(true)
+        val cambiado = servicioLugares.setFavorito(lista[0], true)
 
         // Then
         assertTrue(!cambiado)
@@ -217,26 +216,64 @@ class TestServicioLugares {
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
-            "Mercado Central, Castellón de la Plana, VC, España"
+            "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
-        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, VC, España")
-            .setFavorito(true)
-        servicioLugares.addLugar(39.8614095, -0.18500, "Camp de Futbol, Villavieja, VC, España")
-
+        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España")
+            .let { servicioLugares.setFavorito(it) }
+        servicioLugares.addLugar(39.8614095, -0.18500, "Camp de Futbol, Villavieja, Comunidad Valenciana, España")
 
         // When
         val lista = servicioLugares.getLugares()
 
         // Then
         assertEquals(
-            lista[0],
-            LugarInteres(
-                39.8856508,
-                -0.08128,
-                "Pizzeria Borriana, Burriana, VC, España",
-                "Castellón de la Plana"
-            )
+            LugarInteres(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España", "Burriana"),
+            lista[0]
         )
+    }
+
+    @Test
+    fun getLugares_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+
+        // When
+        val (longitud, latitud) = servicioAPIs.getCoordenadas("Castellón de la Plana")
+        val resultado = servicioLugares.addLugar(longitud, latitud)
+
+        //Then
+        assertEquals(resultado.longitud, longitud)
+        assertEquals(resultado.latitud, latitud)
+        assertEquals(resultado.municipio, "Castellón de la Plana")
+        assertEquals(1, servicioLugares.getLugares().size)
+    }
+
+    @Test
+    fun getLugares_R2HU02_darDeAltaLugarPorToponimoInexistente() = runBlocking {
+
+        var excepcion: UbicationException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+
+        // When
+        try {
+            val (longitud, latitud) = servicioAPIs.getCoordenadas("Topónimo inexistente")
+            servicioLugares.addLugar(longitud, latitud)
+        } catch (e: UbicationException) {
+            excepcion = e
+        }
+
+        //Then
+        assertNotNull(excepcion)
+        assertTrue(excepcion is UbicationException)
+        assertEquals(0, servicioLugares.getLugares().size)
     }
 
 }

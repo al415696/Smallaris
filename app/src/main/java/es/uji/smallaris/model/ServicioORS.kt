@@ -12,7 +12,7 @@ class ServicioORS {
     fun getToponimoCercano(longitud: Double, latitud: Double): String {
 
         if (longitud < -180 || longitud > 180 || latitud < -90 || latitud > 90) {
-            throw UbicationErrorException("Las coordenadas deben estar entre -180 y 180 grados de longitud y -90 y 90 grados de latitud")
+            throw UbicationException("Las coordenadas deben estar entre -180 y 180 grados de longitud y -90 y 90 grados de latitud")
         }
 
         val client = OkHttpClient()
@@ -29,16 +29,25 @@ class ServicioORS {
                 // Parseamos el JSON para obtener la respuesta en un formato "tratable"
                 val jsonElement = JsonParser.parseString(responseBody)
                 val features = jsonElement.asJsonObject.getAsJsonArray("features")
+
                 // Si obtenemos opciones, es decir, algún topónimo relacionado a las coordenadas
                 if (features.size() > 0) {
                     // Nos quedamos con las propiedades de la ubicación más representativa
                     val properties = features[0].asJsonObject.getAsJsonObject("properties")
-                    // El campo label es una combinación de info del lugar, por ejemplo. Puerta del Sol, Madrid, Spain
-                    return properties.get("label").asString
+
+                    // Extraemos los campos necesarios
+                    val name = properties.get("name")?.asString ?: "Desconocido"
+                    val municipio = properties.get("localadmin")?.asString ?: "Municipio desconocido"
+                    val region = properties.get("macroregion")?.asString ?: properties.get("region")?.asString ?: "Región desconocida"
+                    val pais = properties.get("country")?.asString ?: "País desconocido"
+
+                    // Formateamos la cadena en el orden solicitado
+                    return "$name, $municipio, $region, $pais"
                 }
             }
         }
         return ""
+
     }
 
     @Throws(Exception::class)

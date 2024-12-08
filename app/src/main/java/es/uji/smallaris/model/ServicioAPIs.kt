@@ -19,6 +19,10 @@ object ServicioAPIs {
         return servicioORS.getRuta(inicio, fin, tipo)
     }
 
+    fun getCoordenadas(s: String): Pair<Double, Double> {
+        return Pair(0.0, 0.0)
+    }
+
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         return when (tipoVehiculo) {
             TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
@@ -27,11 +31,13 @@ object ServicioAPIs {
         }
     }
 
+
     fun apiEnFuncionamiento(servicio: API): Boolean {
-        when (servicio) {
-            API.TOPONIMO -> return compruebaToponimos()
-            API.RUTA -> return compruebaRutas()
-            API.COSTE -> return compruebaCoste()
+        return when (servicio) {
+            API.TOPONIMO -> compruebaToponimos()
+            API.RUTA -> compruebaRutas()
+            API.COSTE -> compruebaCoste()
+            API.COORDS -> compruebaCoords()
         }
     }
 
@@ -59,6 +65,10 @@ object ServicioAPIs {
     }
 
     private fun compruebaCoste(): Boolean {
+        return true // Quizás se pueda probar, para más adelante
+    }
+
+    private fun compruebaCoords(): Boolean {
         return true // Quizás se pueda probar, para más adelante
     }
 }

@@ -7,5 +7,5 @@ interface IServicioPrecioCombustible {
 //
 //    suspend fun obtenerPreciosCarburantes(lugar: LugarInteres): List<Combustible>?
     @Throws(APIException::class, ConnectionErrorException::class)
-    suspend fun getClosestCarburante(lugar: LugarInteres,spcopeBusqueda: ScopePeticionAPI= ScopePeticionAPI.Municipal, tipoVehiculo: TipoVehiculo? = null): Combustible
+    suspend fun getClosestCarburante(lugar: LugarInteres, scopeBusqueda: ScopePeticionAPI= ScopePeticionAPI.Municipal, tipoVehiculo: TipoVehiculo? = null): Combustible
 }

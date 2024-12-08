@@ -17,7 +17,7 @@ class TestServicioPrecio {
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
         val servicioPrecio = ServicioPrecio()
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
         var resultadoPeticion95 = 0.0
         var resultadoPeticion98 = 0.0
         var resultadoPeticionDiesel = 0.0
@@ -47,7 +47,7 @@ class TestServicioPrecio {
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
         val servicioPrecio = ServicioPrecio()
         val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, VC, España", "Castellón de la Plana")
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
         var resultadoPeticionElec = 0.0
         // When
         try {

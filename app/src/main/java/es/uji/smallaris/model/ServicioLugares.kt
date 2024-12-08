@@ -20,8 +20,9 @@ class ServicioLugares(
         this.lugares.addAll(repositorioLugares.getLugares())
     }
 
-    @Throws(ConnectionErrorException::class, UbicationErrorException::class)
+    @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
+
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
@@ -29,21 +30,23 @@ class ServicioLugares(
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
 
+        val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
+        val municipio = toponimo.split(",")[1]
         var identificador = nombre
-        var municipio = ""
-        if (identificador.isEmpty()) {
-            identificador = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-            municipio = identificador.split(",").get(1)
-            if (identificador.isEmpty()) {
+        if (nombre.isEmpty()) {
+            identificador = toponimo
+            if (identificador.split(",")[0] == "Desconocido") {
                 identificador = "$longitud, $latitud"
             }
+        } else {
+            identificador = nombre
         }
 
         val lugar = LugarInteres(longitud, latitud, identificador, municipio)
 
         // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
         if (lugares.contains(lugar)) {
-            throw UbicationErrorException("Ya existe un lugar con la misma ubicación")
+            throw UbicationException("Ya existe un lugar con la misma ubicación")
         }
 
         lugares.add(lugar)
@@ -60,7 +63,7 @@ class ServicioLugares(
             ordenLugares.comparator()
         )
     }
-    @Throws(UbicationErrorException::class)
+    @Throws(UbicationException::class)
     suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
