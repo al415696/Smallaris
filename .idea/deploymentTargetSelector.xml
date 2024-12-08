@@ -16,10 +16,10 @@
       <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarYaExistente()">
+      <SelectionState runConfigName="TestServicioUsuarios">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioUsuarios">
+      <SelectionState runConfigName="getLugares_R2HU02_darDeAltaLugarPorToponimoOK()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

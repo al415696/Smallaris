@@ -19,8 +19,9 @@ object ServicioAPIs {
         return servicioORS.getRuta(inicio, fin, tipo)
     }
 
-    fun getCoordenadas(s: String): Pair<Double, Double> {
-        return Pair(0.0, 0.0)
+    @Throws(UbicationException::class)
+    fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+        return servicioORS.getCoordenadas(toponimo)
     }
 
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {

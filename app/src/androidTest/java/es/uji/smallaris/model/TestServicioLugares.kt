@@ -245,9 +245,9 @@ class TestServicioLugares {
         val resultado = servicioLugares.addLugar(longitud, latitud)
 
         //Then
-        assertEquals(resultado.longitud, longitud)
-        assertEquals(resultado.latitud, latitud)
-        assertEquals(resultado.municipio, "Castellón de la Plana")
+        assertEquals(longitud, resultado.longitud)
+        assertEquals(latitud, resultado.latitud)
+        assertEquals("Castellón de la Plana", resultado.municipio)
         assertEquals(1, servicioLugares.getLugares().size)
     }
 
@@ -264,7 +264,7 @@ class TestServicioLugares {
 
         // When
         try {
-            val (longitud, latitud) = servicioAPIs.getCoordenadas("Topónimo inexistente")
+            val (longitud, latitud) = servicioAPIs.getCoordenadas("Topónimo_inexistente")
             servicioLugares.addLugar(longitud, latitud)
         } catch (e: UbicationException) {
             excepcion = e

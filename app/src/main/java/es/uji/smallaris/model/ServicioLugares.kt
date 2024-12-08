@@ -31,11 +31,12 @@ class ServicioLugares(
         // 3. Longitud, latitud
 
         val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-        val municipio = toponimo.split(",")[1]
+        println("Toponimo obtenido: $toponimo")
+        val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
         if (nombre.isEmpty()) {
             identificador = toponimo
-            if (identificador.split(",")[0] == "Desconocido") {
+            if (identificador.split(",").map { it.trim() }[0] == "Desconocido") {
                 identificador = "$longitud, $latitud"
             }
         } else {
