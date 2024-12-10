@@ -9,7 +9,7 @@ import org.junit.Test
 class TestServicioRutas {
 
     @Test
-    fun addRuta_R4HU01_calcularRutaOK() = runBlocking {
+    fun addRuta_R4HU01_R4HU04_calcularRutaCortaOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
@@ -21,7 +21,7 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(coche)
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).buildAndSave()
 
         // Then
@@ -31,7 +31,28 @@ class TestServicioRutas {
     }
 
     @Test
+    fun addRuta_R4HU04_calcularRutaEconomicaOK() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).buildAndSave()
+
+        // Then
+        assert(ruta.getDistancia() > 0)
+        assert(ruta.getDuracion() > 0)
+        assert(servicioRutas.getRutas().size == 1)
+    }
+
+    @Test
     fun addRuta_R4HU01_trayectoFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
@@ -47,7 +68,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino)
+            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: VehicleException) {
             resultado = e
@@ -72,7 +93,7 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(coche)
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).buildAndSave()
 
         // Then
@@ -96,7 +117,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino)
+            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: VehicleException) {
             resultado = e
@@ -121,7 +142,7 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
             .setTipo(TipoRuta.Corta).buildAndSave()
 
         // Then
@@ -142,7 +163,7 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
             .setTipo(TipoRuta.Corta).buildAndSave()
 
         // Then
@@ -173,7 +194,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+            servicioRutas.build().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(pie)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: RouteException) {
             resultado = e
@@ -209,7 +230,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(bici)
+            servicioRutas.build().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(bici)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: RouteException) {
             resultado = e
