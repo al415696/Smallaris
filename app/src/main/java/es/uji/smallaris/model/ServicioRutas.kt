@@ -18,6 +18,10 @@ class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
     }
 
     suspend fun addRuta(ruta: Ruta): Ruta {
+        if ( !repositorioRutas.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        if ( rutas.contains(ruta) )
+            throw RouteException("La ruta ya existe")
         rutas.add(ruta)
         repositorioRutas.addRuta(ruta)
         return ruta

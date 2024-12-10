@@ -36,7 +36,6 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
 
         // Crear la ruta y guardarla
         val ruta = builder.getRuta()
-        servicio.addRuta(ruta)
         return ruta
     }
 
