@@ -5,5 +5,7 @@ enum class TipoVehiculo {
     Gasolina98,
     Desconocido, 
     Diesel, 
-    Electrico
+    Electrico,
+    Pie,
+    Bici
 }

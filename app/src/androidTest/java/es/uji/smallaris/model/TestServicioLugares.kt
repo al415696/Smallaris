@@ -326,4 +326,6 @@ class TestServicioLugares {
         assertTrue(excepcion!!.message.equals("Ubicación favorita"))
         assertEquals(1, servicioLugares.getLugares().size)
     }
+
+
 }
