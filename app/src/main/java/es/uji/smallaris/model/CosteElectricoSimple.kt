@@ -9,5 +9,4 @@ class CosteElectricoSimple: Strategy {
         val precioElectrico = ServicioAPIs.getPrecioCombustible(lugar, vehiculo.tipo)
         return ((distancia / 100) * vehiculo.consumo * precioElectrico/1000)
     }
-
 }

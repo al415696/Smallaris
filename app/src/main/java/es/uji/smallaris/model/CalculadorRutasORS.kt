@@ -8,9 +8,9 @@ import kotlin.jvm.Throws
 class CalculadorRutasORS : CalculadorRutas() {
 
     @Throws(RouteException::class)
-    override fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): Triple<LineString, Float, Float> {
+    override fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): Triple<LineString, Float, Float> {
         // Obtener el GeoJSON como String
-        val geoJsonResponse = ServicioAPIs.getRuta(inicio, fin, tipo)
+        val geoJsonResponse = ServicioAPIs.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
 
         // Usar JsonParser para convertir el GeoJSON en un JsonElement
         val jsonElement = JsonParser.parseString(geoJsonResponse).asJsonObject

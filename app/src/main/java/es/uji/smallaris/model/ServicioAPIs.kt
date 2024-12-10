@@ -15,8 +15,8 @@ object ServicioAPIs {
     }
 
     @Throws(RouteException::class)
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): String {
-        return servicioORS.getRuta(inicio, fin, tipo)
+    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+        return servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
     }
 
     @Throws(UbicationException::class)

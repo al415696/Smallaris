@@ -11,13 +11,16 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
     fun setTipo(tipo: TipoRuta) = apply { builder.setTipo(tipo) }
 
     // Método para terminar de construir y guardar la ruta
-    @Throws(IllegalArgumentException::class)
+    @Throws(VehicleException::class)
     suspend fun buildAndSave(): Ruta {
 
         // Hacer los cálculos necesarios aquí
         when(builder.getVehiculo().tipo) {
             TipoVehiculo.Electrico -> calculorRuta.setStrategy(CosteElectricoSimple())
-            else -> calculorRuta.setStrategy(CosteCarburanteSimple())
+            TipoVehiculo.Pie -> calculorRuta.setStrategy(CostePieSimple())
+            TipoVehiculo.Bici -> calculorRuta.setStrategy(CosteBiciSimple())
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculorRuta.setStrategy(CosteCarburanteSimple())
+            else -> throw VehicleException("Tipo de vehículo no válido")
         }
         calculorRuta.terminarRuta(builder)
 

@@ -151,7 +151,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_rutaPieExcecpcion() = runBlocking {
+    fun addRuta_R4HU3_rutaPieExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
@@ -173,7 +173,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino)
+            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: RouteException) {
             resultado = e
@@ -187,7 +187,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_rutaBiciExcecpcion() = runBlocking {
+    fun addRuta_R4HU3_rutaBiciExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
@@ -195,7 +195,7 @@ class TestServicioRutas {
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
 
-        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
         val origen =
             LugarInteres(
                 -0.067893,
@@ -209,7 +209,7 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setInicio(origen).setFin(destino)
+            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(bici)
                 .setTipo(TipoRuta.Corta).buildAndSave()
         } catch (e: RouteException) {
             resultado = e

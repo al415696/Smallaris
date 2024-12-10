@@ -16,7 +16,8 @@ abstract class CalculadorRutas {
         val (trayecto, distancia, duracion) = calcularTrayecto(
             builder.getInicio(),
             builder.getFin(),
-            builder.getTipo()
+            builder.getTipo(),
+            builder.getVehiculo().tipo
         )
         builder.setTrayecto(trayecto)
         builder.setDistancia(distancia)
@@ -29,11 +30,12 @@ abstract class CalculadorRutas {
         builder.setCoste(coste)
     }
 
-
+    @Throws(RouteException::class)
     abstract fun calcularTrayecto(
         inicio: LugarInteres,
         fin: LugarInteres,
-        tipo: TipoRuta
+        tipoRuta: TipoRuta,
+        tipoVehiculo: TipoVehiculo
     ): Triple<LineString, Float, Float>
 
     private suspend fun calcularCoste(
