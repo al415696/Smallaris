@@ -9,6 +9,7 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
     fun setFin(fin: LugarInteres) = apply { builder.setFin(fin) }
     fun setVehiculo(vehiculo: Vehiculo) = apply { builder.setVehiculo(vehiculo) }
     fun setTipo(tipo: TipoRuta) = apply { builder.setTipo(tipo) }
+    fun setNombre(nombre: String) = apply { builder.setNombre(nombre) }
 
     // Método para terminar de construir y guardar la ruta
     @Throws(VehicleException::class)

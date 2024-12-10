@@ -11,6 +11,7 @@ class RutaBuilder: IBuilderRutas {
     private var distancia: Float = 0.0f
     private var duracion: Float = 0.0f
     private var coste: Double = 0.0
+    private var nombre: String = ""
 
     override fun setInicio(inicio: LugarInteres): IBuilderRutas = apply { this.inicio = inicio }
 
@@ -27,6 +28,8 @@ class RutaBuilder: IBuilderRutas {
     override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.duracion = duracion }
 
     override fun setCoste(coste: Double): IBuilderRutas = apply { this.coste = coste }
+
+    override fun setNombre(nombre: String): IBuilderRutas = apply { this.nombre = nombre }
 
     fun getInicio(): LugarInteres {
         return inicio
@@ -54,11 +57,15 @@ class RutaBuilder: IBuilderRutas {
         distancia = 0.0f
         duracion = 0.0f
         coste = 0.0
+        nombre = ""
     }
 
     @Throws(IllegalArgumentException::class)
     override fun getRuta(): Ruta {
         // Validaciones
+        if (nombre == "") {
+            throw IllegalArgumentException("El nombre no puede estar vacío")
+        }
         if (inicio.nombre == "" || fin.nombre == "") {
             throw IllegalArgumentException("El origen y el destino no pueden estar vacíos")
         }
@@ -69,7 +76,7 @@ class RutaBuilder: IBuilderRutas {
             throw IllegalArgumentException("Distancia($distancia), duración($duracion) y coste($coste) deben ser mayores que 0")
         }
 
-        val ruta = Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste)
+        val ruta = Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste, nombre)
         reset()
         return ruta
     }
