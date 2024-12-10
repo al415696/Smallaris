@@ -68,7 +68,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU04_calcularRutaEconomicaOK() = runBlocking {
+    fun build_R4HU04_calcularRutaEconomicaOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
@@ -89,7 +89,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU04_calcularRutaRapidaOK() = runBlocking {
+    fun build_R4HU04_calcularRutaRapidaOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
@@ -110,7 +110,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU01_trayectoFaltaVehiculo() = runBlocking {
+    fun build_R4HU01_trayectoFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
 
@@ -137,7 +137,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU04_calcularRutaCortaFaltaDestino() = runBlocking {
+    fun build_R4HU04_calcularRutaCortaFaltaDestino() = runBlocking {
 
         var resultado: UbicationException? = null
 
@@ -164,7 +164,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU02_costeCocheCorrecto() = runBlocking {
+    fun build_R4HU02_costeCocheCorrecto() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -183,7 +183,7 @@ class TestServicioRutas {
         assert(ruta.getCoste() > 0) }
 
     @Test
-    fun addRuta_R4HU02_costeFaltaVehiculo() = runBlocking {
+    fun build_R4HU02_costeFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
 
@@ -210,7 +210,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_costePieCorrecto() = runBlocking {
+    fun build_R4HU3_costePieCorrecto() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -230,7 +230,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_costeBiciCorrecto(): Unit = runBlocking {
+    fun build_R4HU3_costeBiciCorrecto(): Unit = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -251,7 +251,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_rutaPieExcepcion() = runBlocking {
+    fun build_R4HU3_rutaPieExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
@@ -285,7 +285,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU3_rutaBiciExcepcion() = runBlocking {
+    fun build_R4HU3_rutaBiciExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
