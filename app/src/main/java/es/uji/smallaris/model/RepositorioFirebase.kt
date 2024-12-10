@@ -37,6 +37,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return false
     }
 
+    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean {
+        return true
+    }
+
     override suspend fun getLugares(): List<LugarInteres> {
         return mutableListOf()
     }
@@ -45,11 +49,9 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun getRutas(): List<Ruta> {
-        return mutableListOf()
-    }
 
-    override suspend fun addRuta(ruta: Ruta): Boolean {
+
+    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean) :Boolean {
         return true
     }
 
@@ -75,6 +77,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Intentar iniciar sesión
@@ -86,6 +89,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } else {
             throw Exception("No se pudo iniciar sesión correctamente")
         }
+    }
+
+    override suspend fun getRutas(): List<Ruta> {
+        return listOf()
+    }
+
+    override suspend fun addRuta(ruta: Ruta): Boolean {
+        return true
     }
 
     override suspend fun enFuncionamiento(): Boolean {

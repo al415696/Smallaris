@@ -3,7 +3,6 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="TestServicioUsuarios">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

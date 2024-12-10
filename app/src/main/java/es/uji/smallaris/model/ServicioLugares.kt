@@ -20,27 +20,34 @@ class ServicioLugares(
         this.lugares.addAll(repositorioLugares.getLugares())
     }
 
-    @Throws(UbicationErrorException::class)
+    @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
+
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
+
+        val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
+        println("Toponimo obtenido: $toponimo")
+        val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
-        if (identificador.isEmpty()) {
-            identificador = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-            if (identificador.isEmpty()) {
+        if (nombre.isEmpty()) {
+            identificador = toponimo
+            if (identificador.split(",").map { it.trim() }[0] == "Desconocido") {
                 identificador = "$longitud, $latitud"
             }
+        } else {
+            identificador = nombre
         }
 
-        val lugar = LugarInteres(longitud, latitud, identificador)
+        val lugar = LugarInteres(longitud, latitud, identificador, municipio)
 
         // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
         if (lugares.contains(lugar)) {
-            throw UbicationErrorException("Ya existe un lugar con la misma ubicación")
+            throw UbicationException("Ya existe un lugar con la misma ubicación")
         }
 
         lugares.add(lugar)
@@ -50,15 +57,23 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class)
-    suspend fun getLugares(): List<LugarInteres> {
+    suspend fun getLugares(ordenLugares: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE): List<LugarInteres> {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         return lugares.sortedWith(
-            compareBy<LugarInteres>{
-                if (it.isFavorito()) 0 else 1
-            }.thenBy{
-                it.nombre
-            })
+            ordenLugares.comparator()
+        )
     }
-
+    @Throws(UbicationException::class)
+    suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        if (lugarInteres.isFavorito() == favorito)
+            return false
+        lugarInteres.setFavorito(favorito)
+        if (lugares.contains(lugarInteres)) {
+            return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
+        }
+        return false
+    }
 }
