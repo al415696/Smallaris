@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import org.json.JSONObject
 
 class ServicioORS {
     fun getToponimoCercano(longitud: Double, latitud: Double): String {
@@ -53,31 +54,29 @@ class ServicioORS {
 
     }
 
-    @Throws(Exception::class)
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): String {
+    @Throws(RouteException::class)
+    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
         // URL base y clave API
         val baseUrl = "https://api.openrouteservice.org/v2/directions"
         val apiKey =
-            BuildConfig.OPENROUTESERVICE_API_KEY // Reemplaza esto con tu clave de API de ORS
+            BuildConfig.OPENROUTESERVICE_API_KEY
 
         // Determinar el perfil de transporte según el tipo
-        val profile = when (tipo) {
-            TipoRuta.Rapida -> "driving-car"
-            TipoRuta.Corta -> "driving-car"
-            TipoRuta.Economica -> "driving-car"
-            else -> {
-                "driving-car"
-            }
+        val profile = when (tipoVehiculo) {
+            TipoVehiculo.Gasolina95 -> "driving-car"
+            TipoVehiculo.Gasolina98 -> "driving-car"
+            TipoVehiculo.Diesel -> "driving-car"
+            TipoVehiculo.Electrico -> "driving-car"
+            TipoVehiculo.Pie -> "foot-walking"
+            TipoVehiculo.Bici -> "cycling-regular"
+            TipoVehiculo.Desconocido -> VehicleException("No se puede calcular una ruta sin un vehiculo adecuado")
         }
 
         // Crear parámetros adicionales según el tipo de ruta
-        val preference = when (tipo) {
+        val preference = when (tipoRuta) {
             TipoRuta.Rapida -> "fastest"
-
             TipoRuta.Corta -> "shortest"
-
             TipoRuta.Economica -> "shortest"
-
             else -> "recommended"
         }
 
@@ -107,15 +106,24 @@ class ServicioORS {
 
         if (response.isSuccessful) {
             val responseBody = response.body?.string()
-                ?: throw Exception("Respuesta vacía de la API ORS para la ruta")
+                ?: throw RouteException("Respuesta vacía de la API ORS para la ruta")
+
+            // Analizar el JSON y verificar si contiene datos de ruta
+            val jsonObject = JSONObject(responseBody)
+            val features = jsonObject.optJSONArray("features")
+
+            if (features == null || features.length() == 0) {
+                throw RouteException("No se encontró una ruta válida entre los puntos proporcionados")
+            }
+
             return responseBody  // Retorna el GeoJSON completo como String
         } else {
-            throw Exception("Error en la solicitud: ${response.code} - ${response.message}")
-        }
+            throw RouteException("Error en la solicitud: ${response.code} - ${response.message}")        }
     }
 
     fun getCoordenadas(toponimo: String): Pair<Double, Double> {
-        val apiKey = BuildConfig.OPENROUTESERVICE_API_KEY  // Sustituye esto con tu clave de API de OpenRouteService
+        val apiKey =
+            BuildConfig.OPENROUTESERVICE_API_KEY  // Sustituye esto con tu clave de API de OpenRouteService
         val client = OkHttpClient()
         val url = "https://api.openrouteservice.org/geocode/search?api_key=$apiKey&text=$toponimo"
 

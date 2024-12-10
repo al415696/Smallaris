@@ -1,14 +1,32 @@
 package es.uji.smallaris.model
 
 class Vehiculo : Favoritable {
-    lateinit var nombre : String
-    var consumo : Double = 0.0
-    lateinit var matricula : String
-    lateinit var tipo : TipoVehiculo
+    lateinit var nombre: String
+    var consumo: Double = 0.0
+    lateinit var matricula: String
+    lateinit var tipo: TipoVehiculo
 
-    constructor(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo, favorito: Boolean = false) {
+    constructor(
+        nombre: String,
+        consumo: Double = -1.0,
+        matricula: String,
+        tipo: TipoVehiculo,
+        favorito: Boolean = false
+    ) {
         this.nombre = nombre
-        this.consumo = consumo
+        when (tipo) {
+            TipoVehiculo.Pie -> {
+                this.consumo = 50.0
+            }
+
+            TipoVehiculo.Bici -> {
+                this.consumo = 30.0
+            }
+
+            else -> {
+                this.consumo = consumo
+            }
+        }
         this.matricula = matricula
         this.tipo = tipo
         this.setFavorito(favorito)

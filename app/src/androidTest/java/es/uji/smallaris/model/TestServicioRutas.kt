@@ -60,7 +60,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU02_costeCorrecto() = runBlocking {
+    fun addRuta_R4HU02_costeCocheCorrecto() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -77,6 +77,7 @@ class TestServicioRutas {
 
         // Then
         assert(ruta.getCoste() > 0)
+        assertEquals(1, servicioRutas.getRutas().size)
     }
 
     @Test
@@ -105,5 +106,119 @@ class TestServicioRutas {
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
         assertEquals(0, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun addRuta_R4HU3_costePieCorrecto() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val pie = Vehiculo("Pie", matricula = "Pie", tipo = TipoVehiculo.Pie)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).buildAndSave()
+
+        // Then
+        assert(ruta.getCoste() > 0)
+        assertEquals(1, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun addRuta_R4HU3_costeBiciCorrecto() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).buildAndSave()
+
+        // Then
+        assert(ruta.getCoste() > 0)
+        assertEquals(1, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun addRuta_R4HU3_rutaPieExcepcion() = runBlocking {
+
+        var resultado: RouteException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val pie = Vehiculo("Pie", matricula = "Pie", tipo = TipoVehiculo.Pie)
+        val origen =
+            LugarInteres(
+                -0.067893,
+                39.991907,
+                "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
+                "Castellón de la Plana"
+            )
+        val destino =
+            LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        try {
+            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(pie)
+                .setTipo(TipoRuta.Corta).buildAndSave()
+        } catch (e: RouteException) {
+            resultado = e
+        }
+
+        // Then
+        assertNotNull(resultado)
+        assertTrue(resultado is RouteException)
+        assertEquals(0, servicioRutas.getRutas().size)
+
+    }
+
+    @Test
+    fun addRuta_R4HU3_rutaBiciExcepcion() = runBlocking {
+
+        var resultado: RouteException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+        val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(
+                -0.067893,
+                39.991907,
+                "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
+                "Castellón de la Plana"
+            )
+        val destino =
+            LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        try {
+            servicioRutas.build().setInicio(origen).setFin(destino).setVehiculo(bici)
+                .setTipo(TipoRuta.Corta).buildAndSave()
+        } catch (e: RouteException) {
+            resultado = e
+        }
+
+        // Then
+        assertNotNull(resultado)
+        assertTrue(resultado is RouteException)
+        assertEquals(0, servicioRutas.getRutas().size)
+
     }
 }
