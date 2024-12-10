@@ -44,7 +44,29 @@ class TestServicioRutas {
 
         // When
         val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+            .setTipo(TipoRuta.Economica).buildAndSave()
+
+        // Then
+        assert(ruta.getDistancia() > 0)
+        assert(ruta.getDuracion() > 0)
+        assert(servicioRutas.getRutas().size == 1)
+    }
+
+    @Test
+    fun addRuta_R4HU04_calcularRutaRapidaOK() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Rapida).buildAndSave()
 
         // Then
         assert(ruta.getDistancia() > 0)
@@ -77,6 +99,34 @@ class TestServicioRutas {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
+        assertEquals(0, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun addRuta_R4HU04_calcularRutaCortaFaltaDestino() = runBlocking {
+
+        var resultado: UbicationException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+
+        // When
+        try {
+            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setVehiculo(coche)
+                .setTipo(TipoRuta.Corta).buildAndSave()
+        } catch (e: UbicationException) {
+            resultado = e
+        }
+
+        // Then
+        assertNotNull(resultado)
+        assertTrue(resultado is UbicationException)
         assertEquals(0, servicioRutas.getRutas().size)
     }
 
