@@ -64,6 +64,20 @@ class ServicioLugares(
             ordenLugares.comparator()
         )
     }
+
+    @Throws(ConnectionErrorException::class, UbicationException::class)
+    suspend fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+
+        if (lugarInteres.isFavorito()) {
+            throw UbicationException("Ubicación favorita")
+        }
+
+        lugares.remove(lugarInteres)
+        return repositorioLugares.deleteLugar(lugarInteres)
+    }
+
     @Throws(UbicationException::class)
     suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )
