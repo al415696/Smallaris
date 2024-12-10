@@ -23,6 +23,15 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
             TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculorRuta.setStrategy(CosteCarburanteSimple())
             else -> throw VehicleException("Tipo de vehículo no válido")
         }
+
+        if (builder.getInicio().nombre == "" ) {
+            throw UbicationException("El origen no puede estar vacío")
+        }
+
+        if (builder.getFin().nombre == "") {
+            throw UbicationException("El destino no puede estar vacío")
+        }
+
         calculorRuta.terminarRuta(builder)
 
         // Crear la ruta y guardarla
