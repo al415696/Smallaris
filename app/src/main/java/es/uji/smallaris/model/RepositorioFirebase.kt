@@ -6,7 +6,8 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, RepositorioRutas,
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
+    RepositorioRutas,
     Repositorio {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -32,7 +33,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return false
     }
 
-    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean {
+    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         return true
     }
 
@@ -45,9 +46,12 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
 
-
-    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean) :Boolean {
+    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
         return true
+    }
+
+    override fun deleteLugar(lugar: LugarInteres): Boolean {
+        return false
     }
 
 

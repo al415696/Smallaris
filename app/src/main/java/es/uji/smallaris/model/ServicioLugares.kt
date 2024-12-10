@@ -64,6 +64,12 @@ class ServicioLugares(
             ordenLugares.comparator()
         )
     }
+
+    @Throws(ConnectionErrorException::class, UbicationException::class)
+    fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+        return false
+    }
+
     @Throws(UbicationException::class)
     suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )

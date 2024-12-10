@@ -13,13 +13,10 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioLugares">
+      <SelectionState runConfigName="deleteLugar_R2HU04_eliminarLugarOK()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioUsuarios">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="getLugares_R2HU02_darDeAltaLugarPorToponimoOK()">
+      <SelectionState runConfigName="deleteLugar_R2HU04_eliminarLugarFavorito()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
