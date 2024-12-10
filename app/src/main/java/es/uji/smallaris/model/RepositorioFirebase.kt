@@ -51,7 +51,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override fun deleteLugar(lugar: LugarInteres): Boolean {
-        return false
+        return true
     }
 
 

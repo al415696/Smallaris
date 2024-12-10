@@ -66,8 +66,16 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
-    fun deleteLugar(lugarInteres: LugarInteres): Boolean {
-        return false
+    suspend fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+
+        if (lugarInteres.isFavorito()) {
+            throw UbicationException("Ubicación favorita")
+        }
+
+        lugares.remove(lugarInteres)
+        return repositorioLugares.deleteLugar(lugarInteres)
     }
 
     @Throws(UbicationException::class)
