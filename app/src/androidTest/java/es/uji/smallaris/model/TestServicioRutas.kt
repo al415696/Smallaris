@@ -328,9 +328,9 @@ class TestServicioRutas {
             LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
         val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
-        servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
-            .setTipo(TipoRuta.Corta).build()
-
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build())
+        
         // When
         val listaRutas = servicioRutas.getRutas()
 
