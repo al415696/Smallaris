@@ -103,6 +103,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
+    override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean) :Boolean{
+        return true
+    }
+
     override suspend fun enFuncionamiento(): Boolean {
         val fechaActual = Date()
         val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
