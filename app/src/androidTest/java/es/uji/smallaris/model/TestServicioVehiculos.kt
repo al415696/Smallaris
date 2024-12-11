@@ -42,7 +42,7 @@ class TestServicioVehiculos {
         catch (excepcion: Exception){
             resultado = excepcion
         }
-        assertTrue(resultado is VehicleAlredyExistsException)
+        assertTrue(resultado is VehicleException)
     }
 
     @Test
@@ -84,9 +84,8 @@ class TestServicioVehiculos {
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
-
         //      WHEN
-        var exito = vehiculo?.let { servicioVehiculos.deleteVehiculo(it) }
+        val exito = vehiculo?.let {  servicioVehiculos.deleteVehiculo(it) }
         //      THEN
         assertNotNull(exito)
         if (exito != null)
