@@ -2,6 +2,7 @@ package es.uji.smallaris.model
 
 import android.util.Log
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -337,4 +338,82 @@ class TestServicioRutas {
         // Then
         assert(listaRutas.size == 1)
     }
+
+
+    @Test
+    fun getLugares_R5HU5_listaRutasFavoritoPrimero(): Unit = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino1 = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+
+        val destino2 = LugarInteres( 0.024997,39.994958, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón1").setInicio(origen).setFin(destino1).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build())
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen).setFin(destino2).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build()).let{
+                servicioRutas.setFavorito(it,true)
+        }
+
+        // When
+        val listaRutas = servicioRutas.getRutas()
+
+        // Then
+        assert(listaRutas[0].getNombre() == "Ruta por Castellón2")
+    }
+
+    @Test
+    fun getLugares_setFavoritos_R5HU5V1_asignarRutaNoFavoritaComoFavorita(): Unit = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build())
+
+
+        // When
+        val listaRutas = servicioRutas.getRutas()
+        val cambiado = servicioRutas.setFavorito(listaRutas[0], true)
+
+        // Then
+        assertTrue(listaRutas[0].isFavorito())
+        assertTrue(cambiado)
+    }
+
+    @Test
+    fun getLugares_setFavoritos_R5HU5I1_asignarRutaFavoritaComoFavorita(): Unit = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build()).let{
+            servicioRutas.setFavorito(it,true)
+        }
+
+        // When
+        val listaRutas = servicioRutas.getRutas()
+        val cambiado = servicioRutas.setFavorito(listaRutas[0], true)
+
+        // Then
+        assertTrue(listaRutas[0].isFavorito())
+        assertFalse(cambiado)
+    }
+
 }
