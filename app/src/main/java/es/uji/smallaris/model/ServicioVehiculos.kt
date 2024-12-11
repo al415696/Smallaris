@@ -10,7 +10,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         this.vehiculos.addAll(repositorio.getVehiculos())
     }
 
-    @Throws(VehicleAlredyExistsException::class, ConnectionErrorException::class)
+    @Throws(VehicleException::class, ConnectionErrorException::class)
     suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -48,8 +48,8 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
                         errorMessage.append("y matricula \"$matricula\"")
                 }else
                     errorMessage.append("matricula \"$matricula\"")
-                errorMessage.append(" ya existe")
-                throw VehicleAlredyExistsException(errorMessage.toString())
+                errorMessage.append(" ya existe, no se puede añadir")
+                throw VehicleException(errorMessage.toString())
             }
         }
     }
@@ -80,7 +80,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculos.contains(vehiculo)){
-            return if(! repositorio.removeVehiculo(vehiculo)){
+            return if(repositorio.removeVehiculo(vehiculo)){
                 vehiculos.remove(vehiculo)
             }else{
                 false
