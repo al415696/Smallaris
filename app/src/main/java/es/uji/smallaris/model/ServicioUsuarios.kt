@@ -1,12 +1,14 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import kotlin.jvm.Throws
+import com.google.firebase.auth.FirebaseUser
+import kotlin.Throws
 
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
@@ -50,5 +52,31 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         } catch (e: Exception) {
             throw Exception("Error inesperado: ${e.localizedMessage}")
         }
+    }
+
+    @Throws(UnloggedUserException::class, ConnectionErrorException::class)
+    suspend fun cerrarSesion(): Boolean {
+
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            throw UnloggedUserException("No hay usuario autenticado actualmente.")
+        }
+
+        try {
+            return repositorioUsuarios.cerrarSesion()
+        } catch (e: Exception) {
+            throw Exception("Error inesperado: ${e.localizedMessage}")
+        }
+    }
+
+    fun obtenerUsuarioActual(): FirebaseUser? {
+        return repositorioUsuarios.obtenerUsuarioActual()
     }
 }
