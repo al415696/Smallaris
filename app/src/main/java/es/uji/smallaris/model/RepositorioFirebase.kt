@@ -38,6 +38,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return false
     }
 
+    override fun removeVehiculo(vehiculo: Vehiculo): Boolean {
+        return true
+    }
+
     override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         return true
     }
