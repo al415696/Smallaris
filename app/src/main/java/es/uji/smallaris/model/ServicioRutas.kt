@@ -33,7 +33,7 @@ class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
         return rutas
     }
 
-    fun build(): RutaBuilderWrapper {
+    fun builder(): RutaBuilderWrapper {
         return RutaBuilderWrapper(this, calculadorRutas)
     }
 
