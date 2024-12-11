@@ -1,7 +1,6 @@
 package es.uji.smallaris.model
 
 import android.util.Log
-import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -22,8 +21,8 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).build()
         servicioRutas.addRuta(ruta)
 
         // Then
@@ -46,8 +45,8 @@ class TestServicioRutas {
             LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
         val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).build()
         servicioRutas.addRuta(ruta)
 
         // Then
@@ -68,7 +67,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU04_calcularRutaEconomicaOK() = runBlocking {
+    fun builder_R4HU04_calcularRutaEconomicaOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
@@ -80,8 +79,8 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Economica).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Economica).build()
 
         // Then
         assert(ruta.getDistancia() > 0)
@@ -89,7 +88,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU04_calcularRutaRapidaOK() = runBlocking {
+    fun builder_R4HU04_calcularRutaRapidaOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
@@ -101,8 +100,8 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Rapida).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Rapida).build()
 
         // Then
         assert(ruta.getDistancia() > 0)
@@ -110,7 +109,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU01_trayectoFaltaVehiculo() = runBlocking {
+    fun builder_R4HU01_trayectoFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
 
@@ -125,8 +124,8 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
-                .setTipo(TipoRuta.Corta).buildAndSave()
+            servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
+                .setTipo(TipoRuta.Corta).build()
         } catch (e: VehicleException) {
             resultado = e
         }
@@ -137,7 +136,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU04_calcularRutaCortaFaltaDestino() = runBlocking {
+    fun builder_R4HU04_calcularRutaCortaFaltaDestino() = runBlocking {
 
         var resultado: UbicationException? = null
 
@@ -152,8 +151,8 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setVehiculo(coche)
-                .setTipo(TipoRuta.Corta).buildAndSave()
+            servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setVehiculo(coche)
+                .setTipo(TipoRuta.Corta).build()
         } catch (e: UbicationException) {
             resultado = e
         }
@@ -164,7 +163,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU02_costeCocheCorrecto() = runBlocking {
+    fun builder_R4HU02_costeCocheCorrecto() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -176,14 +175,14 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).build()
 
         // Then
         assert(ruta.getCoste() > 0) }
 
     @Test
-    fun build_R4HU02_costeFaltaVehiculo() = runBlocking {
+    fun builder_R4HU02_costeFaltaVehiculo() = runBlocking {
 
         var resultado: VehicleException? = null
 
@@ -198,8 +197,8 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
-                .setTipo(TipoRuta.Corta).buildAndSave()
+            servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino)
+                .setTipo(TipoRuta.Corta).build()
         } catch (e: VehicleException) {
             resultado = e
         }
@@ -210,7 +209,7 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU3_costePieCorrecto() = runBlocking {
+    fun builder_R4HU3_costePieCorrecto() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -222,15 +221,15 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build()
 
         // Then
         assert(ruta.getCoste() > 0)
     }
 
     @Test
-    fun build_R4HU3_costeBiciCorrecto(): Unit = runBlocking {
+    fun builder_R4HU3_costeBiciCorrecto(): Unit = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
@@ -242,8 +241,8 @@ class TestServicioRutas {
         val servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // When
-        val ruta = servicioRutas.build().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
-            .setTipo(TipoRuta.Corta).buildAndSave()
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build()
 
         // Then
         assert(ruta.getCoste() > 0)
@@ -251,13 +250,13 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU3_rutaPieExcepcion() = runBlocking {
+    fun builder_R4HU3_rutaPieExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
         // Given
         val servicioAPIs = ServicioAPIs
-        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
         val pie = Vehiculo("Pie", matricula = "Pie", tipo = TipoVehiculo.Pie)
         val origen =
@@ -273,8 +272,8 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(pie)
-                .setTipo(TipoRuta.Corta).buildAndSave()
+            servicioRutas.builder().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(pie)
+                .setTipo(TipoRuta.Corta).build()
         } catch (e: RouteException) {
             resultado = e
         }
@@ -285,13 +284,13 @@ class TestServicioRutas {
     }
 
     @Test
-    fun build_R4HU3_rutaBiciExcepcion() = runBlocking {
+    fun builder_R4HU3_rutaBiciExcepcion() = runBlocking {
 
         var resultado: RouteException? = null
 
         // Given
         val servicioAPIs = ServicioAPIs
-        assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
 
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
         val origen =
@@ -307,8 +306,8 @@ class TestServicioRutas {
 
         // When
         try {
-            servicioRutas.build().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(bici)
-                .setTipo(TipoRuta.Corta).buildAndSave()
+            servicioRutas.builder().setNombre("Ruta hacia Albufera").setInicio(origen).setFin(destino).setVehiculo(bici)
+                .setTipo(TipoRuta.Corta).build()
         } catch (e: RouteException) {
             resultado = e
         }
@@ -316,5 +315,26 @@ class TestServicioRutas {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is RouteException)
+    }
+
+    @Test
+    fun getLugares_R4HU6_listaRutasCorrecto(): Unit = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+
+        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(pie)
+            .setTipo(TipoRuta.Corta).build())
+        
+        // When
+        val listaRutas = servicioRutas.getRutas()
+
+        // Then
+        assert(listaRutas.size == 1)
     }
 }

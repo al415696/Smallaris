@@ -13,7 +13,7 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
 
     // Método para terminar de construir y guardar la ruta
     @Throws(VehicleException::class)
-    suspend fun buildAndSave(): Ruta {
+    suspend fun build(): Ruta {
 
         // Hacer los cálculos necesarios aquí
         when(builder.getVehiculo().tipo) {
