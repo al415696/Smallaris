@@ -30,7 +30,6 @@ class TestServicioUsuarios {
                 auth.currentUser?.let {
                     auth.signOut()
                 }
-                Thread.sleep(2000)
             }
         }
 
@@ -161,7 +160,7 @@ class TestServicioUsuarios {
                 // Elimina el usuario creado y su documento en la colección usuarios-test
                 auth.currentUser?.let { user ->
                     try {
-                        firestore.collection("usuarios-test").document(user.uid).delete()
+                        firestore.collection("usuarios").document(user.uid).delete()
                             .await()
                         user.delete().await()
                     } catch (ex: Exception) {
@@ -170,7 +169,7 @@ class TestServicioUsuarios {
                         auth.signOut()
                     }
                 }
-                Thread.sleep(2000)
+
             }
         }
     }

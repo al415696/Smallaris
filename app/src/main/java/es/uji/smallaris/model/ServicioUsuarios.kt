@@ -63,11 +63,8 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         }
 
         val auth = FirebaseAuth.getInstance()
-        val currentUser = auth.currentUser
-
-        if (currentUser == null) {
-            throw UnloggedUserException("No hay usuario autenticado actualmente.")
-        }
+        auth.currentUser
+            ?: throw UnloggedUserException("No hay usuario autenticado actualmente.")
 
         try {
             return repositorioUsuarios.cerrarSesion()
