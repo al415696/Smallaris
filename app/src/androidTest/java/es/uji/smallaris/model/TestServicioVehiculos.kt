@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import androidx.compose.foundation.text2.input.rememberTextFieldState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
