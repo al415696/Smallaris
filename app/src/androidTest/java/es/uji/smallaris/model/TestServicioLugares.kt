@@ -195,8 +195,7 @@ class TestServicioLugares {
             -0.0376709,
             39.986,
             "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
-        )
-            .let { servicioLugares.setFavorito(it) }
+        ).let { servicioLugares.setFavorito(it) }
         // When
         val lista = servicioLugares.getLugares()
         val cambiado = servicioLugares.setFavorito(lista[0], true)
@@ -218,17 +217,24 @@ class TestServicioLugares {
             39.986,
             "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         )
-        servicioLugares.addLugar(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España")
-            .let { servicioLugares.setFavorito(it) }
-        servicioLugares.addLugar(39.8614095, -0.18500, "Camp de Futbol, Villavieja, Comunidad Valenciana, España")
+        servicioLugares.addLugar(
+            39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España"
+        ).let { servicioLugares.setFavorito(it) }
+        servicioLugares.addLugar(
+            39.8614095, -0.18500, "Camp de Futbol, Villavieja, Comunidad Valenciana, España"
+        )
 
         // When
         val lista = servicioLugares.getLugares()
 
         // Then
         assertEquals(
-            LugarInteres(39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España", "Burriana"),
-            lista[0]
+            LugarInteres(
+                39.8856508,
+                -0.08128,
+                "Pizzeria Borriana, Burriana, Comunidad Valenciana, España",
+                "Burriana"
+            ), lista[0]
         )
     }
 
@@ -275,5 +281,51 @@ class TestServicioLugares {
         assertTrue(excepcion is UbicationException)
         assertEquals(0, servicioLugares.getLugares().size)
     }
+
+    @Test
+    fun deleteLugar_R2HU04_eliminarLugarOK() = runBlocking {
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
+
+        // When
+        val resultado = servicioLugares.deleteLugar(lugar)
+
+        //Then
+        assertEquals(true, resultado)
+        assertEquals(0, servicioLugares.getLugares().size)
+    }
+
+    @Test
+    fun deleteLugar_R2HU04_eliminarLugarFavorito() = runBlocking {
+
+        var excepcion: UbicationException? = null
+
+        // Given
+        val servicioAPIs = ServicioAPIs
+        assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
+        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
+        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
+        servicioLugares.setFavorito(lugar, true)
+
+        // When
+        try {
+            val resultado = servicioLugares.deleteLugar(lugar)
+
+        } catch (e: UbicationException) {
+            excepcion = e
+        }
+
+        //Then
+        assertNotNull(excepcion)
+        assertTrue(excepcion is UbicationException)
+        assertTrue(excepcion!!.message.equals("Ubicación favorita"))
+        assertEquals(1, servicioLugares.getLugares().size)
+    }
+
 
 }

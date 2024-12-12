@@ -11,6 +11,7 @@ interface IBuilderRutas {
     fun setDistancia(distancia: Float): IBuilderRutas
     fun setDuracion(duracion: Float): IBuilderRutas
     fun setCoste(coste: Double): IBuilderRutas
+    fun setNombre(nombre: String): IBuilderRutas
     fun reset()
     fun getRuta(): Ruta
 }

@@ -3,20 +3,20 @@ package es.uji.smallaris.model
 import es.uji.smallaris.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 
 object ServicioAPIs {
 
     private val servicioORS: ServicioORS = ServicioORS()
     private val servicioPrecios: IServicioPrecios = ProxyPrecios()
 
-
+    @Throws(UbicationException::class)
     fun getToponimoCercano(longitud: Double, latitud: Double): String {
         return servicioORS.getToponimoCercano(longitud, latitud)
     }
 
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipo: TipoRuta): String {
-        return servicioORS.getRuta(inicio, fin, tipo)
+    @Throws(RouteException::class)
+    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+        return servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
     }
 
     @Throws(UbicationException::class)

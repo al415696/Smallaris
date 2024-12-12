@@ -1,23 +1,29 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios, RepositorioRutas,
+class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
+    RepositorioRutas,
     Repositorio {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    override fun obtenerFirestore(): FirebaseFirestore {
+        return db
+    }
+
     override fun obtenerAuth(): FirebaseAuth {
         return auth
     }
 
-    override fun obtenerFirestore(): FirebaseFirestore {
-        return db
+    override fun obtenerUsuarioActual(): FirebaseUser? {
+        return auth.currentUser
     }
 
     override fun getVehiculos(): List<Vehiculo> {
@@ -32,7 +38,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return false
     }
 
-    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean {
+    override fun removeVehiculo(vehiculo: Vehiculo): Boolean {
+        return true
+    }
+
+    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         return true
     }
 
@@ -45,8 +55,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
 
+    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
+        return true
+    }
 
-    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean) :Boolean {
+    override fun deleteLugar(lugar: LugarInteres): Boolean {
         return true
     }
 
@@ -66,7 +79,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 .set(usuarioData)
                 .await()
 
-            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+            return Usuario(correo = usuario.email ?: "")
         } else {
             throw Exception("No se pudo crear el usuario y la colección asociada.")
         }
@@ -80,7 +93,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         val usuario = resultadoAutenticacion.user
 
         if (usuario != null) {
-            return Usuario(correo = usuario.email ?: "", uid = usuario.uid)
+            return Usuario(correo = usuario.email ?: "")
         } else {
             throw Exception("No se pudo iniciar sesión correctamente")
         }
@@ -91,6 +104,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
+        return true
+    }
+
+    override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean) :Boolean{
         return true
     }
 
@@ -110,4 +127,12 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+    override suspend fun cerrarSesion(): Boolean {
+        auth.signOut()
+
+        if (auth.currentUser != null) {
+            throw Exception("No se pudo cerrar sesión correctamente.")
+        }
+        return true // Sesión cerrada con éxito
+    }
 }

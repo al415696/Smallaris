@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -41,7 +42,7 @@ class TestServicioVehiculos {
         catch (excepcion: Exception){
             resultado = excepcion
         }
-        assertTrue(resultado is VehicleAlredyExistsException)
+        assertTrue(resultado is VehicleException)
     }
 
     @Test
@@ -75,6 +76,39 @@ class TestServicioVehiculos {
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
 
+    }
+
+    @Test
+    fun deleteVehiculo_R3HU3V1_eliminarVehiculoOk() = runBlocking{
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        //      WHEN
+        val exito = vehiculo?.let {  servicioVehiculos.deleteVehiculo(it) }
+        //      THEN
+        assertNotNull(exito)
+        if (exito != null)
+            assertTrue(exito)
+        assertTrue(servicioVehiculos.getVehiculos().isEmpty())
+
+    }
+    @Test
+    fun deleteVehiculo_R3HU3I1_eliminarVehiculoInexistente() = runBlocking{
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        var vehiculoInexistente = Vehiculo("Unicornio", 77.7, "7777LLL", TipoVehiculo.Bici)
+        var resultado: Exception? = null
+        //      WHEN
+        try {
+        servicioVehiculos.deleteVehiculo(vehiculoInexistente)
+    } catch (e: Exception) {
+        resultado = e
+    }
+        //      THEN
+        assertTrue(resultado is VehicleException)
     }
 
     @Test

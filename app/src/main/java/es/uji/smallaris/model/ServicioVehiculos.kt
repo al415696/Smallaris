@@ -10,11 +10,11 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         this.vehiculos.addAll(repositorio.getVehiculos())
     }
 
-    @Throws(VehicleAlredyExistsException::class, ConnectionErrorException::class)
+    @Throws(VehicleException::class, ConnectionErrorException::class)
     suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
-        var vehiculo: Vehiculo
+        val vehiculo: Vehiculo
         //        Checks de validez de datos tienen que estar aquí no en las clases que use
         if (checkValidezVehiculo(nombre, consumo, matricula, tipo)){
             vehiculo = Vehiculo(nombre = nombre, consumo = consumo, matricula = matricula, tipo = tipo)
@@ -48,8 +48,8 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
                         errorMessage.append("y matricula \"$matricula\"")
                 }else
                     errorMessage.append("matricula \"$matricula\"")
-                errorMessage.append(" ya existe")
-                throw VehicleAlredyExistsException(errorMessage.toString())
+                errorMessage.append(" ya existe, no se puede añadir")
+                throw VehicleException(errorMessage.toString())
             }
         }
     }
@@ -73,6 +73,22 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             }
         }
         return null
+    }
+
+    @Throws(ConnectionErrorException::class, VehicleException::class)
+    suspend fun deleteVehiculo(vehiculo: Vehiculo): Boolean{
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        if (vehiculos.contains(vehiculo)){
+            return if(repositorio.removeVehiculo(vehiculo)){
+                vehiculos.remove(vehiculo)
+            }else{
+                false
+            }
+        }else{
+            throw VehicleException("Se ha intentado eliminar un vehiculo no existente")
+        }
+
     }
 
     @Throws(ConnectionErrorException::class)
