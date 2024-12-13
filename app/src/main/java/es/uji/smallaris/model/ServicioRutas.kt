@@ -57,7 +57,15 @@ class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
     }
 
     suspend fun deleteRuta(ruta: Ruta): Boolean {
-       return false
+        if ( !repositorioRutas.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+
+        if (ruta.isFavorito()) {
+            throw RouteException("Ruta favorita")
+        }
+
+        rutas.remove(ruta)
+        return repositorioRutas.deleteLugar(ruta)
     }
 
 }
