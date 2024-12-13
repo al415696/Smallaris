@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import android.util.Log
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -414,6 +415,54 @@ class TestServicioRutas {
         // Then
         assertTrue(listaRutas[0].isFavorito())
         assertFalse(cambiado)
+    }
+
+    @Test
+    fun deleteRuta_R4HU07_eliminarRutaOK() = runBlocking {
+        // Given
+        val coche = Vehiculo("Coche", 7.0, matricula = "6319BKN", tipo = TipoVehiculo.Gasolina95)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        val ruta = servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).build())
+
+        // When
+        val resultado = servicioRutas.deleteRuta(ruta)
+
+        //Then
+        assertEquals(true, resultado)
+        assertEquals(0, servicioRutas.getRutas().size)
+    }
+
+    @Test
+    fun deleteRuta_R4HU07_eliminarRutaFavorita() = runBlocking {
+
+        var excepcion: RouteException? = null
+
+        // Given
+        val coche = Vehiculo("Coche", 7.0, matricula = "6319BKN", tipo = TipoVehiculo.Gasolina95)
+        val origen =
+            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
+        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
+        val servicioRutas = ServicioRutas(CalculadorRutasORS())
+        val ruta = servicioRutas.addRuta(servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+            .setTipo(TipoRuta.Corta).build())
+        servicioRutas.setFavorito(ruta, true)
+
+        // When
+        try {
+            val resultado = servicioRutas.deleteRuta(ruta)
+        } catch (e: RouteException) {
+            excepcion = e
+        }
+
+        //Then
+        assertNotNull(excepcion)
+        assertTrue(excepcion is RouteException)
+        assertTrue(excepcion!!.message.equals("Ruta favorita"))
+        assertEquals(1, servicioRutas.getRutas().size)
     }
 
 }
