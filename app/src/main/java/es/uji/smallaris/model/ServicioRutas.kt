@@ -56,4 +56,8 @@ class ServicioRutas(private val calculadorRutas: CalculadorRutas) {
         return false
     }
 
+    suspend fun deleteRuta(ruta: Ruta): Boolean {
+       return false
+    }
+
 }
