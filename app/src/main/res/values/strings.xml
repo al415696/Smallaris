@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Smallaris</string>
+
+    <string name="default_description_text">Lo siento ciegos</string>
 </resources>
