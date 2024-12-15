@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,11 +22,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,8 +44,8 @@ fun VehiculosListContent(
     modifier: Modifier,
     items: List<Vehiculo> = listOf(),
     addFunction: () -> Unit = {},
-    deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
     updateFunction:(viejo: Vehiculo) -> Unit = {}
 
 ) {
@@ -89,16 +93,32 @@ fun VehiculosListContent(
                 }
 
             }
-            LazyListVehiculos(
-                modifier.weight(1F),
-                items = items,
-                onSelect= {
-                        veh: Vehiculo -> vehiculoSelected = veh
-                    println(vehiculoSelected)
-                },
-                checkSelected = {other: Vehiculo -> vehiculoSelected.equals(other) },
-                updateFunction = updateFunction
-            )
+            if (items.isEmpty()){
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = stringResource(R.string.sin_vehiculos_text)
+                    )
+                }
+            }
+            else {
+                LazyListVehiculos(
+                    modifier.weight(1F),
+                    items = items,
+                    onSelect = { veh: Vehiculo ->
+                        vehiculoSelected = veh
+                        println(vehiculoSelected)
+                    },
+                    checkSelected = { other: Vehiculo -> vehiculoSelected.equals(other) },
+                    updateFunction = updateFunction,
+                    deleteFuncition = deleteFuncition,
+                    favoriteFuncion = favoriteFuncion
+                )
+            }
 
 
         }
@@ -111,8 +131,8 @@ fun LazyListVehiculos(
     onSelect: (veh: Vehiculo) -> Unit,
     checkSelected: (otro: Vehiculo)-> Boolean,// = {otro: Vehiculo -> false}
     addFuncion: (vehiculo: Vehiculo) -> Unit = {},
-    deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
     updateFunction:(viejo:Vehiculo) -> Unit = {}
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
@@ -137,7 +157,8 @@ fun LazyListVehiculos(
                     vehiculoABorrar.value = vehiculo
                     shouldShowDialog.value = true
                 },
-                updateFunction = updateFunction
+                updateFunction = updateFunction,
+                favoriteFuncion = favoriteFuncion
 
             )
         }
@@ -151,16 +172,24 @@ fun vehiculoListable(
     selected: Boolean,
     addFuncion: (vehiculo: Vehiculo) -> Unit = {},
     deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
     updateFunction:(viejo:Vehiculo) -> Unit = {}
 
 ){
+    var cambiandoFavorito by remember{ mutableStateOf(false)}
+    if(cambiandoFavorito) {
+        LaunchedEffect(Unit) {
+            favoriteFuncion(vehiculo, !vehiculo.isFavorito())
+            println("Ejecutado")
+            cambiandoFavorito = false
+        }
+    }
     ObjetoListable(
         nombre = vehiculo.nombre,
         secondaryInfo = vehiculo.consumo.toString(),
         onGeneralClick = { onSelect(vehiculo) },
         selected = selected,
-        favoriteFuncion = { favoriteFuncion(vehiculo,!vehiculo.isFavorito()) },
+        favoriteFuncion = { cambiandoFavorito = true },
         deleteFuncition = { deleteFuncition(vehiculo) },
         updateFunction = {updateFunction(vehiculo)},
         favorito = vehiculo.isFavorito()
@@ -170,8 +199,14 @@ fun vehiculoListable(
 @Composable
 fun DeleteAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
-    deleteFuncition: () -> Unit
+    deleteFuncition:suspend () -> Unit
 ) {
+    var confirmadoBorrado by remember{ mutableStateOf(false)}
+    if(confirmadoBorrado)
+        LaunchedEffect(Unit) {
+            deleteFuncition()
+            shouldShowDialog.value = false
+        }
     if (shouldShowDialog.value) { // 2
         AlertDialog( // 3
             onDismissRequest = { // 4
@@ -183,8 +218,9 @@ fun DeleteAlertDialogue(
             confirmButton = { // 6
                 Button(
                     onClick = {
-                        shouldShowDialog.value = false
-                        deleteFuncition()
+                        confirmadoBorrado = true
+//                        shouldShowDialog.value = false
+//                            deleteFuncition()
                     }
                 ) {
                     Text(
@@ -234,6 +270,12 @@ val vehiculoTestData = listOf(
 private fun vehiculosListContentPreview() {
     val modifier: Modifier = Modifier
     VehiculosListContent(modifier, vehiculoTestData)
+}
+@Preview
+@Composable
+private fun vehiculosListContentVacioPreview() {
+    val modifier: Modifier = Modifier
+    VehiculosListContent(modifier, emptyList())
 }
 @Preview
 @Composable

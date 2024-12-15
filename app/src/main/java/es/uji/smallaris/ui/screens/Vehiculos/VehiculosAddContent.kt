@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,15 +30,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.DecimalFormatter
 import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.EnumDropDown
+import es.uji.smallaris.ui.state.VehiculosViewModel
 
 @Composable
 fun VehiculosAddContent(
-    funAddVehiculo: (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> Unit,
+    testViewModel : VehiculosViewModel = viewModel<VehiculosViewModel>(),
+    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> Unit,
     onBack: () -> Unit = {}
 ) {
     var nombre by remember { mutableStateOf("") }
@@ -45,6 +49,14 @@ fun VehiculosAddContent(
     var matricula by remember { mutableStateOf("") }
     var consumo = remember { mutableStateOf("") }
 
+    var confirmadoAdd by remember{ mutableStateOf(false)}
+    if(confirmadoAdd)
+        LaunchedEffect(Unit) {
+            funAddVehiculo(nombre, consumo.value.toDouble(),matricula, tipoVehiculo.value)
+            println("lista " + testViewModel.servicioVehiculos.getVehiculos())
+            confirmadoAdd = false
+            onBack()
+        }
     Surface (
         modifier = Modifier
             .fillMaxHeight()
@@ -128,7 +140,8 @@ fun VehiculosAddContent(
                         ) ,
                     onClick = {
                         // Handle form submission
-                        funAddVehiculo(nombre, if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(), matricula, tipoVehiculo.value)
+                        confirmadoAdd = true
+//                        funAddVehiculo(nombre, if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(), matricula, tipoVehiculo.value)
                     }) {
                     Text("Añadir")
                 }

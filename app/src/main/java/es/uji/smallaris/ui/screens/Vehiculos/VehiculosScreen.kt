@@ -38,7 +38,7 @@ fun VehiculosScreen(
     testFunction: () -> Unit
 ) {
     val modifier: Modifier = Modifier
-    val items by viewModel.items.collectAsState()
+    val items by viewModel.items
     val currentContent = remember { mutableStateOf(VehiculoScreenContent.Lista)}
     val currentUpdatedVehiculo: MutableState<Vehiculo> = remember { mutableStateOf(
         if (items.isEmpty())    Vehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
@@ -48,18 +48,24 @@ fun VehiculosScreen(
         )}
 
     Surface(color = MaterialTheme.colorScheme.primary) {
+        println("items "+ items)
+
         when(currentContent.value){
             VehiculoScreenContent.Lista -> VehiculosListContent(
                 modifier = modifier,
-                items = vehiculoTestData,
-                addFunction = {currentContent.value = VehiculoScreenContent.Add },
+                items = items,
                 updateFunction = { vehiculo ->
                     currentContent.value = VehiculoScreenContent.Update
                     currentUpdatedVehiculo.value = vehiculo
-                }
+                },
+                favoriteFuncion = {vehiculo: Vehiculo, favorito: Boolean ->  viewModel.setVehiculoFavorito(vehiculo, favorito) },
+                addFunction = {currentContent.value = VehiculoScreenContent.Add},
+                deleteFuncition = {vehiculo: Vehiculo ->  viewModel.deleteVehiculo(vehiculo) }
                 )
             VehiculoScreenContent.Add -> VehiculosAddContent(
-                funAddVehiculo = {nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->{}},
+                funAddVehiculo = {nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->
+                    viewModel.addVehiculo(nombre, consumo, matricula, tipo)},
+                testViewModel = viewModel,
                 onBack = {currentContent.value = VehiculoScreenContent.Lista }
             )
             VehiculoScreenContent.Update -> VehiculosUpdateContent(
