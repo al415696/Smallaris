@@ -23,15 +23,23 @@ class ServicioLugares(
     @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
 
+        if (longitud < -180 || longitud > 180 ) {
+            throw UbicationException("Las coordenadas deben estar entre -180 y 180 grados de longitud")
+        }
+
+        if (latitud < -90 || latitud > 90 ) {
+            throw UbicationException("Las coordenadas deben estar entre -90 y 90 grados de latitud")
+        }
+
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
 
         val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-        println("Toponimo obtenido: $toponimo")
         val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
         if (nombre.isEmpty()) {
