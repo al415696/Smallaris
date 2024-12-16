@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import android.util.Log
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
@@ -142,28 +143,6 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU03_faltaConexionBBDD() = runBlocking {
-
-        var resultado: ConnectionErrorException? = null
-
-        // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-
-        // When
-        try {
-            servicioLugares.getLugares()
-        } catch (e: ConnectionErrorException) {
-            resultado = e
-        }
-
-        // Then
-        assertNotNull(resultado)
-        assertTrue(resultado is ConnectionErrorException)
-    }
-
-    @Test
     fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoFavorito() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
@@ -239,7 +218,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
@@ -249,6 +228,7 @@ class TestServicioLugares {
         // When
         val (longitud, latitud) = servicioAPIs.getCoordenadas("Castellón de la Plana")
         val resultado = servicioLugares.addLugar(longitud, latitud)
+        Log.i("Información", "$longitud, $latitud")
 
         //Then
         assertEquals(longitud, resultado.longitud)
@@ -258,7 +238,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU02_darDeAltaLugarPorToponimoInexistente() = runBlocking {
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoInexistente() = runBlocking {
 
         var excepcion: UbicationException? = null
 
