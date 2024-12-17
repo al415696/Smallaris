@@ -34,7 +34,6 @@ class RutaBuilderWrapper(
             TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
                 CosteCarburanteSimple(servicioRutasYCoste)
             )
-
             else -> throw VehicleException("Tipo de vehículo no válido")
         }
 

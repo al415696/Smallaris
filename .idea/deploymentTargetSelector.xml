@@ -5,13 +5,13 @@
       <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getLugares_R2HU03_faltaConexionBBDD()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="addLugar_R2HU02_darDeAltaLugarPorToponimoOK()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="Tests in 'es.uji.smallaris.model'">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="addRuta_R4HU01_R4HU04_calcularYGuardarRutaCortaOK_()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
