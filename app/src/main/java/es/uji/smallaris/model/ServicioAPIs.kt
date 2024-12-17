@@ -6,8 +6,16 @@ import okhttp3.Request
 
 object ServicioAPIs {
 
-    private val servicioORS: ServicioORS = ServicioORS()
-    private val servicioPrecios: IServicioPrecios = ProxyPrecios()
+    private var servicioORS: ServicioORS = ServicioORS()
+    private var servicioPrecios: IServicioPrecios = ProxyPrecios()
+
+    // Métodos públicos para inyectar dependencias durante las pruebas
+    fun setServicioMapa(servicioORS: ServicioORS) {
+        this.servicioORS = servicioORS
+    }
+    fun setServicioPrecios(servicioPrecios: IServicioPrecios) {
+        this.servicioPrecios = servicioPrecios
+    }
 
     @Throws(UbicationException::class)
     fun getToponimoCercano(longitud: Double, latitud: Double): String {

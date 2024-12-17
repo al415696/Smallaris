@@ -6,8 +6,6 @@ plugins {
     id("kotlin-kapt")
     alias(libs.plugins.compose.compiler)
 
-
-
 }
 
 android {
@@ -39,11 +37,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -54,7 +52,17 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes.addAll(
+                listOf(
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE.md",
+                    "META-INF/NOTICE.txt",
+                    "/META-INF/AL2.0",
+                    "META-INF/LICENSE-notice.md",  // Nueva exclusión
+                    "/META-INF/LGPL2.1"
+                )
+            )
         }
     }
 }
@@ -70,6 +78,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -93,4 +102,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
     implementation(kotlin("script-runtime"))
+
+//    androidTestImplementation("org.mockito:mockito-core:5.0.0")
+//    androidTestImplementation("org.mockito:mockito-android:5.0.0")
+//    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    androidTestImplementation("io.mockk:mockk-android:1.13.13")
 }

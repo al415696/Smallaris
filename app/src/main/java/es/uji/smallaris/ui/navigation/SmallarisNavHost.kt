@@ -11,7 +11,7 @@ import es.uji.smallaris.ui.screens.LugaresScreen
 import es.uji.smallaris.ui.screens.MapaScreen
 import es.uji.smallaris.ui.screens.RutasScreen
 import es.uji.smallaris.ui.screens.UsuarioScreen
-import es.uji.smallaris.ui.screens.VehiculosScreen
+import es.uji.smallaris.ui.screens.Vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
 import es.uji.smallaris.ui.state.MapaViewModel
 import es.uji.smallaris.ui.state.RutasViewModel

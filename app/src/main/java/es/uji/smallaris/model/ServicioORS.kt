@@ -9,7 +9,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 
-class ServicioORS {
+open class ServicioORS {
     fun getToponimoCercano(longitud: Double, latitud: Double): String {
 
         if (longitud < -180 || longitud > 180 || latitud < -90 || latitud > 90) {
