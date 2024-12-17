@@ -1,6 +1,9 @@
 package es.uji.smallaris.model
 
-class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calculorRuta: CalculadorRutas) {
+class RutaBuilderWrapper(
+    private val calculadorRutas: CalculadorRutas,
+    private val servicioRutasYCoste: ServicioAPIs
+) {
 
     private val builder = RutaBuilder()
 
@@ -15,16 +18,7 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
     @Throws(VehicleException::class)
     suspend fun build(): Ruta {
 
-        // Hacer los cálculos necesarios aquí
-        when(builder.getVehiculo().tipo) {
-            TipoVehiculo.Electrico -> calculorRuta.setStrategy(CosteElectricoSimple())
-            TipoVehiculo.Pie -> calculorRuta.setStrategy(CostePieSimple())
-            TipoVehiculo.Bici -> calculorRuta.setStrategy(CosteBiciSimple())
-            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculorRuta.setStrategy(CosteCarburanteSimple())
-            else -> throw VehicleException("Tipo de vehículo no válido")
-        }
-
-        if (builder.getInicio().nombre == "" ) {
+        if (builder.getInicio().nombre == "") {
             throw UbicationException("El origen no puede estar vacío")
         }
 
@@ -32,7 +26,19 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
             throw UbicationException("El destino no puede estar vacío")
         }
 
-        calculorRuta.terminarRuta(builder)
+        // Hacer los cálculos necesarios aquí
+        when (builder.getVehiculo().tipo) {
+            TipoVehiculo.Pie -> calculadorRutas.setStrategy(CostePieSimple())
+            TipoVehiculo.Bici -> calculadorRutas.setStrategy(CosteBiciSimple())
+            TipoVehiculo.Electrico -> calculadorRutas.setStrategy(CosteElectricoSimple(servicioRutasYCoste))
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
+                CosteCarburanteSimple(servicioRutasYCoste)
+            )
+
+            else -> throw VehicleException("Tipo de vehículo no válido")
+        }
+
+        calculadorRutas.terminarRuta(builder)
 
         // Crear la ruta y guardarla
         val ruta = builder.getRuta()
