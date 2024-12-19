@@ -79,6 +79,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+//    Material
+    implementation(libs.material.icons.extended)
+//    implementation ("androidx.compose.material:material-icons-extended:2.8.7")
+
+
 //    lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
@@ -86,10 +91,12 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.52")
     kapt("com.google.dagger:hilt-compiler:2.52")
 
+//    APIs
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-geojson:7.3.1")
 
+//    Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
