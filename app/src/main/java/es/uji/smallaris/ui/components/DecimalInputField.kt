@@ -22,7 +22,9 @@ fun DecimalInputField(
     modifier: Modifier = Modifier,
     decimalFormatter: DecimalFormatter,
     text: MutableState<String>,
-    label: @Composable (() -> Unit)? = null
+    maxLenght: Int = 8,
+    label: @Composable (() -> Unit)? = null,
+
 ) {
 
 //    var text by remember {
@@ -33,7 +35,8 @@ fun DecimalInputField(
         modifier = modifier,
         value = text.value,
         onValueChange = {
-            text.value = decimalFormatter.cleanup(it)
+            if (it.length <= maxLenght)
+                text.value = decimalFormatter.cleanup(it)
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal,
