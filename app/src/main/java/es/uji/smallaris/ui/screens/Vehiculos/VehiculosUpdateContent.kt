@@ -1,5 +1,6 @@
 package es.uji.smallaris.ui.screens.Vehiculos
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,9 @@ fun VehiculosUpdateContent(
     var matricula by remember { mutableStateOf(viejoVehiculo.matricula) }
     var consumo = remember { mutableStateOf(viejoVehiculo.consumo.toString()) }
 
+    BackHandler {
+        onBack()
+    }
     Surface (
         modifier = Modifier
             .fillMaxHeight()

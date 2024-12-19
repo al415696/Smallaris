@@ -31,6 +31,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.OrdenVehiculo
+import kotlin.enums.EnumEntries
 
 @Composable
 fun VehiculosScreen(
@@ -38,7 +41,7 @@ fun VehiculosScreen(
     testFunction: () -> Unit
 ) {
     val modifier: Modifier = Modifier
-    val items by viewModel.items.collectAsState()
+    val items = viewModel.items
     val currentContent = remember { mutableStateOf(VehiculoScreenContent.Lista)}
     val currentUpdatedVehiculo: MutableState<Vehiculo> = remember { mutableStateOf(
         if (items.isEmpty())    Vehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
@@ -46,23 +49,42 @@ fun VehiculosScreen(
         else items[0]
 
         )}
+    var currentOrderIndex: Int = 0
+
 
     Surface(color = MaterialTheme.colorScheme.primary) {
+        println("items "+ items)
+
         when(currentContent.value){
-            VehiculoScreenContent.Lista -> VehiculosListContent(
+            VehiculoScreenContent.Lista ->
+                VehiculosListContent(
                 modifier = modifier,
-                items = vehiculoTestData,
-                addFunction = {currentContent.value = VehiculoScreenContent.Add },
+                items = items,
                 updateFunction = { vehiculo ->
                     currentContent.value = VehiculoScreenContent.Update
                     currentUpdatedVehiculo.value = vehiculo
-                }
+                },
+                favoriteFuncion = {vehiculo: Vehiculo, favorito: Boolean ->  viewModel.setVehiculoFavorito(vehiculo, favorito) },
+                addFunction = {currentContent.value = VehiculoScreenContent.Add},
+                sortFunction = {
+                    currentOrderIndex = (currentOrderIndex+1) %OrdenVehiculo.entries.size
+                    println(currentOrderIndex)
+                    println(OrdenVehiculo.entries[currentOrderIndex].toString())
+                    viewModel.sortItems(OrdenVehiculo.entries[currentOrderIndex])
+                    OrdenVehiculo.entries[currentOrderIndex].getNombre()
+                               },
+                deleteFuncition = {vehiculo: Vehiculo ->  viewModel.deleteVehiculo(vehiculo) }
                 )
-            VehiculoScreenContent.Add -> VehiculosAddContent(
-                funAddVehiculo = {nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->{}},
+            VehiculoScreenContent.Add ->
+                VehiculosAddContent(
+                funAddVehiculo = {
+                    nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->
+                    viewModel.addVehiculo(nombre, consumo, matricula, tipo)
+                                 },
                 onBack = {currentContent.value = VehiculoScreenContent.Lista }
             )
-            VehiculoScreenContent.Update -> VehiculosUpdateContent(
+            VehiculoScreenContent.Update ->
+                VehiculosUpdateContent(
                 viejoVehiculo = currentUpdatedVehiculo.value,
                 funUpdateVehiculo = {viejo:Vehiculo, nuevo:Vehiculo ->  },
                 onBack = {currentContent.value = VehiculoScreenContent.Lista }
@@ -79,8 +101,89 @@ private enum class VehiculoScreenContent(){
     Add,
     Update
 }
-private enum class ArquetipoVehiculo(){
-    Combustible,
-    Electrico,
-    Otro
+enum class ArquetipoVehiculo(){
+    Combustible{
+        private val members :List<TipoVehiculo> = listOf(TipoVehiculo.Gasolina95,TipoVehiculo.Gasolina98,TipoVehiculo.Diesel)
+        private val unidad: String = "L/100km"
+        override fun getAllOfArquetipo(): List<TipoVehiculo> {
+            return members
+//            var test = TipoVehiculo.entries.toMutableList()
+//            test.removeAll(listOf(TipoVehiculo.Electrico, TipoVehiculo.Pie, TipoVehiculo.Bici, TipoVehiculo.Desconocido))
+//            return test
+
+
+        }
+
+        override fun getUnidad(): String {
+            return unidad
+        }
+    },
+    Electrico{
+        private val members :List<TipoVehiculo> = listOf(TipoVehiculo.Electrico)
+        private val unidad: String = "kWh/100 km"
+        override fun getAllOfArquetipo(): List<TipoVehiculo> {
+            return members
+
+
+        }
+
+        override fun getUnidad(): String {
+            return unidad
+        }
+    },
+    Otro{
+        private val members :List<TipoVehiculo> = listOf(
+            TipoVehiculo.Pie,
+            TipoVehiculo.Bici,
+            TipoVehiculo.Desconocido
+        )
+        private val unidad: String = "Cal"
+
+        override fun getAllOfArquetipo(): List<TipoVehiculo> {
+            return members
+        }
+
+        override fun getUnidad(): String {
+            return unidad
+        }
+    };
+    fun classify(tipoVehiculo: TipoVehiculo): ArquetipoVehiculo{
+
+        return if (tipoVehiculo in Electrico.getAllOfArquetipo())
+            Electrico
+        else if (tipoVehiculo in Otro.getAllOfArquetipo()
+        )
+            Otro
+        else
+            Combustible
+    }
+    abstract fun getUnidad(): String
+    fun getUnidad(tipoVehiculo: TipoVehiculo): String{
+        for (arc in ArquetipoVehiculo.entries){
+            if (tipoVehiculo in arc.getAllOfArquetipo())
+                return arc.getUnidad()
+        }
+        return ""
+    }
+
+    abstract fun getAllOfArquetipo(): List<TipoVehiculo>
 }
+//enum class OrdenLugarInteres{
+//    FAVORITO_THEN_NOMBRE{
+//        override fun comparator(): Comparator<LugarInteres>{
+//            return compareBy<LugarInteres>{
+//                if (it.isFavorito()) 0 else 1
+//            }.thenBy{
+//                it.nombre
+//            }
+//        }
+//    },
+//    NOMBRE{
+//        override fun comparator(): Comparator<LugarInteres>{
+//            return compareBy<LugarInteres>{
+//                it.nombre
+//            }
+//        }
+//    };
+//    abstract fun comparator(): Comparator<LugarInteres>
+//}

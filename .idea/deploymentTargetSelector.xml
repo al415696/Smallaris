@@ -2,16 +2,19 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="Tests in 'es.uji.smallaris.model'">
+      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarOK()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioRutas">
+      <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="builder_R4HU01_trayectoFaltaVehiculo()">
+      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarOK_mockObtenerNombre()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="builder_R4HU02_costeCocheCorrecto_mockFirebase_mockObtenerRutaTrayecto_mockCoste()">
+      <SelectionState runConfigName="getLugares_R2HU03_faltaConexionBBDD()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="addLugar_R2HU02_darDeAltaLugarPorToponimoOK()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

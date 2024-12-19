@@ -105,5 +105,13 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return false
     }
 
-
+    companion object{
+        private lateinit var servicio: ServicioVehiculos
+        fun getInstance(): ServicioVehiculos{
+            if (!this::servicio.isInitialized){
+                servicio = ServicioVehiculos(repositorio = RepositorioFirebase())
+            }
+            return servicio
+        }
+    }
 }

@@ -87,6 +87,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+//    Material
+    implementation(libs.material.icons.extended)
+//    implementation ("androidx.compose.material:material-icons-extended:2.8.7")
+
 
 //    lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
