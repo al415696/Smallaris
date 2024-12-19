@@ -34,9 +34,10 @@ object ServicioAPIs {
 
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         return when (tipoVehiculo) {
-            TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
             TipoVehiculo.Electrico -> servicioPrecios.getPrecioElectrico()
-            else -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
+            TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
+            else -> throw VehicleException("No hace falta pedir el precio en bici o pie")
         }
     }
 

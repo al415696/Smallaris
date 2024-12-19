@@ -1,6 +1,5 @@
 package es.uji.smallaris.model.integration
 
-import es.uji.smallaris.model.API
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
@@ -9,6 +8,7 @@ import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.ServicioLugares
 import es.uji.smallaris.model.ServicioORS
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -34,7 +34,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun addLugar_R2HU01_darDeAltaLugarOK_mockObtenerNombre(): Unit = runBlocking {
+    fun addLugar_R2HU01_darDeAltaLugarOK_mockObtenerToponimo(): Unit = runBlocking {
 
         every { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
                 "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
@@ -60,7 +60,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU03_faltaConexionBBDD() = runBlocking {
+    fun getLugares_R2HU03_faltaConexionBBDD_mockRepositorioLugares() = runBlocking {
 
         var resultado: ConnectionErrorException? = null
 
@@ -80,10 +80,11 @@ class TestServicioLugares {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
+        coVerify { mockRepositorioLugares.enFuncionamiento() }
     }
 
     @Test
-    fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK_mockObtenerCoordenadas() = runBlocking {
 
         every { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.0376709, 39.986)
         every { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
@@ -102,5 +103,7 @@ class TestServicioLugares {
         assertEquals(39.986, resultado.latitud)
         assertEquals("Castellón de la Plana", resultado.municipio)
         assertEquals(1, servicioLugares.getLugares().size)
+        verify { mockServicioORS.getCoordenadas("Castellón de la Plana") }
+        verify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
     }
 }

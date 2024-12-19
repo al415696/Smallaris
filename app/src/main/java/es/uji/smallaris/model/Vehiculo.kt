@@ -1,10 +1,10 @@
 package es.uji.smallaris.model
 
 class Vehiculo : Favoritable {
-    lateinit var nombre: String
+    var nombre: String
     var consumo: Double = 0.0
-    lateinit var matricula: String
-    lateinit var tipo: TipoVehiculo
+    var matricula: String
+    var tipo: TipoVehiculo
 
     constructor(
         nombre: String,
