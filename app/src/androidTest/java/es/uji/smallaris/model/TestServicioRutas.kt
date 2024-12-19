@@ -457,7 +457,6 @@ class TestServicioRutas {
         assert(listaRutas.size == 1)
     }
 
-
     @Test
     fun getLugares_R5HU5_listaRutasFavoritoPrimero(): Unit = runBlocking {
         // Given

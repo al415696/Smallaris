@@ -30,8 +30,12 @@ import kotlin.math.pow
 
 
 class TestServicioRutas {
-
     companion object {
+
+        private const val PRECIO_CARBURANTE = 10.0
+        private const val PRECIO_ELECTRICO = 5000.0
+
+
         private lateinit var mockRepositorioRutas: RepositorioRutas
         private lateinit var mockServicioORS: ServicioORS
         private lateinit var servicioAPIs: ServicioAPIs
@@ -62,7 +66,8 @@ class TestServicioRutas {
             // Configurar respuestas de los mocks
             val mockResponse = readFileFromAssets("car_route.txt")
             every { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
-            coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns 10.0
+            coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns PRECIO_CARBURANTE
+            coEvery { mockServicioPrecio.getPrecioElectrico() } returns PRECIO_ELECTRICO
 
             // Inicializar ServicioAPIs y asignar mocks
             servicioAPIs = ServicioAPIs
@@ -184,12 +189,9 @@ class TestServicioRutas {
     }
 
     @Test
-    fun builder_R4HU02_costeCocheCorrecto_mockFirebase_mockObtenerRutaTrayecto_mockCoste() =
+    fun builder_R4HU02_costeCarburanteCorrecto_mockFirebase_mockObtenerRutaTrayecto_mockCoste() =
         runBlocking {
             // Given
-            val servicioAPIs = ServicioAPIs
-            assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
-
             val servicioRutas =
                 ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
@@ -199,7 +201,7 @@ class TestServicioRutas {
                 .setTipo(TipoRuta.Corta).build()
 
             // Then
-            val costeEsperado = (ruta.getDistancia() / 100) * coche.consumo * mockServicioPrecio.getPrecioCombustible(origen, coche.tipo)
+            val costeEsperado = (ruta.getDistancia() / 100) * coche.consumo * PRECIO_CARBURANTE
             assertTrue(
                 "El coste no es correcto. Obtenido: ${
                     redondear(
@@ -210,6 +212,33 @@ class TestServicioRutas {
             )
             verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockServicioPrecio.getPrecioCombustible(any(), any()) }
+        }
+
+    @Test
+    fun builder_R4HU02_costeElectricoCorrecto_mockFirebase_mockObtenerRutaTrayecto_mockCoste() =
+        runBlocking {
+            // Given
+            val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Electrico)
+            val servicioRutas =
+                ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+
+            // When
+            val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
+                .setFin(destino).setVehiculo(coche)
+                .setTipo(TipoRuta.Corta).build()
+
+            // Then
+            val costeEsperado = (ruta.getDistancia() / 100) * coche.consumo * (PRECIO_ELECTRICO / 1000)
+            assertTrue(
+                "El coste no es correcto. Obtenido: ${
+                    redondear(
+                        ruta.getCoste().toFloat()
+                    )
+                } vs esperado: ${redondear(costeEsperado.toFloat())}",
+                redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
+            )
+            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioPrecio.getPrecioElectrico() }
         }
 
     private fun redondear(valor: Float): Double {

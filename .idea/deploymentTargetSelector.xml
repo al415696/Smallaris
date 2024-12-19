@@ -8,9 +8,6 @@
       <SelectionState runConfigName="TestServicioRutas">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="addRuta_R4HU01_R4HU04_calcularYGuardarRuta_mockObtenerRutaTrayecto_mockFirebase()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="builder_R4HU01_trayectoFaltaVehiculo()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
