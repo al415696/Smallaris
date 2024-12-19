@@ -35,7 +35,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
-        return false
+        return true
     }
 
     override fun removeVehiculo(vehiculo: Vehiculo): Boolean {
