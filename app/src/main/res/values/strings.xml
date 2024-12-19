@@ -1,8 +1,5 @@
 <resources>
     <string name="app_name">Smallaris</string>
-
-    <string name="default_description_text">Lo siento ciegos</string>
-
     <string name="default_description_text">Lo siento ciegos</string>
     <string name="sin_vehiculos_text">Parece que no tienes ningún vehículo registrado :/</string>
 </resources>
