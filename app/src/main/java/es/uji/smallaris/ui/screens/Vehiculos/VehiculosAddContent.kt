@@ -1,9 +1,7 @@
 package es.uji.smallaris.ui.screens.Vehiculos
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,7 +24,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,30 +35,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.ui.components.DecimalFormatter
-import es.uji.smallaris.ui.components.DecimalInputField
-import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
 
 @Composable
 fun VehiculosAddContent(
-    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String,
+    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> ""},
     onBack: () -> Unit = {}
 ) {
-    var nombre = remember { mutableStateOf("") }
-    var nombreValid = remember { mutableStateOf(false) }
-    var tipoVehiculo = remember { mutableStateOf(TipoVehiculo.Desconocido) }
-    var matricula = remember { mutableStateOf("") }
-    var matriculaValid = remember { mutableStateOf(false) }
-    var consumo = remember { mutableStateOf("") }
+    val nombre = remember { mutableStateOf("") }
+    val nombreValid = remember { mutableStateOf(false) }
+    val tipoVehiculo = remember { mutableStateOf(TipoVehiculo.Desconocido) }
+    val matricula = remember { mutableStateOf("") }
+    val matriculaValid = remember { mutableStateOf(false) }
+    val consumo = remember { mutableStateOf("") }
 
     var confirmadoAdd by remember { mutableStateOf(false) }
 
 
     var mensajeError by remember { mutableStateOf("") }
     var errorConAdd by remember { mutableStateOf(false) }
-    var arquetipo = remember { mutableStateOf(ArquetipoVehiculo.Combustible) }
+    val arquetipo = remember { mutableStateOf(ArquetipoVehiculo.Combustible) }
 
     BackHandler {
         onBack()
@@ -197,203 +191,11 @@ fun VehiculosAddContent(
     }
 }
 
-@Composable
-private fun ArquetipoDependantFields(
-    arquetipo: MutableState<ArquetipoVehiculo>,
-    tipoVehiculo: MutableState<TipoVehiculo>,
-    matricula: MutableState<String>,
-    matriculaValid: MutableState<Boolean>,
-    consumo: MutableState<String>
-) {
-    Surface(
 
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 10.dp,
-        shape = MaterialTheme.shapes.large
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            EnumDropDown(
-                modifier = Modifier.padding(top = 5.dp),
-                opciones = listOf(
-                    ArquetipoVehiculo.Combustible,
-                    ArquetipoVehiculo.Electrico
-                ),
-                elegida = arquetipo
-            )
-
-
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 55.dp,
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Column(
-                    Modifier.padding(vertical = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(25.dp)
-                ) {
-                    when (arquetipo.value) {
-                        ArquetipoVehiculo.Combustible -> {
-                            if (!ArquetipoVehiculo.Combustible.getAllOfArquetipo()
-                                    .contains(tipoVehiculo.value)
-                            )
-                                tipoVehiculo.value = TipoVehiculo.Gasolina95
-
-                            CombustibleExclusiveOptions(
-                                tipoVehiculo,
-                                matricula,
-                                matriculaValid,
-                                consumo
-                            )
-                        }
-
-                        ArquetipoVehiculo.Electrico -> {
-                            tipoVehiculo.value = TipoVehiculo.Electrico
-                            ElectricoExclusiveOptions(
-                                matricula,
-                                matriculaValid,
-                                consumo
-                            )
-                        }
-
-                        ArquetipoVehiculo.Otro -> {}
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CombustibleExclusiveOptions(
-    tipoVehiculo: MutableState<TipoVehiculo> = mutableStateOf(TipoVehiculo.Gasolina95),
-    matricula: MutableState<String> = mutableStateOf(""),
-    matriculaValid: MutableState<Boolean> = mutableStateOf(true),
-    consumo: MutableState<String> = mutableStateOf(""),
-
-    ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    )
-    {
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = "Tipo de combustible:   ",
-                style = MaterialTheme.typography.labelLarge
-            )
-            EnumDropDown(
-                opciones = ArquetipoVehiculo.Combustible.getAllOfArquetipo(),
-                elegida = tipoVehiculo
-            )
-        }
-
-        DecimalInputField(
-            modifier = Modifier.width(150.dp),
-            text = consumo,
-            decimalFormatter = DecimalFormatter(),
-            maxLenght = 5
-        ) {
-            Text(
-                text = "Consumo en L/100km",
-                style = MaterialTheme.typography.labelSmall
-            )
-        }
-    }
-    FilteredTextField(
-        text = matricula,
-        valid = matriculaValid,
-        filter = { input ->
-            if (input.isEmpty())
-                "Tiene que tener una matricula"
-            else if (!(input.contains("[0-9][0-9][0-9][0-9][A-Z][A-Z][A-Z]".toRegex()) || input.contains(
-                    "[A-Z][0-9][0-9][0-9][0-9][A-Z][A-Z]".toRegex()
-                ))
-            )
-                "La matrícula debe seguir el formato\n LNNNNLL o NNNNLLL"
-            else
-                ""
-        },
-        label = "Matrícula del vehículo",
-        maxLength = 7
-    )
-
-
-}
-
-@Composable
-private fun ElectricoExclusiveOptions(
-    matricula: MutableState<String> = mutableStateOf(""),
-    matriculaValid: MutableState<Boolean> = mutableStateOf(true),
-    consumo: MutableState<String> = mutableStateOf(""),
-) {
-    DecimalInputField(
-        modifier = Modifier.width(175.dp),
-        text = consumo,
-        decimalFormatter = DecimalFormatter(),
-        maxLenght = 5
-    ) {
-        Text(
-            "Consumo en kWh/100 km",
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-    FilteredTextField(
-        text = matricula,
-        valid = matriculaValid,
-        filter = { input ->
-            if (input.isEmpty())
-                "Tiene que tener una matricula"
-            else if (!(input.contains("[0-9][0-9][0-9][0-9][A-Z][A-Z][A-Z]".toRegex()) || input.contains(
-                    "[A-Z][0-9][0-9][0-9][0-9][A-Z][A-Z]".toRegex()
-                ))
-            )
-                "La matrícula debe seguir el formato\n LNNNNLL o NNNNLLL"
-            else
-                ""
-        },
-        label = "Matrícula del vehículo",
-        maxLength = 7
-    )
-
-
-}
 
 @Preview
 @Composable
-private fun previewVehiculosAddContent() {
-    VehiculosAddContent(funAddVehiculo = { nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo -> "" })
+private fun PreviewVehiculosAddContent() {
+    VehiculosAddContent()
 }
 
-@SuppressLint("UnrememberedMutableState")
-@Preview
-@Composable
-private fun previewCombustible() {
-    ArquetipoDependantFields(
-        arquetipo =  mutableStateOf(ArquetipoVehiculo.Combustible),
-        tipoVehiculo = mutableStateOf(TipoVehiculo.Gasolina95),
-        matricula = mutableStateOf(""),
-        matriculaValid = mutableStateOf(false),
-        consumo = mutableStateOf("")
-    )
-}
-
-@SuppressLint("UnrememberedMutableState")
-@Preview
-@Composable
-private fun previewElectrico() {
-    ArquetipoDependantFields(
-        arquetipo =  mutableStateOf(ArquetipoVehiculo.Electrico),
-        tipoVehiculo = mutableStateOf(TipoVehiculo.Electrico),
-        matricula = mutableStateOf(""),
-        matriculaValid = mutableStateOf(false),
-        consumo = mutableStateOf("")
-    )
-}
