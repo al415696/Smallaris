@@ -13,5 +13,5 @@ interface IBuilderRutas {
     fun setCoste(coste: Double): IBuilderRutas
     fun setNombre(nombre: String): IBuilderRutas
     fun reset()
-    fun getRuta(): Ruta
+    fun getRutaCalculada(): Ruta
 }

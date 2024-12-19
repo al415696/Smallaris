@@ -2,12 +2,13 @@ package es.uji.smallaris.model
 
 import kotlin.math.acos
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String, val municipio: String) : Favoritable() {
 
-    private fun redondear(valor: Double, decimales: Int): Double {
-        val factor = Math.pow(10.0, decimales.toDouble())
+    private fun redondear(valor: Double): Double {
+        val factor = 10.0.pow(5.0)
         return Math.round(valor * factor) / factor
     }
 
@@ -17,9 +18,8 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
         other as LugarInteres
 
         // Redondear longitud y latitud a 5 decimales
-        if (redondear(longitud, 5) != redondear(other.longitud, 5)) return false
-        if (redondear(latitud, 5) != redondear(other.latitud, 5)) return false
-        if (nombre != other.nombre) return false
+        if (redondear(longitud) != redondear(other.longitud)) return false
+        if (redondear(latitud) != redondear(other.latitud)) return false
         return true
     }
 
@@ -44,5 +44,11 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
 
     private fun rad2deg(rad: Double): Double {
         return (rad * 180.0 / Math.PI)
+    }
+
+    override fun hashCode(): Int {
+        var result = longitud.hashCode()
+        result = 31 * result + latitud.hashCode()
+        return result
     }
 }

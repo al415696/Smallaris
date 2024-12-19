@@ -6,6 +6,6 @@ class CostePieSimple: Strategy {
         vehiculo: Vehiculo,
         distancia: Float
     ): Double {
-        return (distancia  * vehiculo.consumo)
+        return (distancia * vehiculo.consumo)
     }
 }

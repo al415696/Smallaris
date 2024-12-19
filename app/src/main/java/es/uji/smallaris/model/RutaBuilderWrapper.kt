@@ -2,7 +2,8 @@ package es.uji.smallaris.model
 
 class RutaBuilderWrapper(
     private val calculadorRutas: CalculadorRutas,
-    private val servicioRutasYCoste: ServicioAPIs
+    private val servicioRutasYCoste: ServicioAPIs,
+    private val servicioRutas: ServicioRutas
 ) {
 
     private val builder = RutaBuilder()
@@ -15,7 +16,7 @@ class RutaBuilderWrapper(
     fun setNombre(nombre: String) = apply { builder.setNombre(nombre) }
 
     // Método para terminar de construir y guardar la ruta
-    @Throws(VehicleException::class)
+    @Throws(VehicleException::class, UbicationException::class, RouteException::class)
     suspend fun build(): Ruta {
 
         if (builder.getInicio().nombre == "") {
@@ -26,22 +27,43 @@ class RutaBuilderWrapper(
             throw UbicationException("El destino no puede estar vacío")
         }
 
-        // Hacer los cálculos necesarios aquí
+        if (builder.getVehiculo().tipo == TipoVehiculo.Desconocido) {
+            throw VehicleException("Debes configurar un vehiculo")
+        }
+
+        if (builder.getTipo() == TipoRuta.Desconocida) {
+            throw RouteException("Debes configurar un tipo de ruta")
+        }
+
+        if (builder.getRuta().getNombre() == "") {
+            throw RouteException("Debes configurar un nombre para la ruta")
+        }
+
+        if (servicioRutas.contains(builder.getRuta())) {
+            throw RouteException("La ruta ya existe")
+        }
+
+
+        // Determinar la estrategia para obtener el coste de la ruta
         when (builder.getVehiculo().tipo) {
             TipoVehiculo.Pie -> calculadorRutas.setStrategy(CostePieSimple())
             TipoVehiculo.Bici -> calculadorRutas.setStrategy(CosteBiciSimple())
-            TipoVehiculo.Electrico -> calculadorRutas.setStrategy(CosteElectricoSimple(servicioRutasYCoste))
+            TipoVehiculo.Electrico -> calculadorRutas.setStrategy(
+                CosteElectricoSimple(
+                    servicioRutasYCoste
+                )
+            )
             TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
                 CosteCarburanteSimple(servicioRutasYCoste)
             )
+
             else -> throw VehicleException("Tipo de vehículo no válido")
         }
 
         calculadorRutas.terminarRuta(builder)
 
-        // Crear la ruta y guardarla
-        val ruta = builder.getRuta()
-        return ruta
+        // Crear la ruta y devolverla
+        return builder.getRutaCalculada()
     }
 
 }

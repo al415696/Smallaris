@@ -15,7 +15,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import androidx.test.platform.app.InstrumentationRegistry
+import es.uji.smallaris.model.API
+import es.uji.smallaris.model.ProxyPrecios
 import es.uji.smallaris.model.RouteException
+import es.uji.smallaris.model.VehicleException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.verify
@@ -32,6 +35,21 @@ class TestServicioRutas {
         private lateinit var mockRepositorioRutas: RepositorioRutas
         private lateinit var mockServicioORS: ServicioORS
         private lateinit var servicioAPIs: ServicioAPIs
+        private lateinit var mockServicioPrecio: ProxyPrecios
+        private val origen =
+            LugarInteres(
+                -0.067893,
+                39.991907,
+                "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
+                "Castellón de la Plana"
+            )
+        private val destino = LugarInteres(
+            0.013474,
+            39.971408,
+            "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
+            "Castellón de la Plana"
+        )
+        private val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
 
         @JvmStatic
         @BeforeClass
@@ -39,14 +57,18 @@ class TestServicioRutas {
             // Inicializar mocks una vez
             mockRepositorioRutas = mockk(relaxed = true)
             mockServicioORS = mockk(relaxed = true)
+            mockServicioPrecio = mockk(relaxed = true)
 
             // Configurar respuestas de los mocks
             val mockResponse = readFileFromAssets("car_route.txt")
             every { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
+            coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns 10.0
 
             // Inicializar ServicioAPIs y asignar mocks
             servicioAPIs = ServicioAPIs
             servicioAPIs.setServicioMapa(mockServicioORS)
+            servicioAPIs.setServicioPrecios(mockServicioPrecio)
+
         }
 
         private fun readFileFromAssets(fileName: String): String {
@@ -63,49 +85,62 @@ class TestServicioRutas {
     }
 
     @Test
-    fun addRuta_R4HU01_R4HU04_calcularYGuardarRuta_mockObtenerRutaTrayecto_mockFirebase() = runBlocking {
+    fun addRuta_R4HU01_R4HU04_calcularYGuardarRuta_mockObtenerRutaTrayecto_mockFirebase() =
+        runBlocking {
+            // Given
+            val servicioRutas =
+                ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
-        println(mockRepositorioRutas.enFuncionamiento())
+            // When
+            val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
+                .setFin(destino).setVehiculo(coche)
+                .setTipo(TipoRuta.Corta).build()
+            servicioRutas.addRuta(ruta)
 
-        // Given
-        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
-        val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
-
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
-
-        // When
-        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
-            .setTipo(TipoRuta.Corta).build()
-        servicioRutas.addRuta(ruta)
-
-        // Then
-        assertTrue("La distancia no es correcta. Obtenida: ${ruta.getDistancia()}",redondear(ruta.getDistancia(), 4) == redondear(7.9913F, 4))
-        assertTrue("La duración no es correcta. Obtenida: ${ruta.getDuracion()}",redondear(ruta.getDuracion(), 4) == redondear(1148.6F / 60, 4))
-        assert(servicioRutas.getRutas().size == 1)
-        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
-        coVerify { mockRepositorioRutas.addRuta(any()) }
-    }
+            // Then
+            assertTrue(
+                "La distancia no es correcta. Obtenida: ${ruta.getDistancia()}",
+                redondear(ruta.getDistancia()) == redondear(
+                    7.9913F
+                )
+            )
+            assertTrue(
+                "La duración no es correcta. Obtenida: ${ruta.getDuracion()}",
+                redondear(ruta.getDuracion()) == redondear(
+                    1148.6F / 60
+                )
+            )
+            assert(servicioRutas.getRutas().size == 1)
+            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockRepositorioRutas.addRuta(any()) }
+        }
 
     @Test
-    fun addRuta_R4HU05_GuardarRutaCortaYaGuardada_mock() = runBlocking {
+    fun addRuta_R4HU05_GuardarRutaYaGuardada_mockFirebase() = runBlocking {
 
         var resultado: RouteException? = null
 
         // Given
-        val coche = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95)
-        val origen =
-            LugarInteres(-0.067893, 39.991907, "Talleres, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana")
-        val destino = LugarInteres(0.013474, 39.971408, "Cámara de tráfico 10, Grao, Comunidad Valenciana, España", "Castellón de la Plana")
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
-        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen).setFin(destino).setVehiculo(coche)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
+            .setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).build()
         servicioRutas.addRuta(ruta)
 
         // Then
-        assertTrue("La distancia no es correcta. Obtenida: ${ruta.getDistancia()}",redondear(ruta.getDistancia(), 4) == redondear(7.9913F, 4))
-        assertTrue("La duración no es correcta. Obtenida: ${ruta.getDuracion()}",redondear(ruta.getDuracion(), 4) == redondear(1148.6F / 60, 4))
+        assertTrue(
+            "La distancia no es correcta. Obtenida: ${ruta.getDistancia()}",
+            redondear(ruta.getDistancia()) == redondear(
+                7.9913F
+            )
+        )
+        assertTrue(
+            "La duración no es correcta. Obtenida: ${ruta.getDuracion()}",
+            redondear(ruta.getDuracion()) == redondear(
+                1148.6F / 60
+            )
+        )
         // When
         try {
             servicioRutas.addRuta(ruta)
@@ -116,12 +151,69 @@ class TestServicioRutas {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is RouteException)
-        assertTrue("Se tienen ${servicioRutas.getRutas().size} rutas guardadas", servicioRutas.getRutas().size == 1)
+        assertTrue(
+            "Se tienen ${servicioRutas.getRutas().size} rutas guardadas",
+            servicioRutas.getRutas().size == 1
+        )
+        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+        coVerify { mockRepositorioRutas.addRuta(any()) }
     }
 
-    private fun redondear(valor: Float, decimales: Int): Double {
-        val factor = 10.0.pow(decimales.toDouble())
+    @Test
+    fun builder_R4HU01_trayectoFaltaVehiculo_mockFirebase_mockObtenerRutaTrayecto() = runBlocking {
+
+        var resultado: VehicleException? = null
+
+        // Given
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+
+        // When
+        try {
+            servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
+                .setFin(destino)
+                .setTipo(TipoRuta.Corta).build()
+        } catch (e: VehicleException) {
+            resultado = e
+        }
+
+        // Then
+        assertNotNull(resultado)
+        assertTrue(resultado is VehicleException)
+        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun builder_R4HU02_costeCocheCorrecto_mockFirebase_mockObtenerRutaTrayecto_mockCoste() =
+        runBlocking {
+            // Given
+            val servicioAPIs = ServicioAPIs
+            assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
+
+            val servicioRutas =
+                ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+
+            // When
+            val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
+                .setFin(destino).setVehiculo(coche)
+                .setTipo(TipoRuta.Corta).build()
+
+            // Then
+            val costeEsperado = (ruta.getDistancia() / 100) * coche.consumo * mockServicioPrecio.getPrecioCombustible(origen, coche.tipo)
+            assertTrue(
+                "El coste no es correcto. Obtenido: ${
+                    redondear(
+                        ruta.getCoste().toFloat()
+                    )
+                } vs esperado: ${redondear(costeEsperado.toFloat())}",
+                redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
+            )
+            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioPrecio.getPrecioCombustible(any(), any()) }
+        }
+
+    private fun redondear(valor: Float): Double {
+        val factor = 10.0.pow(4.0)
         return Math.round(valor * factor) / factor
     }
-
 }

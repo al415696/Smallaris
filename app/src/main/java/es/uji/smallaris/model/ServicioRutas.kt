@@ -41,7 +41,7 @@ class ServicioRutas(
     }
 
     fun builder(): RutaBuilderWrapper {
-        return RutaBuilderWrapper(calculadorRutas, servicioRutasYCoste)
+        return RutaBuilderWrapper(calculadorRutas, servicioRutasYCoste, this)
     }
 
     @Throws(ConnectionErrorException::class)
@@ -58,6 +58,7 @@ class ServicioRutas(
         return false
     }
 
+    @Throws(ConnectionErrorException::class, RouteException::class)
     suspend fun deleteRuta(ruta: Ruta): Boolean {
         if (!repositorioRutas.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible")
@@ -68,6 +69,10 @@ class ServicioRutas(
 
         rutas.remove(ruta)
         return repositorioRutas.deleteLugar(ruta)
+    }
+
+    fun contains(ruta: Ruta): Boolean {
+        return rutas.contains(ruta)
     }
 
 }
