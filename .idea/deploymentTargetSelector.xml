@@ -2,9 +2,6 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="updateVehiculos_R3HU4V2_updateVehiculoConMasEnLista()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="updateVehiculos_R3HU4I2_updateVehiculoSolapamientoIdentificadoresNuevos()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
