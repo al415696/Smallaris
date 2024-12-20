@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +52,7 @@ fun BottomListActionBar(
             horizontalArrangement = Arrangement.SpaceBetween,
 
             ) {
-            Row {
+            Row(Modifier.weight(1f)) {
                 FloatingActionButton(
                     onClick = {
                         shownText ="Ordenado por " + sortFunction()
@@ -86,14 +88,18 @@ fun BottomListActionBar(
                     else{
                         currentAlpha = 0F
                     }
-                    Text(
-                        modifier = Modifier
-                            .alpha(
-                                opacity.value
-                            )
-                            .align(Alignment.Bottom)
-                            .padding(start = 5.dp),
-                        text = shownText)
+                    Surface (modifier = Modifier
+                        .alpha(
+                            opacity.value
+                        )
+                        .align(Alignment.Bottom)
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 5.dp),
+                            text = shownText,
+                            maxLines = 2
+                        )
+                    }
 
 
                 }

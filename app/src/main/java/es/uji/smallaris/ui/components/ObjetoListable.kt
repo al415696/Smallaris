@@ -45,6 +45,7 @@ fun ObjetoListable(
     secondActionIcon: ImageVector = Icons.Rounded.Delete,
     secondActionFuncition: () -> Unit = {},
     closedHeight: Dp = 45.dp,
+    ratioHiddenFields: Float = 0.5F
 
     ) {
 
@@ -79,7 +80,8 @@ fun ObjetoListable(
                 primaryInfo = primaryInfo,
                 secondaryInfo = secondaryInfo,
                 terciaryInfo = terciaryInfo,
-                expanded = selected
+                expanded = selected,
+                ratioHiddenFields = ratioHiddenFields
             )
 
             IconButton(
@@ -114,7 +116,8 @@ fun DisplayDataObjetoSimplificada(
     primaryInfo: String,
     secondaryInfo: String,
     terciaryInfo: String = "",
-    expanded: Boolean = true
+    expanded: Boolean = true,
+    ratioHiddenFields: Float = 0.5F
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -151,7 +154,7 @@ fun DisplayDataObjetoSimplificada(
                 ) {
                     Text(
                         secondaryInfo, style = MaterialTheme.typography.bodyMedium,
-                        modifier = modifier.fillMaxWidth(0.5F)
+                        modifier = modifier.fillMaxWidth(ratioHiddenFields)
                     )
                     Text(
                         terciaryInfo, style = MaterialTheme.typography.bodyMedium,

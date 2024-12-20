@@ -183,12 +183,17 @@ class TestServicioVehiculos {
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
-        var resultado: Boolean = false
+        var resultado: Exception? = null
 //        WHEN
-            resultado = servicioVehiculos.updateVehiculo(vehiculoInicial)
+        try {
+            servicioVehiculos.updateVehiculo(vehiculoInicial)
+        } catch (e: Exception) {
+            resultado = e
+        }
 
 //        THEN
-        assertFalse(resultado)
+        assertNotNull(resultado)
+        assertTrue(resultado is VehicleException)
     }
 
     @Test
