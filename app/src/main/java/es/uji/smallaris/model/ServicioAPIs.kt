@@ -18,7 +18,7 @@ object ServicioAPIs {
     }
 
     @Throws(UbicationException::class)
-    fun getToponimoCercano(longitud: Double, latitud: Double): String {
+    suspend fun getToponimoCercano(longitud: Double, latitud: Double): String {
         return servicioORS.getToponimoCercano(longitud, latitud)
     }
 

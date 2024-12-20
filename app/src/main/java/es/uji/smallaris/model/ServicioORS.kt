@@ -2,6 +2,8 @@ package es.uji.smallaris.model
 
 import com.google.gson.JsonParser
 import es.uji.smallaris.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -10,48 +12,53 @@ import okhttp3.Response
 import org.json.JSONObject
 
 open class ServicioORS {
-    fun getToponimoCercano(longitud: Double, latitud: Double): String {
-
+    suspend fun getToponimoCercano(longitud: Double, latitud: Double): String {
+        // Verificamos que las coordenadas estén en el rango correcto
         if (longitud < -180 || longitud > 180 || latitud < -90 || latitud > 90) {
             throw UbicationException("Las coordenadas deben estar entre -180 y 180 grados de longitud y -90 y 90 grados de latitud")
         }
 
         val client = OkHttpClient()
         val apiKey = BuildConfig.OPENROUTESERVICE_API_KEY
-        val url =
-            "https://api.openrouteservice.org/geocode/reverse?api_key=$apiKey&point.lat=$latitud&point.lon=$longitud&lang=es"
+        val url = "https://api.openrouteservice.org/geocode/reverse?api_key=$apiKey&point.lat=$latitud&point.lon=$longitud&lang=es"
+        val request = Request.Builder().url(url).build()
 
-        val request = Request.Builder()
-            .url(url)
-            .build()
+        // Ejecutamos la operación de red en un hilo de fondo con Dispatchers.IO
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: Response = client.newCall(request).execute()
 
-        client.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            if (responseBody != null) {
-                // Parseamos el JSON para obtener la respuesta en un formato "tratable"
-                val jsonElement = JsonParser.parseString(responseBody)
-                val features = jsonElement.asJsonObject.getAsJsonArray("features")
+                response.use { resp ->
+                    val responseBody = resp.body?.string()
+                    if (responseBody != null) {
+                        // Parseamos el JSON
+                        val jsonElement = JsonParser.parseString(responseBody)
+                        val features = jsonElement.asJsonObject.getAsJsonArray("features")
 
-                // Si obtenemos opciones, es decir, algún topónimo relacionado a las coordenadas
-                if (features.size() > 0) {
-                    // Nos quedamos con las propiedades de la ubicación más representativa
-                    val properties = features[0].asJsonObject.getAsJsonObject("properties")
+                        // Si encontramos un topónimo relacionado con las coordenadas
+                        if (features.size() > 0) {
+                            val properties = features[0].asJsonObject.getAsJsonObject("properties")
+                            val name = properties.get("name")?.asString ?: "Desconocido"
+                            val municipio = properties.get("localadmin")?.asString ?: "Municipio desconocido"
+                            val region = properties.get("macroregion")?.asString ?: properties.get("region")?.asString ?: "Región desconocida"
+                            val pais = properties.get("country")?.asString ?: "País desconocido"
 
-                    // Extraemos los campos necesarios
-                    val name = properties.get("name")?.asString ?: "Desconocido"
-                    val municipio =
-                        properties.get("localadmin")?.asString ?: "Municipio desconocido"
-                    val region = properties.get("macroregion")?.asString
-                        ?: properties.get("region")?.asString ?: "Región desconocida"
-                    val pais = properties.get("country")?.asString ?: "País desconocido"
-
-                    // Formateamos la cadena en el orden solicitado
-                    return "$name, $municipio, $region, $pais"
+                            // Retornamos el topónimo formateado
+                            return@withContext "$name, $municipio, $region, $pais"
+                        } else {
+                            // Si no encontramos información, devolvemos una cadena vacía
+                            return@withContext ""
+                        }
+                    } else {
+                        // Si la respuesta está vacía, devolvemos una cadena vacía
+                        return@withContext ""
+                    }
                 }
+            } catch (e: Exception) {
+                // Si ocurre un error, se captura y se lanza una excepción
+                throw e
             }
         }
-        return ""
-
     }
 
     @Throws(RouteException::class)
