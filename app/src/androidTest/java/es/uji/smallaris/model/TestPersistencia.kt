@@ -7,6 +7,7 @@ import kotlinx.coroutines.tasks.await
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class TestPersistencia {
@@ -16,8 +17,11 @@ class TestPersistencia {
     private lateinit var servicioLugares: ServicioLugares
     private lateinit var servicioRutas: ServicioRutas
 
-    private fun iniciarServicios() {
+    @Before
+    fun iniciarServicios() = runBlocking {
         val repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         val servicioAPIs = ServicioAPIs
@@ -28,26 +32,13 @@ class TestPersistencia {
     @Test
     fun testPersistenciaVehiculo() = runBlocking {
         // Dado
-        iniciarServicios()
-        servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
-
-        // Mostrar vehículos antes de limpiar
         val vehiculosAntes = servicioVehiculos.getVehiculos()
-        println("Vehículos antes de limpiar usuario:")
-        vehiculosAntes.forEach { println("Vehículo: ${it.nombre}, Matrícula: ${it.matricula}, Consumo: ${it.consumo}, Tipo: ${it.tipo}") }
-
-        limpiarUsuario() // Esperará hasta que termine
-        servicioVehiculos.cargarVehiculos()
+        assertTrue(vehiculosAntes.isEmpty())
 
         val nombreVehiculo = "VehiculoTestNuevo"
         val consumo = 10.0
         val matricula = "TEST9876"
         val tipo = TipoVehiculo.Gasolina95
-
-        // Mostrar vehículos después de limpiar
-        val vehiculosDespues = servicioVehiculos.getVehiculos()
-        println("Vehículos después de limpiar usuario:")
-        vehiculosDespues.forEach { println("Vehículo: ${it.nombre}, Matrícula: ${it.matricula}, Consumo: ${it.consumo}, Tipo: ${it.tipo}") }
 
         // Cuando
         val vehiculoCreado = servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
@@ -55,15 +46,9 @@ class TestPersistencia {
 
         iniciarServicios()
 
-        servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
-        val vehiculosRecuperados = servicioVehiculos.getVehiculos()
-        println("Vehículos recuperados después de reiniciar sesión:")
-        vehiculosRecuperados.forEach { println("Vehículo: ${it.nombre}, Matrícula: ${it.matricula}, Consumo: ${it.consumo}, Tipo: ${it.tipo}") }
-
-        val vehiculoEncontrado = vehiculosRecuperados.contains(vehiculoCreado)
-
         // Entonces
-        assertTrue(vehiculoEncontrado)
+        val vehiculosRecuperados = servicioVehiculos.getVehiculos()
+        assertTrue(vehiculosRecuperados.contains(vehiculoCreado))
     }
 
 /*

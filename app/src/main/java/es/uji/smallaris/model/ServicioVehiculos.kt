@@ -1,13 +1,25 @@
 package es.uji.smallaris.model
 
+import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
 class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
     private val vehiculos = mutableListOf<Vehiculo>()
 
+    // Función suspendida para initializer los vehículos
+    private suspend fun cargarVehiculos() {
+        if (repositorio.enFuncionamiento()) {
+            vehiculos.addAll(repositorio.getVehiculos())
+        } else {
+            throw ConnectionErrorException("Firebase no está disponible")
+        }
+    }
+
     init {
-        this.vehiculos.addAll(repositorio.getVehiculos())
+        runBlocking {
+            cargarVehiculos()
+        }
     }
 
     @Throws(VehicleAlredyExistsException::class, ConnectionErrorException::class)
@@ -58,6 +70,11 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     suspend fun getVehiculos(ordenVehiculos: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE): List<Vehiculo>{
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+
+        if (vehiculos.isEmpty()) {
+            cargarVehiculos()
+        }
+
         return vehiculos.sortedWith(
             ordenVehiculos.comparator()
         )
