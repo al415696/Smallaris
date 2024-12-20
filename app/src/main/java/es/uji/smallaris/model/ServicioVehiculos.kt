@@ -71,10 +71,6 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
 
-        if (vehiculos.isEmpty()) {
-            cargarVehiculos()
-        }
-
         return vehiculos.sortedWith(
             ordenVehiculos.comparator()
         )

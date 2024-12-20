@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
@@ -42,6 +43,7 @@ class TestPersistencia {
 
         // Cuando
         val vehiculoCreado = servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
+        Log.i("hola", servicioVehiculos.getVehiculos()[0].toString())
         servicioUsuarios.cerrarSesion()
 
         iniciarServicios()
