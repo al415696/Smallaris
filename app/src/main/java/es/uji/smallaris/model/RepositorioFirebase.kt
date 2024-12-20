@@ -1,9 +1,11 @@
 package es.uji.smallaris.model
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,40 +30,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getVehiculos(): List<Vehiculo> {
-        /*try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
-            val userDocRef = obtenerFirestore()
-                .collection("usuarios")
-                .document(currentUser.uid)
-
-            val snapshot = userDocRef.get().await()
-
-            val vehiculosExistentes = (snapshot["vehículos"] as? List<*>)?.mapNotNull { vehiculoMap ->
-                (vehiculoMap as? Map<*, *>)?.let {
-                    Vehiculo(
-                        nombre = it["nombre"] as? String ?: "",
-                        consumo = (it["consumo"] as? Double) ?: 0.0,
-                        matricula = it["matricula"] as? String ?: "",
-                        tipo = (it["tipo"] as? String)?.let { tipo ->
-                            TipoVehiculo.valueOf(tipo)
-                        } ?: TipoVehiculo.Desconocido
-                    )
-                }
-            } ?: emptyList()
-
-            return vehiculosExistentes
-        } catch (e: Exception) {
-            return emptyList()
-        }
-        */
-        return emptyList()
-    }
-
-    override suspend fun addVehiculos(nuevo: Vehiculo): Boolean {
-        var retorno = true
-
         try {
             val currentUser = obtenerUsuarioActual()
                 ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
@@ -72,18 +40,59 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 .collection("vehículos")
                 .document("data")
 
-            
+            // Obtenemos el documento de Firestore
+            val snapshot = userDocRef.get().await()
 
-            userDocRef.update("items", FieldValue.arrayUnion(nuevo))
-                .addOnFailureListener { e ->
-                    retorno = false
+            // Obtenemos el array "items" del documento
+            val vehiculosExistentes = (snapshot["items"] as? List<*>)?.mapNotNull { vehiculoMap ->
+                // Mapeamos cada elemento de "items" a un objeto Vehiculo
+                (vehiculoMap as? Map<*, *>)?.let {
+                    Vehiculo(
+                        nombre = it["nombre"] as? String ?: "",
+                        consumo = (it["consumo"] as? Double) ?: 0.0,
+                        matricula = it["matricula"] as? String ?: "",
+                        tipo = (it["tipo"] as? String)?.let { tipo ->
+                            TipoVehiculo.valueOf(tipo)
+                        } ?: TipoVehiculo.Desconocido,
+                        favorito = (it["favorito"] as? Boolean) ?: false
+                    )
                 }
+            } ?: emptyList()
 
-
-            return retorno
+            return vehiculosExistentes
         } catch (e: Exception) {
-            retorno = false
-            return retorno
+            // Manejo de errores
+            println("Error al obtener vehículos: ${e.message}")
+            return emptyList()
+        }
+    }
+
+    override suspend fun addVehiculos(nuevo: Vehiculo): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            // Primero, intentamos obtener el documento para verificar si el array "items" existe
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                userDocRef.update("items", FieldValue.arrayUnion(nuevo.toMap())).await()
+            } else {
+                val initialData = mapOf("items" to listOf(nuevo.toMap()))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+            return true
+        } catch (e: Exception) {
+            // Manejo de errores
+            println("Error al agregar vehículo: ${e.message}")
+            return false
         }
     }
 

@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import android.util.Log
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -37,6 +38,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             // Se ejecuta el método add del repositorio
             if (repositorio.addVehiculos(vehiculo)){
                 vehiculos.add(vehiculo)
+                Log.i("SE HA GUARDADO EN LOCAL", ":)")
                 return vehiculo
             }
         }

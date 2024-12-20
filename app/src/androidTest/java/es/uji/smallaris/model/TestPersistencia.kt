@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -21,6 +22,7 @@ class TestPersistencia {
     @Before
     fun iniciarServicios() = runBlocking {
         val repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.registrarUsuario("al415647@uji.es", "12345678")
         repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
 
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
@@ -30,6 +32,11 @@ class TestPersistencia {
         servicioRutas = ServicioRutas(CalculadorRutasORS())
     }
 
+    @After
+    fun limpiarUsuario() = runBlocking {
+
+    }
+    
     @Test
     fun testPersistenciaVehiculo() = runBlocking {
         // Dado
@@ -37,13 +44,12 @@ class TestPersistencia {
         assertTrue(vehiculosAntes.isEmpty())
 
         val nombreVehiculo = "VehiculoTestNuevo"
-        val consumo = 10.0
+        val consumo = 12.0
         val matricula = "TEST9876"
         val tipo = TipoVehiculo.Gasolina95
 
         // Cuando
         val vehiculoCreado = servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
-        Log.i("hola", servicioVehiculos.getVehiculos()[0].toString())
         servicioUsuarios.cerrarSesion()
 
         iniciarServicios()
@@ -131,29 +137,4 @@ class TestPersistencia {
         assertEquals(rutaCreada.getCoste(), rutaEncontrada?.getCoste())
     }
 */
-
-    suspend fun limpiarUsuario() {
-        val auth = FirebaseAuth.getInstance()
-        val firestore = FirebaseFirestore.getInstance()
-
-        auth.currentUser?.let { user ->
-            try {
-                val userDocument = firestore.collection("usuarios").document(user.uid)
-                val subcollections = listOf("vehículos", "lugares", "rutas")
-                for (subcollection in subcollections) {
-                    val subcollectionRef = userDocument.collection(subcollection).document("data")
-                    val snapshot = subcollectionRef.get().await()
-
-                    if (snapshot.exists()) {
-                        subcollectionRef.delete().await()
-                    }
-                }
-
-                println("Limpieza de usuario completada.")
-            } catch (ex: Exception) {
-                println("Error al limpiar usuario: ${ex.message}")
-                throw ex
-            }
-        }
-    }
 }
