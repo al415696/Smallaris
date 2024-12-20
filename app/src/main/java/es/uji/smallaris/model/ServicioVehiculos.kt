@@ -43,12 +43,12 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             if (nombreRep || matriculaRep){
                 var errorMessage = StringBuilder("Vehiculo con ")
                 if (nombreRep){
-                    errorMessage.append("nombre \"$nombre\"")
+                    errorMessage.append("nombre \"$nombre\" ")
                     if (matriculaRep)
-                        errorMessage.append("y matricula \"$matricula\"")
+                        errorMessage.append("y matricula \"$matricula\" ")
                 }else
-                    errorMessage.append("matricula \"$matricula\"")
-                errorMessage.append(" ya existe")
+                    errorMessage.append("matricula \"$matricula\" ")
+                errorMessage.append("ya existe")
                 if (vehiculoIgnorado == null || otro != vehiculoIgnorado)
                     throw VehicleException(errorMessage.toString())
             }
@@ -89,7 +89,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             val nuevoVehiculo = Vehiculo(nuevoNombre,nuevoConsumo,nuevaMatricula,nuevoTipoVehiculo)
             // Si no se está cambiando nada, anula la operación
             if (nuevoVehiculo == viejo)
-                return false
+                throw VehicleException("No se está modificando ningún dato")
             //Lanza excepción si los nuevos atributos causan conflictos
             checkUnicidadVehiculo(nuevoNombre,nuevaMatricula, viejo)
 

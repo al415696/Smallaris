@@ -86,7 +86,14 @@ fun VehiculosScreen(
             VehiculoScreenContent.Update ->
                 VehiculosUpdateContent(
                 viejoVehiculo = currentUpdatedVehiculo.value,
-                funUpdateVehiculo = {viejo:Vehiculo, nuevo:Vehiculo ->  },
+                funUpdateVehiculo = {viejo: Vehiculo, nuevoNombre: String,
+                                     nuevoConsumo: Double,
+                                     nuevaMatricula: String,
+                                     nuevoTipoVehiculo: TipoVehiculo -> viewModel.updateVehiculo(viejo, nuevoNombre, nuevoConsumo, nuevaMatricula, nuevoTipoVehiculo)},
+//                {viejo: Vehiculo, nuevoNombre: String,
+//                                     nuevoConsumo: Double,
+//                                     nuevaMatricula: String,
+//                                     nuevoTipoVehiculo: TipoVehiculo -> ""  } ,
                 onBack = {currentContent.value = VehiculoScreenContent.Lista }
 
             )

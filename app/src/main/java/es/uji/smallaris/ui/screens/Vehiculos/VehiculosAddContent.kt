@@ -154,6 +154,7 @@ fun VehiculosAddContent(
                         contentColor = MaterialTheme.colorScheme.error
                     ) {
                         Text(
+                            modifier = Modifier.padding(horizontal = 5.dp),
                             text = mensajeError,
                             style = MaterialTheme.typography.titleLarge,
                         )

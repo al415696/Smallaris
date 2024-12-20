@@ -58,6 +58,30 @@ class VehiculosViewModel() : ViewModel() {
         }
         return ""
     }
+    suspend fun updateVehiculo(viejo: Vehiculo,
+                               nuevoNombre: String = viejo.nombre,
+                               nuevoConsumo: Double = viejo.consumo,
+                               nuevaMatricula: String = viejo.matricula,
+                               nuevoTipoVehiculo: TipoVehiculo = viejo.tipo): String{
+        try {
+            if (servicioVehiculos.updateVehiculo(viejo, nuevoNombre,nuevoConsumo, nuevaMatricula, nuevoTipoVehiculo)) {
+                updateList()
+                return ""
+            }
+            else{
+                return "Fallo inesperado, prueba con otro momento"
+            }
+        }
+        catch (e: ConnectionErrorException) {
+            e.printStackTrace()
+            return "Error al conectarse con el servidor"
+        }
+        catch (e: VehicleException){
+
+            return e.message ?: ""
+        }
+        return ""
+    }
     suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean){
         try {
             if(servicioVehiculos.setFavorito(vehiculo, favorito))
@@ -78,7 +102,7 @@ class VehiculosViewModel() : ViewModel() {
 
         var c: Char = 'A'
         while (c <= 'Z') {
-            servicioVehiculos.addVehiculo(c.toString(), 45.458, "$c$c$c$c" + "123", TipoVehiculo.Gasolina95)
+            servicioVehiculos.addVehiculo(c.toString(), 45.458,  "1234$c$c$c", TipoVehiculo.Gasolina95)
             ++c
         }
 

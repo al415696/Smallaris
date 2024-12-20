@@ -168,7 +168,8 @@ fun LazyListVehiculos(
                     shouldShowDialog.value = true
                 },
                 updateFunction = updateFunction,
-                favoriteFuncion = favoriteFuncion
+                favoriteFuncion = favoriteFuncion,
+
 
             )
         }
@@ -207,7 +208,8 @@ fun vehiculoListable(
             secondActionFuncition = { deleteFuncition(vehiculo) },
             firstActionFunction = {updateFunction(vehiculo)},
             favorito = vehiculo.isFavorito(),
-            selected = selected
+            selected = selected,
+            ratioHiddenFields = 0.4F
 
         )
 }

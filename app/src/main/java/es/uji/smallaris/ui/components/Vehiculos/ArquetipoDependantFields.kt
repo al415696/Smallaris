@@ -126,7 +126,7 @@ private fun CombustibleExclusiveOptions(
             modifier = Modifier.width(150.dp),
             text = consumo,
             decimalFormatter = DecimalFormatter(),
-            maxLenght = 5
+            maxLenght = 7
         ) {
             Text(
                 text = "Consumo en L/100km",
@@ -165,7 +165,7 @@ private fun ElectricoExclusiveOptions(
         modifier = Modifier.width(175.dp),
         text = consumo,
         decimalFormatter = DecimalFormatter(),
-        maxLenght = 5
+        maxLenght = 7
     ) {
         Text(
             "Consumo en kWh/100 km",
