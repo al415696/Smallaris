@@ -1,14 +1,9 @@
 package es.uji.smallaris.ui.components
 
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,12 +15,13 @@ import java.text.DecimalFormatSymbols
 @Composable
 fun DecimalInputField(
     modifier: Modifier = Modifier,
-    decimalFormatter: DecimalFormatter,
+    decimalFormatter: IDecimalFormatter = StandardDecimalFormatter(),
     text: MutableState<String>,
     maxLenght: Int = 8,
+    useVisualTransformation: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 
-) {
+    ) {
 
 //    var text by remember {
 //        mutableStateOf(0.0)
@@ -41,18 +37,25 @@ fun DecimalInputField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal,
         ),
-        visualTransformation = DecimalInputVisualTransformation(decimalFormatter),
+        visualTransformation = if (useVisualTransformation) DecimalInputVisualTransformation(decimalFormatter) else VisualTransformation.None,
         label = label
     )
 }
-class DecimalFormatter(
-    symbols: DecimalFormatSymbols = DecimalFormatSymbols.getInstance()
-) {
+abstract class IDecimalFormatter(
+    val symbols: DecimalFormatSymbols = DecimalFormatSymbols.getInstance()
+){
+
+
+    abstract fun cleanup(input: String): String
+    abstract fun formatForVisual(input: String): String
+}
+
+class StandardDecimalFormatter : IDecimalFormatter() {
 
     private val thousandsSeparator = symbols.groupingSeparator
     private val decimalSeparator = symbols.decimalSeparator
 
-    fun cleanup(input: String): String {
+    override fun cleanup(input: String): String {
 
         if (input.matches("\\D".toRegex())) return ""
         if (input.matches("0+".toRegex())) return "0"
@@ -75,7 +78,69 @@ class DecimalFormatter(
         return sb.toString()
     }
 
-    fun formatForVisual(input: String): String {
+    override fun formatForVisual(input: String): String {
+
+        val split = input.split(decimalSeparator)
+
+        val intPart = split[0]
+            .reversed()
+            .chunked(3)
+            .joinToString(separator = thousandsSeparator.toString())
+            .reversed()
+
+        val fractionPart = split.getOrNull(1)
+
+        return if (fractionPart == null) intPart else intPart + decimalSeparator + fractionPart
+    } }
+
+class CoordinateDecimalFormatter : IDecimalFormatter() {
+
+    private val thousandsSeparator = symbols.groupingSeparator
+    private val decimalSeparator = symbols.decimalSeparator
+
+    override fun cleanup(input: String): String {
+        println(input)
+        if (input.startsWith('-')) {
+            if (input.length > 1 && input.substring(1).matches("\\D".toRegex()))
+                return ""
+
+        }
+        else
+            if (input.matches("\\D".toRegex())) { return ""
+            }
+        if (input.matches("0+".toRegex())) return "0"
+        if (input.matches("-0+".toRegex())) return "-0"
+
+        if (input.matches("-?\\d{3}[^.]".toRegex())) return input.substring(0,input.length-1)
+
+        val sb = StringBuilder()
+
+        var hasDecimalSep = false
+        var hasNegative = false
+
+
+        for (char in input) {
+            if (char.isDigit()) {
+                sb.append(char)
+                continue
+            }
+            if (char == '-' && sb.isEmpty() && !hasNegative){
+                sb.append(char)
+                hasNegative = true
+                continue
+            }
+            if (char == decimalSeparator && !hasDecimalSep && sb.isNotEmpty()) {
+                sb.append(char)
+                hasDecimalSep = true
+                continue
+            }
+
+        }
+
+        return sb.toString()
+    }
+
+    override fun formatForVisual(input: String): String {
 
         val split = input.split(decimalSeparator)
 
@@ -92,7 +157,7 @@ class DecimalFormatter(
 }
 
 private class DecimalInputVisualTransformation(
-    private val decimalFormatter: DecimalFormatter
+    private val decimalFormatter: IDecimalFormatter
 ) : VisualTransformation {
 
     override fun filter(text: AnnotatedString): TransformedText {

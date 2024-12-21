@@ -22,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,9 +35,6 @@ import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import es.uji.smallaris.ui.components.DecimalFormatter
-import es.uji.smallaris.ui.components.DecimalInputField
-import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields

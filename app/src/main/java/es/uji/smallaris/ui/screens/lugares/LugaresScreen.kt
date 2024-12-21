@@ -42,19 +42,22 @@ fun LugaresScreen(
                     items = items,
                     favoriteFuncion = { lugarInteres: LugarInteres, favorito: Boolean ->  viewModel.setLugarFavorito(lugarInteres, favorito) },
                     addFunction = {currentContent.value = LugarScreenContent.Add},
-                    sortFunction = {
+                    sortFunction =
+                    {
                         currentOrderIndex = (currentOrderIndex+1) % OrdenLugarInteres.entries.size
                         println(currentOrderIndex)
                         println(OrdenLugarInteres.entries[currentOrderIndex].toString())
                         viewModel.sortItems(OrdenLugarInteres.entries[currentOrderIndex])
                         OrdenLugarInteres.entries[currentOrderIndex].getNombre()
-                    },
+                    }
+                    ,
                     deleteFuncition = {lugarInteres: LugarInteres ->  viewModel.deleteLugar(lugarInteres) }
                 )
             LugarScreenContent.Add ->
                 LugaresAddContent(
                     funAddLugar = {longitud: Double, latitud: Double, nombre: String ->viewModel.addLugar(longitud, latitud, nombre)},
-                    onBack = {currentContent.value = LugarScreenContent.Lista }
+                    onBack = {currentContent.value = LugarScreenContent.Lista },
+                    funConseguirToponimos = {longitud: Double, latitud: Double ->  viewModel.getToponimo(longitud, latitud)  }//{_,_-> ""}
                 )
         }
     }

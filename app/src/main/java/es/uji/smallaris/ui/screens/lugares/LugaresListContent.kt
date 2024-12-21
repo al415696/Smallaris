@@ -14,14 +14,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NotListedLocation
+import androidx.compose.material.icons.filled.NotListedLocation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +39,8 @@ import es.uji.smallaris.R
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
-import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.ObjetoListable
+import java.util.Locale
 
 @Composable
 fun LugaresListContent(
@@ -103,7 +103,7 @@ fun LugaresListContent(
                             println(lugarInteresSelected)
                         },
                         checkSelected = { other: LugarInteres -> lugarInteresSelected.equals(other) },
-                        updateFunction = updateFunction,
+                        goToMapFunction = updateFunction,
                         deleteFuncition = deleteFuncition,
                         favoriteFuncion = favoriteFuncion
                     )
@@ -132,14 +132,14 @@ fun LazyListLugarInteres(
     checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
-    updateFunction:(viejo:LugarInteres) -> Unit = {}
+    goToMapFunction:(lugarInteres:LugarInteres) -> Unit = {}
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val lugarInteresABorrar = remember { mutableStateOf<LugarInteres?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
             deleteFuncition = { lugarInteresABorrar.value?.let { deleteFuncition(it) } },
-            nombreObjetoBorrado = "El vehículo elegido"
+            nombreObjetoBorrado = "El lugar elegido"
 
         )
     }
@@ -162,7 +162,7 @@ fun LazyListLugarInteres(
                     lugarInteresABorrar.value = lugarInteres
                     shouldShowDialog.value = true
                 },
-                updateFunction = updateFunction,
+                goToMapFunction = goToMapFunction,
                 favoriteFuncion = favoriteFuncion
 
             )
@@ -181,7 +181,7 @@ fun lugarInteresListable(
     addFuncion: (lugarInteres: LugarInteres) -> Unit = {},
     deleteFuncition: (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
-    updateFunction:(viejo:LugarInteres) -> Unit = {}
+    goToMapFunction:(lugarInteres: LugarInteres) -> Unit = {}
 
 ){
     var cambiandoFavorito by remember{ mutableStateOf(false)}
@@ -195,14 +195,16 @@ fun lugarInteresListable(
 
         ObjetoListable(
             primaryInfo = lugarInteres.nombre,
-            secondaryInfo = lugarInteres.latitud.toString(),
-            terciaryInfo =  lugarInteres.longitud.toString(),
+            secondaryInfo =  lugarInteres.municipio,
+            terciaryInfo ="N ${lugarInteres.latitud.toReasonableString()}\nW ${ lugarInteres.longitud.toReasonableString()}",
             onGeneralClick = { onSelect(lugarInteres) },
             favoriteFuncion = { cambiandoFavorito = true },
-            secondActionFuncition = { deleteFuncition(lugarInteres) },
-            firstActionFunction = {updateFunction(lugarInteres)},
+            firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
+            firstActionFunction = {goToMapFunction(lugarInteres)},
+            secondActionFuncition = { deleteFuncition(lugarInteres)},
             favorito = lugarInteres.isFavorito(),
-            selected = selected
+            selected = selected,
+            ratioHiddenFields = 0.6f
 
         )
 }
@@ -253,4 +255,8 @@ private fun lugarInteresListContentVacioPreview() {
 private fun previewListaLugarInteres() {
     LazyListLugarInteres(onSelect =  {},
         checkSelected = {true})
+}
+fun Double.toReasonableString(): String {
+    return String.format(Locale.US,"%.5f", this)
+
 }
