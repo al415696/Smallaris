@@ -2,8 +2,10 @@ package es.uji.smallaris.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -20,18 +22,21 @@ import com.mapbox.maps.extension.localization.localizeLabels
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import es.uji.smallaris.R
 import es.uji.smallaris.ui.state.MapaViewModel
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
 fun MapaScreen(
     viewModel: MapaViewModel
 ) {
-    var markers by rememberSaveable { mutableStateOf(listOf<Point>()) }
+    // Estado para almacenar el marcador (texto y la posición)
+    var marker by rememberSaveable { mutableStateOf<Pair<String, Point>?>(null) }
 
+    // Estado para mantener el mapa
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
             zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
-            center(Point.fromLngLat(-0.068547, 39.994259)) // Coordenadas de la Universidad Jaume I.
+            center(Point.fromLngLat(-0.068547, 39.994259)) // Coordenadas iniciales
             pitch(0.0)
             bearing(0.0)
         }
@@ -43,24 +48,27 @@ fun MapaScreen(
         painter = painterResource(R.drawable.location_on_24px) // Cambia esto por el icono que prefieras
     )
 
+    // Lógica para realizar la llamada suspend a la API al hacer clic en el mapa
+    val scope = rememberCoroutineScope()  // Para lanzar la llamada suspendida en un CoroutineScope
+
     MapboxMap(
         modifier = Modifier.fillMaxSize(),
         mapViewportState = mapViewportState,
         onMapClickListener = OnMapClickListener { point ->
-            markers = markers + point
+            // Llamada a la función suspend dentro de una corutina
+            scope.launch {
+                val (_, toponimo) = viewModel.getToponimo(point.longitude(), point.latitude())
+                // Almacenar el topónimo y el punto en el estado
+                marker = Pair(toponimo, point)
+            }
             true
         },
         content = {
-            markers.forEach { point ->
-                PointAnnotation(point = point,
-                    onClick = { clickedPoint ->
-                        // Eliminar el marcador al hacer clic
-                        markers = markers.filter { it != clickedPoint.point }
-                        true // Consumir el evento de clic
-                    }) {
+            marker?.let { (text, point) ->
+                PointAnnotation(point = point) {
                     iconImage = markerImage
                     iconSize = 1.0
-                    textField = "${point.longitude()}, ${point.latitude()}"
+                    textField = text  // Mostrar el texto (topónimo)
                     textColor = Color.Black
                     textSize = 10.0
                     textOffset = listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
@@ -76,3 +84,7 @@ fun MapaScreen(
         }
     )
 }
+
+
+
+
