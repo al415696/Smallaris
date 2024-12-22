@@ -17,7 +17,8 @@ import es.uji.smallaris.ui.state.LugaresViewModel
 
 @Composable
 fun LugaresScreen(
-    viewModel: LugaresViewModel
+    viewModel: LugaresViewModel,
+    onGoToLugar: (Double, Double) -> Unit = {_,_ ->}
 ){
     val modifier: Modifier = Modifier
     val items = viewModel.items

@@ -122,3 +122,6 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
+private fun NavHostController.navigateToMapWithCoords(longitud: Double, latitud: Double, onBack: ()-> Unit) {
+    this.navigateSingleTopTo("${MapaDestination.route}/$longitud")
+}
