@@ -139,4 +139,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
         return true // Sesión cerrada con éxito
     }
+
+    override suspend fun borrarUsuario(): Usuario? {
+        return null
+    }
 }

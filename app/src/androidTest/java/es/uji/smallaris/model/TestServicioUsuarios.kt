@@ -5,7 +5,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -170,8 +169,29 @@ class TestServicioUsuarios {
                         auth.signOut()
                     }
                 }
-                Thread.sleep(2000)
             }
         }
+    }
+
+    class BorrarUsuarioExitoTest {
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
+
+        @Test
+        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking{
+            // Dado
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+
+            // Cuando
+            val usuario = servicioUsuarios.borrarUsuario()
+
+            // Entonces
+            assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
+        }
+
     }
 }
