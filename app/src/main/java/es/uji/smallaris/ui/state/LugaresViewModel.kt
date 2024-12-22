@@ -130,12 +130,14 @@ class LugaresViewModel() : ViewModel() {
             return Pair(ErrorCategory.NotAnError,"Error inesperado")
         }
     }
-    suspend fun getCoordenadas(toponimo: String): Pair<Double,Double>{
+    suspend fun getCoordenadas(toponimo: String):Pair<ErrorCategory,Pair<Double,Double>>{
         try {
-            return servicioAPI.getCoordenadas(toponimo)
+            //(longitud, latitud)
+
+            return Pair(ErrorCategory.NotAnError, servicioAPI.getCoordenadas(toponimo))
         } catch (e: UbicationException) {
             e.printStackTrace()
-            return Pair(-999.9,-999.9)
+            return Pair(ErrorCategory.UnknownError ,Pair(-999.9,-999.9))
         }
     }
     companion object{

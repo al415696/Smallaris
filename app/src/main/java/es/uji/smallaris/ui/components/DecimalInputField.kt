@@ -1,15 +1,29 @@
 package es.uji.smallaris.ui.components
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import es.uji.smallaris.ui.screens.lugares.safeToDouble
 import java.text.DecimalFormatSymbols
 
 @Composable
@@ -19,27 +33,31 @@ fun DecimalInputField(
     text: MutableState<String>,
     maxLenght: Int = 8,
     useVisualTransformation: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (()->Unit)? = null,
+    label: @Composable (() -> Unit)? = null
 
     ) {
+    Surface (modifier= modifier, shape = MaterialTheme.shapes.small) {
+        Column(verticalArrangement = Arrangement.Center)
+        {
+            TextField(
+                modifier = modifier,
+                value = text.value,
+                onValueChange = {
+                    if (it.length <= maxLenght)
+                        text.value = decimalFormatter.cleanup(it)
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = if (useVisualTransformation) DecimalInputVisualTransformation(decimalFormatter) else VisualTransformation.None,
+                shape= MaterialTheme.shapes.small,
+                label = label
+            )
+            if (supportingText != null) {
+                supportingText()
+            }
 
-//    var text by remember {
-//        mutableStateOf(0.0)
-//    }
-
-    TextField(
-        modifier = modifier,
-        value = text.value,
-        onValueChange = {
-            if (it.length <= maxLenght)
-                text.value = decimalFormatter.cleanup(it)
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Decimal,
-        ),
-        visualTransformation = if (useVisualTransformation) DecimalInputVisualTransformation(decimalFormatter) else VisualTransformation.None,
-        label = label
-    )
+        }
+    }
 }
 abstract class IDecimalFormatter(
     val symbols: DecimalFormatSymbols = DecimalFormatSymbols.getInstance()
@@ -186,4 +204,21 @@ private class FixedCursorOffsetMapping(
 ) : OffsetMapping {
     override fun originalToTransformed(offset: Int): Int = formattedContentLength
     override fun transformedToOriginal(offset: Int): Int = contentLength
+}
+@SuppressLint("UnrememberedMutableState")
+@Preview
+@Composable
+fun PreviewCoordinateInput(){
+    DecimalInputField(
+        modifier = Modifier.width(100.dp),
+        text = mutableStateOf("0.45"),
+        decimalFormatter = CoordinateDecimalFormatter(),
+        maxLenght = 9,
+        useVisualTransformation = false
+    ){
+        Text(
+                    text = "Latitud",
+                    style = MaterialTheme.typography.labelSmall
+                )
+    }
 }
