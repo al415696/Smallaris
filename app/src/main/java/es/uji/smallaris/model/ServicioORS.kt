@@ -61,6 +61,50 @@ open class ServicioORS {
         }
     }
 
+    suspend fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+        val apiKey = BuildConfig.OPENROUTESERVICE_API_KEY  // Sustituye esto con tu clave de API de OpenRouteService
+        val client = OkHttpClient()
+        val url = "https://api.openrouteservice.org/geocode/search?api_key=$apiKey&text=$toponimo"
+
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        return try {
+            // Realizamos la llamada HTTP de forma asíncrona en el contexto de IO
+            val response = withContext(Dispatchers.IO) {
+                client.newCall(request).execute()
+            }
+
+            // Verifica que la respuesta sea exitosa
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                if (responseBody != null) {
+                    // Parsear el JSON de la respuesta
+                    val jsonElement = JsonParser.parseString(responseBody)
+                    val features = jsonElement.asJsonObject.getAsJsonArray("features")
+
+                    // Si encontramos resultados, extraemos las coordenadas
+                    if (features.size() > 0) {
+                        val coordinates = features[0].asJsonObject
+                            .getAsJsonObject("geometry")
+                            .getAsJsonArray("coordinates")
+
+                        val lon = coordinates[0].asDouble
+                        val lat = coordinates[1].asDouble
+
+                        // Retornamos las coordenadas en un par (longitud, latitud)
+                        return Pair(lon, lat)
+                    }
+                }
+            }
+            // Si no se encuentra ninguna coordenada, lanzamos una excepción
+            throw UbicationException("No se encontraron coordenadas para el topónimo $toponimo")
+        } catch (e: Exception) {
+            throw UbicationException("Error al obtener las coordenadas de $toponimo: ${e.message}")
+        }
+    }
+
     @Throws(RouteException::class)
     fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
         // URL base y clave API
@@ -126,50 +170,5 @@ open class ServicioORS {
             return responseBody  // Retorna el GeoJSON completo como String
         } else {
             throw RouteException("Error en la solicitud: ${response.code} - ${response.message}")        }
-    }
-
-    fun getCoordenadas(toponimo: String): Pair<Double, Double> {
-        val apiKey =
-            BuildConfig.OPENROUTESERVICE_API_KEY  // Sustituye esto con tu clave de API de OpenRouteService
-        val client = OkHttpClient()
-        val url = "https://api.openrouteservice.org/geocode/search?api_key=$apiKey&text=$toponimo"
-
-        val request = Request.Builder()
-            .url(url)
-            .build()
-
-        try {
-            // Realiza la solicitud a la API de ORS
-            val response = client.newCall(request).execute()
-
-            // Verifica que la respuesta sea exitosa
-            if (response.isSuccessful) {
-                val responseBody = response.body?.string()
-                if (responseBody != null) {
-                    // Parsear el JSON de la respuesta
-                    val jsonElement = JsonParser.parseString(responseBody)
-                    val features = jsonElement.asJsonObject.getAsJsonArray("features")
-
-                    // Si encontramos resultados, extraemos las coordenadas
-                    if (features.size() > 0) {
-                        println(features)
-                        val coordinates = features[0].asJsonObject
-                            .getAsJsonObject("geometry")
-                            .getAsJsonArray("coordinates")
-
-                        val lon = coordinates[0].asDouble
-                        val lat = coordinates[1].asDouble
-
-                        // Retornamos las coordenadas en un par (longitud, latitud)
-                        return Pair(lon, lat)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            throw UbicationException("Error al obtener las coordenadas de $toponimo: ${e.message}")
-        }
-
-        // Si no se encuentra ninguna coordenada, lanzamos una excepción
-        throw UbicationException("No se encontraron coordenadas para el topónimo $toponimo")
     }
 }

@@ -86,7 +86,7 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK_mockObtenerCoordenadas() = runBlocking {
 
-        every { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.0376709, 39.986)
+        coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.0376709, 39.986)
         coEvery { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
                 "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
 
@@ -103,7 +103,7 @@ class TestServicioLugares {
         assertEquals(39.986, resultado.latitud)
         assertEquals("Castellón de la Plana", resultado.municipio)
         assertEquals(1, servicioLugares.getLugares().size)
-        verify { mockServicioORS.getCoordenadas("Castellón de la Plana") }
+        coVerify { mockServicioORS.getCoordenadas("Castellón de la Plana") }
         coVerify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
     }
 }

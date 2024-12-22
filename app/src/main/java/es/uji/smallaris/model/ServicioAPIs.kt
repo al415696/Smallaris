@@ -28,7 +28,7 @@ object ServicioAPIs {
     }
 
     @Throws(UbicationException::class)
-    fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+    suspend fun getCoordenadas(toponimo: String): Pair<Double, Double> {
         // Retornamos las coordenadas en un par (longitud, latitud)
         return servicioORS.getCoordenadas(toponimo)
     }
