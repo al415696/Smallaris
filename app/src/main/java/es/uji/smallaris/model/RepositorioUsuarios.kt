@@ -11,5 +11,5 @@ interface RepositorioUsuarios: Repositorio {
     suspend fun registrarUsuario(correo: String, contrasena: String): Usuario
     suspend fun iniciarSesion(correo: String, contrasena: String): Usuario
     suspend fun cerrarSesion(): Boolean
-    suspend fun borrarUsuario(): Usuario?
+    suspend fun borrarUsuario(): Usuario
 }

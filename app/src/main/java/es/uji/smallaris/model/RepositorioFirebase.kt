@@ -140,7 +140,24 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true // Sesión cerrada con éxito
     }
 
-    override suspend fun borrarUsuario(): Usuario? {
-        return null
+    override suspend fun borrarUsuario(): Usuario {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+
+            val usuario = Usuario(correo = currentUser.email ?: "")
+
+            userDocRef.delete().await()
+
+            currentUser.delete().await()
+
+            return usuario
+        } catch (e: Exception) {
+            throw UserException("No se pudo eliminar el usuario.")
+        }
     }
 }
