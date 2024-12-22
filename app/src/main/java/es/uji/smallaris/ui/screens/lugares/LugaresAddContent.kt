@@ -81,8 +81,8 @@ fun LugaresAddContent(
     funConseguirCoordenadas: suspend (toponimo: String) -> Pair<ErrorCategory,Pair<Double,Double>> = {Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))},
     onBack: () -> Unit = {}
 ) {
-    val tempLongitud = remember { mutableStateOf("") }
-    val tempLatitud = remember { mutableStateOf("") }
+    val tempLongitud = rememberSaveable { mutableStateOf("") }
+    val tempLatitud = rememberSaveable { mutableStateOf("") }
     val reasonForInvalidLatitud by remember {
         derivedStateOf {
             if (tempLatitud.value.isEmpty())
@@ -116,8 +116,8 @@ fun LugaresAddContent(
         { latitud: Double, longitud: Double ->
             latitud >= -90 && latitud <= 90 && longitud >= -180 && longitud <= 180
         }
-    val finalLongitud = remember{ mutableDoubleStateOf(-999.9)}
-    val finalLatitud = remember{ mutableDoubleStateOf(-999.9)}
+    val finalLongitud = rememberSaveable{ mutableDoubleStateOf(-999.9)}
+    val finalLatitud = rememberSaveable{ mutableDoubleStateOf(-999.9)}
 
     val finalCoordinatesValid = remember { derivedStateOf {
         checkValidCoordinates(finalLatitud.doubleValue, finalLongitud.doubleValue)
@@ -131,10 +131,10 @@ fun LugaresAddContent(
             finalLongitud.doubleValue = longitud
         }
 
-    val toponimo = remember { mutableStateOf("")}
-    val toponimoValid = remember { mutableStateOf(true)}
+    val toponimo = rememberSaveable { mutableStateOf("")}
+    val toponimoValid = rememberSaveable { mutableStateOf(true)}
 
-    val showAddDialogue = remember { mutableStateOf(false) }
+    val showAddDialogue = rememberSaveable { mutableStateOf(false) }
 
     val mapboxMapState =
         rememberMapViewportState {
@@ -170,7 +170,7 @@ fun LugaresAddContent(
         }
     }
 
-    val opcionesAddLugar = remember { mutableStateOf(OpcionesAddLugar.Toponimo) }
+    val opcionesAddLugar = rememberSaveable { mutableStateOf(OpcionesAddLugar.Toponimo) }
     BackHandler {
         onBack()
     }
@@ -195,7 +195,6 @@ fun LugaresAddContent(
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth()
-
         ) {
             Surface(
                 modifier = Modifier,
@@ -223,7 +222,6 @@ fun LugaresAddContent(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth()
-                    .padding(5.dp)
                     .weight(1f),
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -277,53 +275,58 @@ fun LugaresAddContent(
                     }
                 )
                 Column(
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    modifier = Modifier
+                        .padding(vertical = 5.dp)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Nombre
-                    OpcionesAddLugarWindows(
-                        opcionActual = opcionesAddLugar,
-                        longitud = tempLongitud,
-                        latitud = tempLatitud,
-                        toponimo = toponimo,
-                        toponimoValid = toponimoValid,
-                        updateMap= updateMap,
-                        reasonInvalidLongitud = reasonForInvalidLongitud,
-                        reasonInvalidLatitude = reasonForInvalidLatitud,
-                        funConseguirToponimos = funConseguirToponimos,
-                        funConseguirCoordenadas = funConseguirCoordenadas
-
-
-                    )
+                    Column {
+                        OpcionesAddLugarWindows(
+                            opcionActual = opcionesAddLugar,
+                            longitud = tempLongitud,
+                            latitud = tempLatitud,
+                            toponimo = toponimo,
+                            toponimoValid = toponimoValid,
+                            updateMap = updateMap,
+                            reasonInvalidLongitud = reasonForInvalidLongitud,
+                            reasonInvalidLatitude = reasonForInvalidLatitud,
+                            funConseguirToponimos = funConseguirToponimos,
+                            funConseguirCoordenadas = funConseguirCoordenadas
+                        )
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier
+                            .height(75.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.End)
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.End),
+                            enabled = finalCoordinatesValid.value,
+                            colors = ButtonColors(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                MaterialTheme.colorScheme.onPrimaryContainer,
+                                MaterialTheme.colorScheme.tertiaryContainer,
+                                MaterialTheme.colorScheme.onSurface,
+                            ),
+                            onClick = {
+                                // Handle form submission
+                                showAddDialogue.value = true
+                            }) {
+                            Text(
+                                text = "Añadir",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+                    }
                 }
             }
 
-            Column(
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier
-                    .height(75.dp)
-                    .fillMaxWidth()
-            ) {
-                Button(
-                    modifier = Modifier.fillMaxSize(),
-                    enabled = finalCoordinatesValid.value,
-                    colors = ButtonColors(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.onPrimaryContainer,
-                        MaterialTheme.colorScheme.tertiaryContainer,
-                        MaterialTheme.colorScheme.onSurface,
-                    ),
-                    onClick = {
-                        // Handle form submission
-                        showAddDialogue.value = true
-                    }) {
-                    Text(
-                        text = "Añadir",
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                }
-            }
+
         }
     }
 }
@@ -395,7 +398,7 @@ private fun OpcionAddCoordenadas(
     funConseguirToponimos: suspend (longitud: Double, latitud: Double) -> Pair<ErrorCategory, String> = { _, _ -> Pair(ErrorCategory.NotAnError, "") },
     ) {
     var loadingToponimo: Boolean by remember { mutableStateOf(false) }
-    var foundToponimo by remember { mutableStateOf(Pair(ErrorCategory.NotAnError, "")) }
+    var foundToponimo by rememberSaveable { mutableStateOf(Pair(ErrorCategory.NotAnError, "")) }
 
     if (loadingToponimo)
         LaunchedEffect(Unit) {
@@ -528,10 +531,10 @@ private fun OpcionAddToponimo(
     updateMap: (longitud: Double, latitud: Double) -> Unit = {_,_ ->},
     funConseguirCoordenadas: suspend (toponimo: String) -> Pair<ErrorCategory,Pair<Double,Double>> = {Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))},
     ) {
-    var loadingToponimo: Boolean by remember { mutableStateOf(false) }
+    var loadingToponimo: Boolean by rememberSaveable { mutableStateOf(false) }
 
-    var searchToponimoResults by remember { mutableStateOf(Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))) }
-    var foundInitialized: Boolean by remember{ mutableStateOf(false)}
+    var searchToponimoResults by rememberSaveable { mutableStateOf(Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))) }
+    var foundInitialized: Boolean by rememberSaveable{ mutableStateOf(false)}
     val foundToponimo by remember { derivedStateOf{
         if (foundInitialized)
             searchToponimoResults.first == ErrorCategory.NotAnError

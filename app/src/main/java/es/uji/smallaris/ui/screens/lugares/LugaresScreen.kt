@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.LugarInteres
@@ -22,7 +23,7 @@ fun LugaresScreen(
 ){
     val modifier: Modifier = Modifier
     val items = viewModel.items
-    val currentContent = remember { mutableStateOf(LugarScreenContent.Lista) }
+    val currentContent = rememberSaveable { mutableStateOf(LugarScreenContent.Lista) }
     val currentUpdatedLugar: MutableState<LugarInteres> = remember { mutableStateOf(
         if (items.isEmpty())    LugarInteres(0.0,0.0,"Nada", "Abismo")
 
