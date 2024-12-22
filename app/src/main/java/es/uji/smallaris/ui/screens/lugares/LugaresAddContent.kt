@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +51,8 @@ import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.screens.Vehiculos.toCleanString
+import java.util.Locale
 
 
 @Composable
@@ -64,22 +67,15 @@ fun LugaresAddContent(
     funConseguirCoordenadas: suspend (toponimo: String) -> Pair<ErrorCategory,Pair<Double,Double>> = {Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))},
     onBack: () -> Unit = {}
 ) {
-    var nombre = remember { mutableStateOf("") }
-    var nombreValid = remember { mutableStateOf(true) }
-
-    var tempLongitud = remember { mutableStateOf("") }
-
-    var tempLatitud = remember { mutableStateOf("") }
+    val tempLongitud = remember { mutableStateOf("") }
+    val tempLatitud = remember { mutableStateOf("") }
     val reasonForInvalidLatitud by remember {
         derivedStateOf {
             if (tempLatitud.value.isEmpty())
-//                "Se necesita una latitud"
                 "Necesaria"
             else if (tempLatitud.value.safeToDouble() < -90)
-//                    "Debe ser mayor de -90º"
                 "Debe ser > -90º"
             else if (tempLatitud.value.safeToDouble() > 90)
-//                    "Debe ser menor de 90º"
                 "Debe ser < 90º"
             else
                 ""
@@ -102,23 +98,20 @@ fun LugaresAddContent(
         }
 
     }
-
-    val coordinatesValid: Boolean by remember { derivedStateOf { reasonForInvalidLongitud.isEmpty() && reasonForInvalidLatitud.isEmpty() } }
-
     val checkValidCoordinates : (latitud: Double, longitud: Double) -> Boolean =
         { latitud: Double, longitud: Double ->
             latitud >= -90 && latitud <= 90 && longitud >= -180 && longitud <= 180
         }
-    var finalLongitud = remember{ mutableDoubleStateOf(-999.9)}
-    var finalLatitud = remember{ mutableDoubleStateOf(-999.9)}
+    val finalLongitud = remember{ mutableDoubleStateOf(-999.9)}
+    val finalLatitud = remember{ mutableDoubleStateOf(-999.9)}
 
-    var finalCoordinatesValid = remember { derivedStateOf {
+    val finalCoordinatesValid = remember { derivedStateOf {
         checkValidCoordinates(finalLatitud.doubleValue, finalLongitud.doubleValue)
     }}
 
 
 
-    var setLongLat : (latitud: Double, longitud: Double) -> Unit =
+    val setLongLat : (latitud: Double, longitud: Double) -> Unit =
         { latitud: Double, longitud: Double ->
             finalLatitud.doubleValue = latitud
             finalLongitud.doubleValue = longitud
@@ -127,7 +120,7 @@ fun LugaresAddContent(
     val toponimo = remember { mutableStateOf("")}
     val toponimoValid = remember { mutableStateOf(true)}
 
-    var confirmadoAdd by remember { mutableStateOf(false) }
+    val showAddDialogue = remember { mutableStateOf(false) }
 
     val mapboxMapState =
         rememberMapViewportState {
@@ -146,6 +139,8 @@ fun LugaresAddContent(
     val updateMap = {
         longitud: Double,latitud: Double, -> if (checkValidCoordinates(latitud, longitud)){
             setLongLat(latitud, longitud)
+            tempLatitud.value = latitud.toCleanString()
+            tempLongitud.value = longitud.toCleanString()
 
             mapboxMapState.setCameraOptions {
                 zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
@@ -159,28 +154,19 @@ fun LugaresAddContent(
         }
     }
 
-
-
-// -4.25880 42.79103
-    var mensajeError by remember { mutableStateOf("") }
-    var errorConAdd by remember { mutableStateOf(false) }
-
-    var opcionesAddLugar = remember { mutableStateOf(OpcionesAddLugar.Coordenadas) }
+    val opcionesAddLugar = remember { mutableStateOf(OpcionesAddLugar.Toponimo) }
     BackHandler {
         onBack()
     }
-    if (confirmadoAdd) {
-        LaunchedEffect(Unit) {
-            mensajeError = funAddLugar(
-                tempLongitud.value.safeToDouble(),
-                tempLatitud.value.safeToDouble(),
-                nombre.value,
-            )
-            confirmadoAdd = false
-            errorConAdd = mensajeError.isNotEmpty()
-            if (!errorConAdd)
-                onBack()
-        }
+    if (showAddDialogue.value) {
+        AddAlertDialogue(
+            shouldShowDialog =  showAddDialogue,
+            addFuncition = {optionalName: String ->  funAddLugar(finalLongitud.doubleValue,finalLatitud.doubleValue,optionalName)},
+            longitud = finalLongitud.doubleValue,
+            latitud = finalLatitud.doubleValue,
+            toponimo = toponimo.value,
+            onBack = onBack
+        )
     }
     Surface(
         modifier = Modifier
@@ -226,8 +212,12 @@ fun LugaresAddContent(
                 contentAlignment = Alignment.TopCenter
             ) {
                 MapboxMap(
-                    Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                    modifier= Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
                     mapViewportState = mapboxMapState,
+                    compass = {},
+                    logo = {},
+                    scaleBar = {},
+                    attribution = {}
                 )
                 Column(
                     modifier = Modifier.padding(vertical = 5.dp),
@@ -260,7 +250,7 @@ fun LugaresAddContent(
             ) {
                 Button(
                     modifier = Modifier.fillMaxSize(),
-                    enabled = coordinatesValid,
+                    enabled = finalCoordinatesValid.value,
                     colors = ButtonColors(
                         MaterialTheme.colorScheme.primaryContainer,
                         MaterialTheme.colorScheme.onPrimaryContainer,
@@ -269,7 +259,7 @@ fun LugaresAddContent(
                     ),
                     onClick = {
                         // Handle form submission
-                        confirmadoAdd = true
+                        showAddDialogue.value = true
                     }) {
                     Text(
                         text = "Añadir",
@@ -307,7 +297,7 @@ fun OpcionesAddLugarWindows(
             verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
             when (opcionActual.value) {
-                OpcionesAddLugar.Mapa ->
+                OpcionesAddLugar.Toponimo ->
                     OpcionAddToponimo(
                         toponimo = toponimo,
                         toponimoValid = toponimoValid,
@@ -320,11 +310,12 @@ fun OpcionesAddLugarWindows(
                     OpcionAddCoordenadas(
                         longitud = longitud,
                         latitud = latitud,
+                        toponimo= toponimo,
                         reasonInvalidLongitud = reasonInvalidLongitud,
                         reasonInvalidLatitude = reasonInvalidLatitude,
                         funConseguirToponimos = funConseguirToponimos,
                         updateMap= updateMap,
-                        funSwitch = {opcionActual.value = OpcionesAddLugar.Mapa}
+                        funSwitch = {opcionActual.value = OpcionesAddLugar.Toponimo}
 
                     )
 
@@ -339,6 +330,7 @@ fun OpcionesAddLugarWindows(
 private fun OpcionAddCoordenadas(
     longitud: MutableState<String>,
     latitud: MutableState<String>,
+    toponimo: MutableState<String>,
     reasonInvalidLongitud: String = "",
     reasonInvalidLatitude: String = "",
     updateMap: (longitud: Double, latitud: Double) -> Unit = {_,_ ->},
@@ -353,6 +345,8 @@ private fun OpcionAddCoordenadas(
             updateMap(longitud.value.safeToDouble(), latitud.value.safeToDouble())
             foundToponimo =
                 funConseguirToponimos(longitud.value.safeToDouble(), latitud.value.safeToDouble())
+            if (foundToponimo.first == ErrorCategory.NotAnError)
+                toponimo.value = foundToponimo.second
             loadingToponimo = false
         }
     Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -361,7 +355,6 @@ private fun OpcionAddCoordenadas(
                 .fillMaxWidth()
                 .height(intrinsicSize = IntrinsicSize.Min),
             verticalAlignment = Alignment.Top
-            //        horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             IconButton(onClick = funSwitch) {
                 Icon(
@@ -370,10 +363,6 @@ private fun OpcionAddCoordenadas(
                     contentDescription = stringResource(R.string.default_description_text)
                 )
             }
-            //        Column(modifier = Modifier
-            //            .fillMaxWidth()
-            //            .weight(1F),
-            //            horizontalAlignment = Alignment.CenterHorizontally) {
             DecimalInputField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -387,7 +376,7 @@ private fun OpcionAddCoordenadas(
                         Text(
                             text = reasonInvalidLatitude,
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
+//                            style = MaterialTheme.typography.bodySmall
                         )
                 }
             ) {
@@ -397,13 +386,8 @@ private fun OpcionAddCoordenadas(
                 )
             }
 
-            //        }
-            //        Column(modifier = Modifier
-            //            .fillMaxWidth()
-            //            .weight(1F),
-            //            horizontalAlignment = Alignment.CenterHorizontally) {
+
             VerticalDivider()
-            //        Spacer(Modifier.width(3.dp))
             DecimalInputField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -417,7 +401,7 @@ private fun OpcionAddCoordenadas(
                         Text(
                             text = reasonInvalidLongitud,
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
+//                            style = MaterialTheme.typography.bodySmall
                         )
                 }
             ) {
@@ -427,7 +411,6 @@ private fun OpcionAddCoordenadas(
                 )
             }
 
-            //        }
             IconButton(
                 onClick = { loadingToponimo = true },
                 enabled = reasonInvalidLatitude.isEmpty() && reasonInvalidLongitud.isEmpty()
@@ -484,7 +467,6 @@ private fun OpcionAddCoordenadas(
 private fun OpcionAddToponimo(
     toponimo: MutableState<String>,
     toponimoValid: MutableState<Boolean>,
-    funOnEnter: (toponimo: String) -> Unit = {println("Funciona")},
     funSwitch: () -> Unit = {},
     updateMap: (longitud: Double, latitud: Double) -> Unit = {_,_ ->},
     funConseguirCoordenadas: suspend (toponimo: String) -> Pair<ErrorCategory,Pair<Double,Double>> = {Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))},
@@ -492,19 +474,21 @@ private fun OpcionAddToponimo(
     var loadingToponimo: Boolean by remember { mutableStateOf(false) }
 
     var searchToponimoResults by remember { mutableStateOf(Pair(ErrorCategory.NotAnError, Pair(-999.9,-999.99))) }
+    var foundInitialized: Boolean by remember{ mutableStateOf(false)}
     val foundToponimo by remember { derivedStateOf{
-        searchToponimoResults.first == ErrorCategory.NotAnError && searchToponimoResults.second.first != -999.9
+        if (foundInitialized)
+            searchToponimoResults.first == ErrorCategory.NotAnError
+        else true
     } }
     if (loadingToponimo)
         LaunchedEffect(Unit) {
             println("Begins load")
             searchToponimoResults = funConseguirCoordenadas(toponimo.value)
             println("Finished toponimo")
-
+            foundInitialized = true
             if (foundToponimo) {
                 println("Found")
                 updateMap(searchToponimoResults.second.first, searchToponimoResults.second.second)
-                //Se necesita mejor manejo de variables, necesito acceso a las coordenadas para actualizar el mapa
             }
             println("Finished load")
             loadingToponimo = false
@@ -546,21 +530,24 @@ private fun OpcionAddToponimo(
                 )
             }
         }
-        if (!foundToponimo)
-            Surface(modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
+        if (!foundToponimo) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 contentColor = MaterialTheme.colorScheme.error,
                 color = MaterialTheme.colorScheme.errorContainer,
                 shape = MaterialTheme.shapes.medium,
-            ){
-                Text(modifier = Modifier.padding(15.dp),
-                    text= "Ubicación no encontrada para ese topónimo",
+            ) {
+                Text(
+                    modifier = Modifier.padding(15.dp),
+                    text = "Ubicación no encontrada para ese topónimo",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge
 
                 )
             }
+        }
         if (loadingToponimo){
             LoadingCircle()
         }
@@ -609,7 +596,7 @@ private fun OpcionesAddLugarCoordenadasSinError() {
 @Composable
 private fun OpcionesAddLugarToponimoConError() {
     OpcionesAddLugarWindows(
-        opcionActual = mutableStateOf(OpcionesAddLugar.Mapa),
+        opcionActual = mutableStateOf(OpcionesAddLugar.Toponimo),
         longitud = mutableStateOf(""),
         latitud = mutableStateOf(""),
         toponimo = mutableStateOf(""),
@@ -632,13 +619,101 @@ private fun OpcionesAddLugarToponimoBurbujaError() {
             text= "Ubicación no encontrada para ese topónimo",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge
-
         )
     }
 }
+@Composable
+fun AddAlertDialogue(
+    shouldShowDialog: MutableState<Boolean>,
+    addFuncition:suspend (nombre: String) -> String = {""},
+    longitud: Double = 0.0,
+    latitud: Double = 0.0,
+    toponimo: String = "Tu ubicación, donde si no",
+    onBack: () -> Unit = {}
+) {
+    var optionalName = remember { mutableStateOf("")}
+    var confirmadoAdd by remember{ mutableStateOf(false) }
+    var errorConAdd by remember { mutableStateOf(false) }
+    var mensajeError by remember { mutableStateOf("") }
 
+    if(confirmadoAdd)
+        LaunchedEffect(Unit) {
+            mensajeError = addFuncition(optionalName.value)
+            confirmadoAdd = false
+            errorConAdd = mensajeError.isNotEmpty()
+            if (!errorConAdd)
+                onBack()
+        }
+    if (shouldShowDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                shouldShowDialog.value = false
+            },
+
+            title = { Text(text = "Se añadirá el lugar de interés con coordenadas\n" +
+                    "N $latitud\nE $longitud\n" +
+                    "en $toponimo",
+                textAlign = TextAlign.Center
+
+            )},
+            text = {
+                Column(modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    TextField(value = optionalName.value,
+                        onValueChange = { optionalName.value = it },
+                        placeholder = { Text(text = toponimo) },
+                        label = { Text(text = "Nombre para el lugar") },
+                        supportingText = { Text(text = "(Deja vacío para que sea el topónimo)") }
+                    )
+
+                    if (confirmadoAdd) {
+                        Column {
+                            Text(text = "Añadiendo...")
+                            LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+                    }
+                    if (errorConAdd){
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.error
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(horizontal = 5.dp),
+                                text = mensajeError,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    onClick = {
+                        confirmadoAdd = true
+                    }
+                ) {
+                    Text(
+                        text = "Confirmar",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+            }
+        )
+    }
+}
+@SuppressLint("UnrememberedMutableState")
+@Preview
+@Composable
+fun PreviewAddAlertDialogue(){
+    AddAlertDialogue(shouldShowDialog = mutableStateOf(true),
+        )
+
+}
 enum class OpcionesAddLugar() {
-    Mapa, Coordenadas
+    Toponimo, Coordenadas
 }
 
 fun String.safeToDouble(): Double {
@@ -646,5 +721,11 @@ fun String.safeToDouble(): Double {
         return 0.0
 
     return this.toDouble()
-
+}
+fun Double.toCleanString(): String {
+    return if (this % 1.0 == 0.0) {
+        String.format(Locale.US,"%.0f", this)
+    } else {
+        this.toString()
+    }
 }
