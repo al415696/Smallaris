@@ -105,8 +105,8 @@ open class ServicioORS {
         }
     }
 
-    @Throws(RouteException::class)
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+    @Throws(RouteException::class, VehicleException::class)
+    suspend fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
         // URL base y clave API
         val baseUrl = "https://api.openrouteservice.org/v2/directions"
         val apiKey =
@@ -152,23 +152,26 @@ open class ServicioORS {
             .post(requestBody)
             .build()
 
-        // Ejecutar la solicitud y procesar la respuesta
-        val response: Response = client.newCall(request).execute()
+        // Ejecutar la solicitud de manera asincrónica
+        return withContext(Dispatchers.IO) {
+            val response = client.newCall(request).execute()
 
-        if (response.isSuccessful) {
-            val responseBody = response.body?.string()
-                ?: throw RouteException("Respuesta vacía de la API ORS para la ruta")
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                    ?: throw RouteException("Respuesta vacía de la API ORS para la ruta")
 
-            // Analizar el JSON y verificar si contiene datos de ruta
-            val jsonObject = JSONObject(responseBody)
-            val features = jsonObject.optJSONArray("features")
+                // Analizar el JSON y verificar si contiene datos de ruta
+                val jsonObject = JSONObject(responseBody)
+                val features = jsonObject.optJSONArray("features")
 
-            if (features == null || features.length() == 0) {
-                throw RouteException("No se encontró una ruta válida entre los puntos proporcionados")
+                if (features == null || features.length() == 0) {
+                    throw RouteException("No se encontró una ruta válida entre los puntos proporcionados")
+                }
+
+                responseBody  // Retorna el GeoJSON completo como String
+            } else {
+                throw RouteException("Error en la solicitud: ${response.code} - ${response.message}")
             }
-
-            return responseBody  // Retorna el GeoJSON completo como String
-        } else {
-            throw RouteException("Error en la solicitud: ${response.code} - ${response.message}")        }
+        }
     }
 }

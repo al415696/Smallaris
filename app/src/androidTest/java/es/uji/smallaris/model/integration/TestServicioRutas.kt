@@ -65,7 +65,7 @@ class TestServicioRutas {
 
             // Configurar respuestas de los mocks
             val mockResponse = readFileFromAssets("car_route.txt")
-            every { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
+            coEvery { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
             coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns PRECIO_CARBURANTE
             coEvery { mockServicioPrecio.getPrecioElectrico() } returns PRECIO_ELECTRICO
 
@@ -116,7 +116,7 @@ class TestServicioRutas {
                 )
             )
             assert(servicioRutas.getRutas().size == 1)
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockRepositorioRutas.addRuta(any()) }
         }
 
@@ -160,7 +160,7 @@ class TestServicioRutas {
             "Se tienen ${servicioRutas.getRutas().size} rutas guardadas",
             servicioRutas.getRutas().size == 1
         )
-        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+        coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
         coVerify { mockRepositorioRutas.addRuta(any()) }
     }
 
@@ -185,7 +185,7 @@ class TestServicioRutas {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
-        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+        coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
     }
 
     @Test
@@ -210,7 +210,7 @@ class TestServicioRutas {
                 } vs esperado: ${redondear(costeEsperado.toFloat())}",
                 redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
             )
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockServicioPrecio.getPrecioCombustible(any(), any()) }
         }
 
@@ -237,7 +237,7 @@ class TestServicioRutas {
                 } vs esperado: ${redondear(costeEsperado.toFloat())}",
                 redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
             )
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockServicioPrecio.getPrecioElectrico() }
         }
 
