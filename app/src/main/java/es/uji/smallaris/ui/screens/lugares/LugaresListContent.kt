@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NotListedLocation
-import androidx.compose.material.icons.filled.NotListedLocation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +25,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,10 +46,10 @@ fun LugaresListContent(
     modifier: Modifier,
     items: List<LugarInteres> = listOf(),
     addFunction: () -> Unit = {},
+    viewFunction: (lugar: LugarInteres) -> Unit = {},
     sortFunction: () -> String = {""},
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { _, _ ->},
-    updateFunction:(viejo: LugarInteres) -> Unit = {},
     state: LazyListState = rememberLazyListState()
 
 ) {
@@ -104,8 +102,8 @@ fun LugaresListContent(
                             println(lugarInteresSelected)
                         },
                         checkSelected = { other: LugarInteres -> lugarInteresSelected.equals(other) },
-                        goToMapFunction = updateFunction,
                         deleteFuncition = deleteFuncition,
+                        viewFunction = viewFunction,
                         favoriteFuncion = favoriteFuncion
                     )
 
@@ -131,9 +129,9 @@ fun LazyListLugarInteres(
     items: List<LugarInteres> = lugarInteresTestData,
     onSelect: (lug: LugarInteres) -> Unit,
     checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
+    viewFunction: (lugar: LugarInteres) -> Unit = {},
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
-    goToMapFunction:(lugarInteres:LugarInteres) -> Unit = {}
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val lugarInteresABorrar = remember { mutableStateOf<LugarInteres?>(null )}
@@ -159,11 +157,11 @@ fun LazyListLugarInteres(
                 lugarInteres = item,
                 onSelect = onSelect,
                 selected = checkSelected(item),
+                viewFunction = viewFunction,
                 deleteFuncition = {lugarInteres ->
                     lugarInteresABorrar.value = lugarInteres
                     shouldShowDialog.value = true
                 },
-                goToMapFunction = goToMapFunction,
                 favoriteFuncion = favoriteFuncion
 
             )
@@ -179,10 +177,9 @@ fun lugarInteresListable(
     lugarInteres: LugarInteres,
     onSelect: (lug: LugarInteres) -> Unit,
     selected: Boolean,
-    addFuncion: (lugarInteres: LugarInteres) -> Unit = {},
+    viewFunction: (lugar: LugarInteres) -> Unit = {},
     deleteFuncition: (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
-    goToMapFunction:(lugarInteres: LugarInteres) -> Unit = {}
 
 ){
     var cambiandoFavorito by remember{ mutableStateOf(false)}
@@ -201,7 +198,7 @@ fun lugarInteresListable(
             onGeneralClick = { onSelect(lugarInteres) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
-            firstActionFunction = {goToMapFunction(lugarInteres)},
+            firstActionFunction = {viewFunction(lugarInteres)},
             secondActionFuncition = { deleteFuncition(lugarInteres)},
             favorito = lugarInteres.isFavorito(),
             selected = selected,

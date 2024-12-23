@@ -64,6 +64,7 @@ import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.screens.Vehiculos.toCleanString
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -196,28 +197,8 @@ fun LugaresAddContent(
                 .fillMaxHeight()
                 .fillMaxWidth()
         ) {
-            Surface(
-                modifier = Modifier,
-                color = MaterialTheme.colorScheme.secondary
-            ) {
-                Row(
-                    modifier = Modifier
-                        .height(30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+            TopBackBar(onBack)
 
-                    ) {
-
-                    IconButton(onClick = onBack, modifier = Modifier.size(30.dp)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.default_description_text),
-                            modifier = Modifier.fillMaxSize(),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            }
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -774,18 +755,4 @@ fun PreviewAddAlertDialogue(){
 }
 enum class OpcionesAddLugar() {
     Toponimo, Coordenadas
-}
-
-fun String.safeToDouble(): Double {
-    if (this.isEmpty() || this == "-")
-        return 0.0
-
-    return this.toDouble()
-}
-fun Double.toCleanString(): String {
-    return if (this % 1.0 == 0.0) {
-        String.format(Locale.US,"%.0f", this)
-    } else {
-        this.toString()
-    }
 }
