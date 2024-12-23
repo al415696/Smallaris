@@ -9,12 +9,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import com.mapbox.geojson.Point
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.ui.screens.lugares.LugarScreenContent
 import es.uji.smallaris.ui.screens.lugares.LugaresAddContent
 import es.uji.smallaris.ui.screens.lugares.LugaresListContent
 import es.uji.smallaris.ui.state.LugaresViewModel
+import java.util.Locale
 
 @Composable
 fun LugaresScreen(
@@ -24,8 +26,8 @@ fun LugaresScreen(
     val modifier: Modifier = Modifier
     val items = viewModel.items
     val currentContent = rememberSaveable { mutableStateOf(LugarScreenContent.Lista) }
-    val currentUpdatedLugar: MutableState<LugarInteres> = remember { mutableStateOf(
-        if (items.isEmpty())    LugarInteres(0.0,0.0,"Nada", "Abismo")
+    val currentViewedLugar: MutableState<LugarInteres> = remember { mutableStateOf(
+        if (items.isEmpty())    LugarInteres(-666.0,-777777.7,"Nada", "Abismo")
 
         else items[0]
 
@@ -54,6 +56,10 @@ fun LugaresScreen(
                         OrdenLugarInteres.entries[currentOrderIndex].getNombre()
                     }
                     ,
+                    viewFunction = {lugar: LugarInteres ->
+                        currentViewedLugar.value = lugar
+                        currentContent.value = LugarScreenContent.Map
+                     },
                     deleteFuncition = {lugarInteres: LugarInteres ->  viewModel.deleteLugar(lugarInteres) }
                 )
             LugarScreenContent.Add ->
@@ -63,11 +69,31 @@ fun LugaresScreen(
                     funConseguirToponimos = viewModel::getToponimo,//{_,_-> ""}
                     funConseguirCoordenadas = viewModel::getCoordenadas
                 )
+
+            LugarScreenContent.Map ->
+                LugaresMapContent(
+                    onBack = {currentContent.value = LugarScreenContent.Lista},
+                    marker = Point.fromLngLat(currentViewedLugar.value.longitud, currentViewedLugar.value.latitud)
+                )
         }
     }
 }
 
 private enum class LugarScreenContent(){
     Lista,
-    Add
+    Add,
+    Map
+}
+fun String.safeToDouble(): Double {
+    if (this.isEmpty() || this == "-")
+        return 0.0
+
+    return this.toDouble()
+}
+fun Double.toCleanString(): String {
+    return if (this % 1.0 == 0.0) {
+        String.format(Locale.US,"%.0f", this)
+    } else {
+        this.toString()
+    }
 }
