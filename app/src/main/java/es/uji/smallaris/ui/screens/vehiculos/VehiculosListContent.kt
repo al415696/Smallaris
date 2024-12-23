@@ -1,4 +1,4 @@
-package es.uji.smallaris.ui.screens.Vehiculos
+package es.uji.smallaris.ui.screens.vehiculos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,14 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +37,6 @@ import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
-import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.ObjetoListable
 
 @Composable
@@ -105,7 +101,6 @@ fun VehiculosListContent(
                         items = items,
                         onSelect = { veh: Vehiculo ->
                             vehiculoSelected = veh
-                            println(vehiculoSelected)
                         },
                         checkSelected = { other: Vehiculo -> vehiculoSelected.equals(other) },
                         updateFunction = updateFunction,
@@ -194,7 +189,6 @@ fun vehiculoListable(
     if(cambiandoFavorito) {
         LaunchedEffect(Unit) {
             favoriteFuncion(vehiculo, !vehiculo.isFavorito())
-            println("Ejecutado")
             cambiandoFavorito = false
         }
     }

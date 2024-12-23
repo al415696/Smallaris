@@ -22,7 +22,7 @@ import es.uji.smallaris.ui.components.StandardDecimalFormatter
 import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
-import es.uji.smallaris.ui.screens.Vehiculos.ArquetipoVehiculo
+import es.uji.smallaris.ui.screens.vehiculos.ArquetipoVehiculo
 
 @Composable
 fun ArquetipoDependantFields(
