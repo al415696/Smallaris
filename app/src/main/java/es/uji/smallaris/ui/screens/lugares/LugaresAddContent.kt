@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -52,9 +49,7 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
-import com.mapbox.maps.extension.compose.annotation.IconImage
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
-import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotationState
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
@@ -65,7 +60,7 @@ import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
-import es.uji.smallaris.ui.screens.Vehiculos.toCleanString
+import es.uji.smallaris.ui.screens.vehiculos.toCleanString
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -523,15 +518,11 @@ private fun OpcionAddToponimo(
     } }
     if (loadingToponimo)
         LaunchedEffect(Unit) {
-            println("Begins load")
             searchToponimoResults = funConseguirCoordenadas(toponimo.value)
-            println("Finished toponimo")
             foundInitialized = true
             if (foundToponimo) {
-                println("Found")
                 updateMap(searchToponimoResults.second.first, searchToponimoResults.second.second)
             }
-            println("Finished load")
             loadingToponimo = false
         }
     Column(modifier = Modifier,

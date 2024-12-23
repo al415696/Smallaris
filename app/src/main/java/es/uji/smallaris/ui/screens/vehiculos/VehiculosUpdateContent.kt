@@ -1,24 +1,18 @@
-package es.uji.smallaris.ui.screens.Vehiculos
+package es.uji.smallaris.ui.screens.vehiculos
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,44 +20,52 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
+import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
+import java.util.Locale
 
 @Composable
-fun VehiculosAddContent(
-    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> ""},
+fun VehiculosUpdateContent(
+    viejoVehiculo: Vehiculo,
+    funUpdateVehiculo: suspend (viejo: Vehiculo, nuevoNombre: String,
+                        nuevoConsumo: Double,
+                        nuevaMatricula: String,
+                        nuevoTipoVehiculo: TipoVehiculo) -> String = {_,_,_,_,_-> ""},
     onBack: () -> Unit = {}
 ) {
-    val nombre = remember { mutableStateOf("") }
-    val nombreValid = remember { mutableStateOf(false) }
-    val tipoVehiculo = remember { mutableStateOf(TipoVehiculo.Desconocido) }
-    val matricula = remember { mutableStateOf("") }
-    val matriculaValid = remember { mutableStateOf(false) }
-    val consumo = remember { mutableStateOf("") }
+    val nombre = rememberSaveable { mutableStateOf(viejoVehiculo.nombre) }
+    val nombreValid = rememberSaveable { mutableStateOf(true) }
+    val tipoVehiculo = rememberSaveable { mutableStateOf(viejoVehiculo.tipo) }
+    val matricula = rememberSaveable { mutableStateOf(viejoVehiculo.matricula) }
+    val matriculaValid = rememberSaveable { mutableStateOf(true) }
+    val consumo = rememberSaveable { mutableStateOf(viejoVehiculo.consumo.toCleanString()) }
 
-    var confirmadoAdd by remember { mutableStateOf(false) }
+    var confirmadoAdd by rememberSaveable { mutableStateOf(false) }
 
 
-    var mensajeError by remember { mutableStateOf("") }
-    var errorConAdd by remember { mutableStateOf(false) }
-    val arquetipo = remember { mutableStateOf(ArquetipoVehiculo.Combustible) }
+    var mensajeError by rememberSaveable { mutableStateOf("") }
+    var errorConAdd by rememberSaveable { mutableStateOf(false) }
+    val arquetipo = rememberSaveable { mutableStateOf(ArquetipoVehiculo.Combustible.classify(viejoVehiculo.tipo)) }
+
 
     BackHandler {
         onBack()
     }
     if (confirmadoAdd) {
         LaunchedEffect(Unit) {
-            mensajeError = funAddVehiculo(
+            mensajeError =
+                funUpdateVehiculo(
+                    viejoVehiculo,
                 nombre.value,
                 if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(),
                 matricula.value,
@@ -90,26 +92,7 @@ fun VehiculosAddContent(
                 .fillMaxWidth()
 
         ) {
-            Surface(modifier = Modifier,
-            color= MaterialTheme.colorScheme.secondary) {
-                Row(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-
-                    ) {
-
-                    IconButton(onClick = onBack, modifier = Modifier.size(75.dp)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.default_description_text),
-                            modifier = Modifier.fillMaxSize(),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            }
+            TopBackBar(onBack)
 
             Column(
                 modifier = Modifier
@@ -141,7 +124,7 @@ fun VehiculosAddContent(
                     Column {
                         Text(
                             modifier = Modifier.align(Alignment.Start),
-                            text = "Añadiendo...",
+                            text = "Modificando...",
                             style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(Modifier.height(15.dp))
@@ -150,6 +133,7 @@ fun VehiculosAddContent(
                 }
                 if (errorConAdd)
                     Surface(
+
                         color = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.error
                     ) {
@@ -183,7 +167,7 @@ fun VehiculosAddContent(
                         // Handle form submission
                         confirmadoAdd = true
                     }) {
-                    Text(text="Añadir",
+                    Text(text="Modificar",
                         style = MaterialTheme.typography.headlineLarge)
                 }
 //                }
@@ -193,10 +177,8 @@ fun VehiculosAddContent(
 }
 
 
-
 @Preview
 @Composable
-private fun PreviewVehiculosAddContent() {
-    VehiculosAddContent()
+private fun PreviewVehiculosUpdateContent() {
+    VehiculosUpdateContent(Vehiculo("Test", 12.587,"1234YYY", TipoVehiculo.Gasolina98))
 }
-

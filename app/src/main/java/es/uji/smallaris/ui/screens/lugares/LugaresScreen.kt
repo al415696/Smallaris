@@ -37,8 +37,6 @@ fun LugaresScreen(
 
 
     Surface(color = MaterialTheme.colorScheme.primary) {
-        println("items "+ items)
-
         when(currentContent.value){
             LugarScreenContent.Lista ->
                 LugaresListContent(
@@ -50,8 +48,6 @@ fun LugaresScreen(
                     sortFunction =
                     {
                         currentOrderIndex = (currentOrderIndex+1) % OrdenLugarInteres.entries.size
-                        println(currentOrderIndex)
-                        println(OrdenLugarInteres.entries[currentOrderIndex].toString())
                         viewModel.sortItems(OrdenLugarInteres.entries[currentOrderIndex])
                         OrdenLugarInteres.entries[currentOrderIndex].getNombre()
                     }

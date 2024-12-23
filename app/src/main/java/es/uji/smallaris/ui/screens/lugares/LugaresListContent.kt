@@ -99,7 +99,6 @@ fun LugaresListContent(
                         items = items,
                         onSelect = { lug: LugarInteres ->
                             lugarInteresSelected = lug
-                            println(lugarInteresSelected)
                         },
                         checkSelected = { other: LugarInteres -> lugarInteresSelected.equals(other) },
                         deleteFuncition = deleteFuncition,
@@ -186,7 +185,6 @@ fun lugarInteresListable(
     if(cambiandoFavorito) {
         LaunchedEffect(Unit) {
             favoriteFuncion(lugarInteres, !lugarInteres.isFavorito())
-            println("Ejecutado")
             cambiandoFavorito = false
         }
     }
