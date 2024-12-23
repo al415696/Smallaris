@@ -15,8 +15,8 @@ import androidx.navigation.compose.composable
 import es.uji.smallaris.ui.screens.LoadingScreen
 import es.uji.smallaris.ui.screens.lugares.LugaresScreen
 import es.uji.smallaris.ui.screens.MapaScreen
-import es.uji.smallaris.ui.screens.RutasScreen
 import es.uji.smallaris.ui.screens.UsuarioScreen
+import es.uji.smallaris.ui.screens.rutas.RutasScreen
 import es.uji.smallaris.ui.screens.vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
 import es.uji.smallaris.ui.state.MapaViewModel
@@ -51,7 +51,7 @@ fun SmallarisNavHost(
 //                vehiculosViewModel.debugFillList()
                 vehiculosViewModel.updateList()
                 //Lugares
-//                lugaresViewModel.debugFillList()
+                lugaresViewModel.debugFillList()
                 lugaresViewModel.updateList()
                 navigationEnabled.value = true
             },

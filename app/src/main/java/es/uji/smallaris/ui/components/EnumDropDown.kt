@@ -13,11 +13,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 
 @Composable
 inline fun < reified E: Enum<E>>EnumDropDown(
@@ -31,10 +31,8 @@ inline fun < reified E: Enum<E>>EnumDropDown(
     }
 
     val itemPosition = remember {
-        mutableStateOf(opciones.indexOf(elegida.value))
+        mutableIntStateOf(opciones.indexOf(elegida.value))
     }
-
-    val tiposVehiculo = opciones
 
     Column(
         modifier= modifier,
@@ -50,7 +48,7 @@ inline fun < reified E: Enum<E>>EnumDropDown(
                     isDropDownExpanded.value = true
                 }
             ) {
-                Text(text = tiposVehiculo[itemPosition.value].name)
+                Text(text = opciones[itemPosition.intValue].name)
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = "DropDown Icon"
@@ -61,14 +59,14 @@ inline fun < reified E: Enum<E>>EnumDropDown(
                 onDismissRequest = {
                     isDropDownExpanded.value = false
                 }) {
-                tiposVehiculo.forEachIndexed { index, username ->
+                opciones.forEachIndexed { index, elemento ->
                     DropdownMenuItem(text = {
-                        Text(text = username.name)
+                        Text(text = elemento.name)
                     },
                         onClick = {
                             isDropDownExpanded.value = false
-                            itemPosition.value = index
-                            elegida.value = tiposVehiculo[itemPosition.value]
+                            itemPosition.intValue = index
+                            elegida.value = opciones[itemPosition.intValue]
                         })
                 }
             }

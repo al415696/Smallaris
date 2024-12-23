@@ -692,7 +692,7 @@ fun AddAlertDialogue(
                 Column(modifier = Modifier,
                     horizontalAlignment = Alignment.CenterHorizontally) {
                     TextField(value = optionalName.value,
-                        onValueChange = { optionalName.value = it },
+                        onValueChange = {if(it.length<= 150) optionalName.value = it },
                         placeholder = { Text(text = toponimo) },
                         label = { Text(text = "Nombre para el lugar") },
                         supportingText = { Text(text = "(Deja vacío para que sea el topónimo)") }

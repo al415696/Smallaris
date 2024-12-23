@@ -75,4 +75,14 @@ class ServicioRutas(
         return rutas.contains(ruta)
     }
 
+    companion object{
+        private lateinit var servicio: ServicioRutas
+        fun getInstance(): ServicioRutas{
+            if (!this::servicio.isInitialized){
+                servicio = ServicioRutas(CalculadorRutasORS(ServicioAPIs), RepositorioFirebase(), ServicioAPIs)
+            }
+            return servicio
+        }
+    }
+
 }
