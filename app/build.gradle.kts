@@ -112,4 +112,5 @@ dependencies {
 //    androidTestImplementation("org.mockito:mockito-android:5.0.0")
 //    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
     androidTestImplementation("io.mockk:mockk-android:1.13.13")
+    testImplementation("io.mockk:mockk:1.13.13")
 }
