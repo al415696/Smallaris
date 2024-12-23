@@ -10,7 +10,7 @@ class CalculadorRutasORS(
 ) : CalculadorRutas() {
 
     @Throws(RouteException::class)
-    override fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): Triple<LineString, Float, Float> {
+    override suspend fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): Triple<LineString, Float, Float> {
         // Obtener el GeoJSON como String
         val geoJsonResponse = servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
 

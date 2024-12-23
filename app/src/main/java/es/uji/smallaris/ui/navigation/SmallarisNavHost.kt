@@ -1,6 +1,5 @@
 package es.uji.smallaris.ui.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -9,14 +8,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import es.uji.smallaris.ui.components.TOP_LEVEL_DESTINATIONS
 import es.uji.smallaris.ui.screens.LoadingScreen
-import es.uji.smallaris.ui.screens.LugaresScreen
+import es.uji.smallaris.ui.screens.lugares.LugaresScreen
 import es.uji.smallaris.ui.screens.MapaScreen
 import es.uji.smallaris.ui.screens.RutasScreen
 import es.uji.smallaris.ui.screens.UsuarioScreen
@@ -50,8 +47,12 @@ fun SmallarisNavHost(
     if (loading){
         LoadingScreen(
             loadingProcess = {
+                //Vehiculos
 //                vehiculosViewModel.debugFillList()
                 vehiculosViewModel.updateList()
+                //Lugares
+//                lugaresViewModel.debugFillList()
+                lugaresViewModel.updateList()
                 navigationEnabled.value = true
             },
             onTimeout = { loading = false }
@@ -120,3 +121,6 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
+private fun NavHostController.navigateToMapWithCoords(longitud: Double, latitud: Double, onBack: ()-> Unit) {
+    this.navigateSingleTopTo("${MapaDestination.route}/$longitud")
+}
