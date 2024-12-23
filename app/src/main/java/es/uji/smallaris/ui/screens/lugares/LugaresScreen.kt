@@ -42,6 +42,7 @@ fun LugaresScreen(
                 LugaresListContent(
                     modifier = modifier,
                     items = items,
+                    state = viewModel.listState,
                     favoriteFuncion = { lugarInteres: LugarInteres, favorito: Boolean ->  viewModel.setLugarFavorito(lugarInteres, favorito) },
                     addFunction = {currentContent.value = LugarScreenContent.Add},
                     sortFunction =

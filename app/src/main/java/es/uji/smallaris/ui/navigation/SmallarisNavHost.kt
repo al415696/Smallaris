@@ -53,7 +53,6 @@ fun SmallarisNavHost(
                 //Lugares
 //                lugaresViewModel.debugFillList()
                 lugaresViewModel.updateList()
-                vehiculosViewModel.updateList()
                 navigationEnabled.value = true
             },
             onTimeout = { loading = false }

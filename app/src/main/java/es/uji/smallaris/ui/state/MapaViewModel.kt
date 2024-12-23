@@ -8,6 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.mapbox.geojson.Point
 import es.uji.smallaris.model.CalculadorRutasORS
+import com.mapbox.maps.CameraState
+import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import es.uji.smallaris.model.ErrorCategory
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
@@ -25,6 +28,18 @@ class MapaViewModel() : ViewModel() {
         this.cosaMapa = cosaMapa
     }
     var cosaMapa by mutableStateOf(1)
+    var addMapState: MapViewportState = MapViewportState(
+        CameraState(
+            Point.fromLngLat(
+                -0.068547,
+                39.994259
+            ),
+            EdgeInsets(0.0,0.0,0.0,0.0),
+            15.0, // Ajusta el nivel de zoom según lo que desees mostrar.
+            0.0,
+            0.0
+        )
+    )
 
     private val servicioAPI: ServicioAPIs = ServicioAPIs
 

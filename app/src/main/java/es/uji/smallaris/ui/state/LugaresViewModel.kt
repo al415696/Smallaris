@@ -1,13 +1,23 @@
 package es.uji.smallaris.ui.state
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
+import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraState
+import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
+import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.style.expressions.generated.Expression.Companion.zoom
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.ErrorCategory
 import es.uji.smallaris.model.OrdenLugarInteres
@@ -18,18 +28,16 @@ import es.uji.smallaris.model.UbicationException
 
 //@HiltViewModel
 class LugaresViewModel() : ViewModel() {
-    constructor( cosaLugares : Int) : this() {
-        this.cosaLugares = cosaLugares
-    }
-    var cosaLugares by mutableStateOf(1)
-
+//    constructor(listState: Pair<Int,Int>) : this() {
+//        listStateValues = listState
+//    }
 
     private val servicioLugares: ServicioLugares = ServicioLugares.getInstance()
 
     private val servicioAPI: ServicioAPIs = ServicioAPIs
 
+    var listState: LazyListState = LazyListState()
     // Lista observable
-//    var items: MutableState<List<Lugar>> = mutableStateOf(emptyList())
     var items: SnapshotStateList<LugarInteres> = mutableStateListOf<LugarInteres>()
     private var currentSorting: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE
 
@@ -87,11 +95,20 @@ class LugaresViewModel() : ViewModel() {
             LugarInteres(-0.8773,41.6561,  "Templo de los Milagros", "Zaragoza"),
             LugarInteres(-1.1280,37.9834,  "Camino de los Ancestros", "Murcia"),
             LugarInteres(-16.2546,28.4682,  "Isla de las Almas", "Santa Cruz de Tenerife"),
-            LugarInteres(-3.7176849639172684, 40.965189327470604,  "Calle random de Gargantilla del Lozoya y Pinilla de Buitrago", "Gargantilla del Lozoya y Pinilla de Buitrago")
+            LugarInteres(-3.7176849639172684, 40.965189327470604,  "Calle random de Gargantilla del Lozoya y Pinilla de Buitrago", "Gargantilla del Lozoya y Pinilla de Buitrago"),
+                LugarInteres(-0.57807, 38.24910, "Cerca de Castillo de Santa Bárbara, Alicante, Comunidad Valenciana, España", "Alicante"),
+                LugarInteres(-3.8038, 40.3168, "Cerca de Parque de las Aves", "Madrid"),
+                LugarInteres(2.2769, 41.2825, "Cerca de Cascada de los Elfos", "Barcelona"),
+                LugarInteres(-5.0845,37.2891,  "Cerca de Bosque Encantado", "Sevilla"),
+                LugarInteres(-4.5214,36.6213,  "Cerca de Casa del Tiempo", "Málaga"),
+                LugarInteres(-1.7323,42.5986,  "Cerca de Torre de la Eternidad", "Pamplona"),
+                LugarInteres(-0.9773,41.5561,  "Cerca de Templo de los Milagros", "Zaragoza"),
+                LugarInteres(-1.2280,37.8834,  "Cerca de Camino de los Ancestros", "Murcia"),
+                LugarInteres(-16.3546,28.3682,  "Cerca de Isla de las Almas", "Santa Cruz de Tenerife"),
         )
 //        servicioLugares.addLugar(-0.03778, 39.98574, "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España")
             for (lugar in lugarInteresTestData) {
-                servicioLugares.addLugar(lugar.longitud, lugar.latitud, lugar.nombre)
+                addLugar(lugar.longitud, lugar.latitud, lugar.nombre)
             }
     }
     suspend fun updateList(){
@@ -141,12 +158,17 @@ class LugaresViewModel() : ViewModel() {
         }
     }
     companion object{
-        val Saver: Saver<LugaresViewModel, *> = listSaver(
-            save = { listOf(it.cosaLugares)},
+        val Saver: Saver<LugaresViewModel, *> =
+//            mapSaver(
+//            save = { hashMapOf(Pair("state",it.listState))},
+//            restore = {LugaresViewModel(
+//                it["state"] as LazyListState
+//            )}
+//        )
+            listSaver(
+            save = { listOf<Any>(it.listState.firstVisibleItemIndex,it.listState.firstVisibleItemScrollOffset)},
             restore = {
-                LugaresViewModel(
-                    cosaLugares = it[0]
-                )
+                LugaresViewModel()
             }
         )
     }

@@ -20,6 +20,8 @@ enum class OrdenLugarInteres{
 
         override fun comparator(): Comparator<LugarInteres>{
             return compareBy<LugarInteres>{
+                if (it.isFavorito()) 0 else 1
+            }.thenBy{
                 it.municipio
             }
         }

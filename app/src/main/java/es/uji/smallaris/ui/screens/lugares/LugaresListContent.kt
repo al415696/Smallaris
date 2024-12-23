@@ -26,6 +26,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +51,8 @@ fun LugaresListContent(
     sortFunction: () -> String = {""},
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { _, _ ->},
-    updateFunction:(viejo: LugarInteres) -> Unit = {}
+    updateFunction:(viejo: LugarInteres) -> Unit = {},
+    state: LazyListState = rememberLazyListState()
 
 ) {
     var lugarInteresSelected by remember {
@@ -59,7 +61,6 @@ fun LugaresListContent(
 
         )
     }
-    val state = rememberLazyListState()
     val firstItemVisible by remember {
         derivedStateOf {
             state.firstVisibleItemIndex == 0
@@ -98,8 +99,8 @@ fun LugaresListContent(
                         modifier,
                         state = state,
                         items = items,
-                        onSelect = { veh: LugarInteres ->
-                            lugarInteresSelected = veh
+                        onSelect = { lug: LugarInteres ->
+                            lugarInteresSelected = lug
                             println(lugarInteresSelected)
                         },
                         checkSelected = { other: LugarInteres -> lugarInteresSelected.equals(other) },
@@ -128,7 +129,7 @@ fun LazyListLugarInteres(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     items: List<LugarInteres> = lugarInteresTestData,
-    onSelect: (veh: LugarInteres) -> Unit,
+    onSelect: (lug: LugarInteres) -> Unit,
     checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
@@ -176,7 +177,7 @@ fun LazyListLugarInteres(
 @Composable
 fun lugarInteresListable(
     lugarInteres: LugarInteres,
-    onSelect: (veh: LugarInteres) -> Unit,
+    onSelect: (lug: LugarInteres) -> Unit,
     selected: Boolean,
     addFuncion: (lugarInteres: LugarInteres) -> Unit = {},
     deleteFuncition: (lugarInteres: LugarInteres) -> Unit = {},
