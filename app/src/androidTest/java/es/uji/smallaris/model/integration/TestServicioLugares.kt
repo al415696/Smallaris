@@ -36,7 +36,7 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU01_darDeAltaLugarOK_mockObtenerToponimo(): Unit = runBlocking {
 
-        every { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
+        coEvery { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
                 "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
         // Given
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
@@ -56,7 +56,7 @@ class TestServicioLugares {
         )
 
         assertEquals(1, servicioLugares.getLugares().size)
-        verify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
+        coVerify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
     }
 
     @Test
@@ -86,8 +86,8 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK_mockObtenerCoordenadas() = runBlocking {
 
-        every { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.0376709, 39.986)
-        every { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
+        coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.0376709, 39.986)
+        coEvery { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) } returns
                 "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
 
         // Given
@@ -103,7 +103,7 @@ class TestServicioLugares {
         assertEquals(39.986, resultado.latitud)
         assertEquals("Castellón de la Plana", resultado.municipio)
         assertEquals(1, servicioLugares.getLugares().size)
-        verify { mockServicioORS.getCoordenadas("Castellón de la Plana") }
-        verify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
+        coVerify { mockServicioORS.getCoordenadas("Castellón de la Plana") }
+        coVerify { mockServicioORS.getToponimoCercano(-0.0376709, 39.986) }
     }
 }

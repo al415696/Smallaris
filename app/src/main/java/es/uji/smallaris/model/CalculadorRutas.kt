@@ -31,7 +31,7 @@ abstract class CalculadorRutas {
     }
 
     @Throws(RouteException::class)
-    abstract fun calcularTrayecto(
+    abstract suspend fun calcularTrayecto(
         inicio: LugarInteres,
         fin: LugarInteres,
         tipoRuta: TipoRuta,

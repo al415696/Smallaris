@@ -18,11 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.ui.components.DecimalFormatter
+import es.uji.smallaris.ui.components.StandardDecimalFormatter
 import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
-import es.uji.smallaris.ui.screens.Vehiculos.ArquetipoVehiculo
+import es.uji.smallaris.ui.screens.vehiculos.ArquetipoVehiculo
 
 @Composable
 fun ArquetipoDependantFields(
@@ -125,7 +125,7 @@ private fun CombustibleExclusiveOptions(
         DecimalInputField(
             modifier = Modifier.width(150.dp),
             text = consumo,
-            decimalFormatter = DecimalFormatter(),
+            decimalFormatter = StandardDecimalFormatter(),
             maxLenght = 7
         ) {
             Text(
@@ -164,7 +164,7 @@ private fun ElectricoExclusiveOptions(
     DecimalInputField(
         modifier = Modifier.width(175.dp),
         text = consumo,
-        decimalFormatter = DecimalFormatter(),
+        decimalFormatter = StandardDecimalFormatter(),
         maxLenght = 7
     ) {
         Text(

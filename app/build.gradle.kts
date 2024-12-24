@@ -113,4 +113,8 @@ dependencies {
 //    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
     androidTestImplementation("io.mockk:mockk-android:1.13.13")
     testImplementation("io.mockk:mockk:1.13.13")
+
+    implementation("com.mapbox.maps:android:11.7.0")
+    implementation("com.mapbox.extension:maps-compose:11.7.0")
+
 }

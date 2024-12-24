@@ -18,17 +18,18 @@ object ServicioAPIs {
     }
 
     @Throws(UbicationException::class)
-    fun getToponimoCercano(longitud: Double, latitud: Double): String {
+    suspend fun getToponimoCercano(longitud: Double, latitud: Double): String {
         return servicioORS.getToponimoCercano(longitud, latitud)
     }
 
     @Throws(RouteException::class)
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+    suspend fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
         return servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
     }
 
     @Throws(UbicationException::class)
-    fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+    suspend fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+        // Retornamos las coordenadas en un par (longitud, latitud)
         return servicioORS.getCoordenadas(toponimo)
     }
 
