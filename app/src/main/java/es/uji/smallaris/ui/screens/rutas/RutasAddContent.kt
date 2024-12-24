@@ -33,14 +33,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.Style
+import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotation
+import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotationState
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
+import com.mapbox.maps.extension.localization.localizeLabels
+import com.mapbox.maps.plugin.viewport.data.OverviewViewportStateOptions
 import es.uji.smallaris.R
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.Ruta
@@ -52,6 +62,7 @@ import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
+import java.util.Locale
 
 val rutaDebug = ServicioRutas.getInstance().builder().setNombre("Ruta 1").setInicio(
     LugarInteres(
@@ -521,6 +532,14 @@ fun RutaAddAlertDialogue(
 
                     )
 
+                    val routeLine by rememberSaveable { mutableStateOf<LineString?>(ruta.getTrayecto()) }
+                    val polylineState = remember {
+                        PolylineAnnotationState().apply {
+                            lineColor = Color.Blue
+                            lineWidth = 5.0
+                            // Configura otras propiedades según sea necesario
+                        }
+                    }
 
                     MapboxMap(
                         modifier = Modifier
@@ -532,24 +551,30 @@ fun RutaAddAlertDialogue(
                         scaleBar = {},
                         attribution = {},
                         content = {
-//                        marker?.let { point ->
-//                            PointAnnotation(point = point) {
-//                                iconColor= Color.Red
-//                                iconImage = markerImage
-//                                iconSize = 3.5
-//                                iconOffset = listOf(0.0, -10.0)
-//                                textColor = Color.Black
-//                                textSize = 10.0
-//                                textOffset = listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
-//                            }
-//                        }
-//
-//                        // Aplicar estilo con idioma en español
-//                        MapEffect(Unit) { mapView ->
-//                            mapView.mapboxMap.loadStyle(Style.MAPBOX_STREETS) { style ->
-//                                style.localizeLabels(Locale("es"))
-//                            }
-//                        }
+                            // Aplicar estilo con idioma en español
+                            MapEffect(Unit) { mapView ->
+                                mapView.mapboxMap.loadStyle(Style.MAPBOX_STREETS) { style ->
+                                    style.localizeLabels(Locale("es"))
+                                }
+                            }
+                            // Dibujar la ruta si está disponible
+                            routeLine?.let { line ->
+                                LaunchedEffect(line) {
+                                    mapboxMapState.transitionToOverviewState(
+                                        OverviewViewportStateOptions.Builder()
+                                            .geometry(line)
+                                            .padding(EdgeInsets(50.0, 50.0, 50.0, 50.0))
+                                            .build()
+                                    )
+                                }
+
+                                // Dibujar la ruta si está disponible
+                                PolylineAnnotation(
+                                    points = line.coordinates(),
+                                    polylineAnnotationState = polylineState,
+                                )
+                            }
+
                         }
                     )
                     if (confirmadoAdd) {
