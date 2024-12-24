@@ -39,13 +39,16 @@ inline fun <E>ListDropDown(
     modifier: Modifier = Modifier,
     opciones: List<E> = emptyList(),
     elegida: MutableState<E>,
-    crossinline shownValue: (objeto: E) -> String = { objeto-> objeto.toString()}
+    ignorado: MutableState<E?> = mutableStateOf(null),
+    crossinline shownValue: (objeto: E) -> String = { objeto-> objeto.toString()},
+    notSelectedText: String = "No seleccionado"
 ) {
 
     val isDropDownExpanded = remember {
         mutableStateOf(false)
     }
-    val ready by remember{ derivedStateOf { elegida.value != null }}
+//    val ready by remember{ derivedStateOf { elegida.value != null }}
+    val ready by remember{ derivedStateOf { opciones.isNotEmpty() }}
 
     val itemPosition = remember { mutableIntStateOf ( opciones.indexOf(elegida.value) ) }
 //    val itemPosition = remember {
@@ -81,14 +84,16 @@ inline fun <E>ListDropDown(
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable(enabled = elegida.value != null) {
+                    modifier = Modifier.clickable(
+//                        enabled = elegida.value != null
+                    ) {
                         isDropDownExpanded.value = true
                     }
                 ) {
                     Text(modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                        text = shownValue(opciones[itemPosition.intValue]),
+                        text =if(elegida.value == null) notSelectedText else shownValue(opciones[itemPosition.intValue]),
                         maxLines = 3)
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowDown,
@@ -109,6 +114,7 @@ inline fun <E>ListDropDown(
                         isDropDownExpanded.value = false
                     }) {
                     opciones.forEachIndexed { index, elemento ->
+                        if (elemento!= ignorado.value)
                         DropdownMenuItem(text = {
                             Text(text = shownValue(elemento))
                         },

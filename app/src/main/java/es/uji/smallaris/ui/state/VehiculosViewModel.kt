@@ -101,7 +101,7 @@ class VehiculosViewModel() : ViewModel() {
     suspend fun debugFillList(){
 
         var c: Char = 'A'
-        while (c <= 'Z') {
+        while (c <= 'E') {
             servicioVehiculos.addVehiculo(c.toString(), 45.458,  "1234$c$c$c", TipoVehiculo.Gasolina95)
             ++c
         }

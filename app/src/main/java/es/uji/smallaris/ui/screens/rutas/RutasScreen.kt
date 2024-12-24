@@ -65,7 +65,8 @@ fun RutasScreen(
                         viewModel.addRuta(nombreRuta, inicio, fin, vehiculo, tipoRuta)},
                     onBack = {currentContent.value = RutaScreenContent.Lista },
                     funConseguirVehiculos = viewModel::getVehiculos,
-                    funConseguirLugares = viewModel::getLugares
+                    funConseguirLugares = viewModel::getLugares,
+                    funCalcRuta = viewModel::calcRuta
 
 //                    funConseguirToponimos = viewModel::getToponimo,//{_,_-> ""}
 //                    funConseguirCoordenadas = viewModel::getCoordenadas
@@ -104,5 +105,9 @@ fun Float.toCleanString(): String {
     } else {
         this.toString()
     }
+}
+fun Double.toCleanCost(): String {
+    return String.format(Locale.US,"%.2f", this) + "€"
+
 }
 

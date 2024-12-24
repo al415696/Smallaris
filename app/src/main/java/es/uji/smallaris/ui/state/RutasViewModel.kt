@@ -86,6 +86,31 @@ class RutasViewModel() : ViewModel() {
         }
         return ""
     }
+    suspend fun calcRuta(
+        nombreRuta: String,
+        inicio:LugarInteres,
+        fin: LugarInteres,
+        vehiculo: Vehiculo,
+        tipoRuta: TipoRuta
+    ):Pair <String, Ruta> {
+        val builder = servicioRutas.builder().setNombre(nombreRuta).setInicio(inicio)
+            .setFin(fin).setVehiculo(vehiculo)
+            .setTipo(tipoRuta)
+        try {
+
+            return  Pair("",builder.build())
+        } catch (e: ConnectionErrorException) {
+            e.printStackTrace()
+            return  Pair(e.message?: "Error de conexión",builder.getRuta())
+        }
+        catch (e: UbicationException){
+            e.printStackTrace()
+            return  Pair(e.message?: "Error de construcción de ruta",builder.getRuta())
+        }catch(e: Exception){
+            e.printStackTrace()
+            return  Pair("Error inesperado",builder.getRuta())
+        }
+    }
     suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean){
         try {
             if(servicioRutas.setFavorito(ruta, favorito))
