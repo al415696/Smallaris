@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlin.jvm.Throws
 
 interface IServicioPrecioCombustible {

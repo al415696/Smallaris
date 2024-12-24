@@ -12,14 +12,14 @@ import com.mapbox.maps.CameraState
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import es.uji.smallaris.model.ErrorCategory
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.model.UbicationException
+import es.uji.smallaris.model.lugares.UbicationException
 import es.uji.smallaris.model.Vehiculo
 
 //@HiltViewModel
