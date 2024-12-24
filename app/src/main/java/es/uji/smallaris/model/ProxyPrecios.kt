@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import java.util.Locale
 import kotlin.text.*
 

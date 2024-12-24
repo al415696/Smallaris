@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
@@ -130,7 +130,7 @@ fun LazyListLugarInteres(
     checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
     viewFunction: (lugar: LugarInteres) -> Unit = {},
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
-    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
+    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { lugarInteres, favorito ->},
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val lugarInteresABorrar = remember { mutableStateOf<LugarInteres?>(null )}
@@ -178,9 +178,9 @@ fun lugarInteresListable(
     selected: Boolean,
     viewFunction: (lugar: LugarInteres) -> Unit = {},
     deleteFuncition: (lugarInteres: LugarInteres) -> Unit = {},
-    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = {lugarInteres,favorito ->},
+    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { lugarInteres, favorito ->},
 
-){
+    ){
     var cambiandoFavorito by remember{ mutableStateOf(false)}
     if(cambiandoFavorito) {
         LaunchedEffect(Unit) {

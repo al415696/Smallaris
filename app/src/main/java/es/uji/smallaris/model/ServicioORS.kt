@@ -2,6 +2,8 @@ package es.uji.smallaris.model
 
 import com.google.gson.JsonParser
 import es.uji.smallaris.BuildConfig
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.UbicationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -47,16 +49,16 @@ open class ServicioORS {
                             return@withContext "$name, $municipio, $region, $pais"
                         } else {
                             // Si no encontramos información, devolvemos una cadena vacía
-                            return@withContext ""
+                            return@withContext "Desconocido, Municipio desconocido, Región desconocida, País desconocido"
                         }
                     } else {
                         // Si la respuesta está vacía, devolvemos una cadena vacía
-                        return@withContext ""
+                        return@withContext "Desconocido, Municipio desconocido, Región desconocida, País desconocido"
                     }
                 }
             } catch (e: Exception) {
                 // Si ocurre un error, se captura y se lanza una excepción
-                throw e
+                return@withContext "Desconocido, Municipio desconocido, Región desconocida, País desconocido"
             }
         }
     }

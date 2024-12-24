@@ -3,6 +3,7 @@ package es.uji.smallaris.model
 import com.google.gson.JsonParser
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlin.jvm.Throws
 
 class CalculadorRutasORS(
