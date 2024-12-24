@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
@@ -48,7 +49,8 @@ inline fun < reified E: Enum<E>>EnumDropDown(
                     isDropDownExpanded.value = true
                 }
             ) {
-                Text(text = opciones[itemPosition.intValue].name)
+                Text(modifier= Modifier.fillMaxWidth().weight(1f),
+                    text = opciones[itemPosition.intValue].name)
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = "DropDown Icon"

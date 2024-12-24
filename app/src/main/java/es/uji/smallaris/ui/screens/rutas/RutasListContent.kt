@@ -60,7 +60,7 @@ fun RutasListContent(
     state: LazyListState = rememberLazyListState()
 
 ) {
-    var rutaSelected: MutableState<Ruta?> = remember { mutableStateOf(null)
+    var rutaSelected: Ruta? by remember { mutableStateOf(null)
     }
     val firstItemVisible by remember {
         derivedStateOf {
@@ -101,10 +101,10 @@ fun RutasListContent(
                         modifier,
                         state = state,
                         items = items,
-                        onSelect = { lug: Ruta ->
-                            rutaSelected.value = lug
+                        onSelect = { rut: Ruta ->
+                            rutaSelected = rut
                         },
-                        checkSelected = { other: Ruta -> rutaSelected.equals(other) },
+                        checkSelected = { other: Ruta -> rutaSelected?.equals(other) ?: false },
                         deleteFuncition = deleteFuncition,
                         viewFunction = viewFunction,
                         favoriteFuncion = favoriteFuncion
@@ -130,7 +130,7 @@ fun LazyListRuta(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     items: List<Ruta> = emptyList(),
-    onSelect: (lug: Ruta) -> Unit,
+    onSelect: (rut: Ruta) -> Unit,
     checkSelected: (otro: Ruta)-> Boolean,// = {otro: Ruta -> false}
     viewFunction: (ruta: Ruta) -> Unit = {},
     deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
@@ -178,7 +178,7 @@ fun LazyListRuta(
 @Composable
 fun rutaListable(
     ruta: Ruta,
-    onSelect: (lug: Ruta) -> Unit,
+    onSelect: (rut: Ruta) -> Unit,
     selected: Boolean,
     viewFunction: (ruta: Ruta) -> Unit = {},
     deleteFuncition: (ruta: Ruta) -> Unit = {},

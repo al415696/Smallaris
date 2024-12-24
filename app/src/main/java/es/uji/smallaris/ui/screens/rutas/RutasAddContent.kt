@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -79,7 +80,7 @@ fun RutasAddContent(
         fin: LugarInteres,
         vehiculo: Vehiculo,
         tipoRuta: TipoRuta
-    ) -> String = {_,_,_,_,_ -> ""},
+    ) -> String = { _, _, _, _, _ -> "" },
 //    funConseguirToponimos: suspend (longitud: Double, latitud: Double) -> Pair<ErrorCategory, String> = { _, _ ->
 //        Pair(
 //            ErrorCategory.NotAnError,
@@ -104,6 +105,12 @@ fun RutasAddContent(
 
     var listLugares by rememberSaveable { mutableStateOf(emptyList<LugarInteres>()) }
 
+    val vehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
+    var hayVehiculos by remember { mutableStateOf(true) }
+
+    var listVehiculos by rememberSaveable { mutableStateOf(emptyList<Vehiculo>()) }
+
+    var currentTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
 
     val showAddDialogue = rememberSaveable { mutableStateOf(false) }
 
@@ -121,20 +128,21 @@ fun RutasAddContent(
                 bearing(0.0)
             }
         }
+    val listaTipoRuta = listOf(TipoRuta.Rapida,TipoRuta.Economica,TipoRuta.Corta)
     var marker by rememberSaveable { mutableStateOf<Point?>(null) }
 
     val updateMap = { longitud: Double, latitud: Double ->
 
-            marker = Point.fromLngLat(longitud, latitud)
-            mapboxMapState.setCameraOptions {
-                zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
-                center(
-                    Point.fromLngLat(longitud, latitud)
-                )
-                pitch(0.0)
-                bearing(0.0)
-                center(Point.fromLngLat(longitud, latitud))
-            }
+        marker = Point.fromLngLat(longitud, latitud)
+        mapboxMapState.setCameraOptions {
+            zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
+            center(
+                Point.fromLngLat(longitud, latitud)
+            )
+            pitch(0.0)
+            bearing(0.0)
+            center(Point.fromLngLat(longitud, latitud))
+        }
 
     }
 
@@ -161,6 +169,20 @@ fun RutasAddContent(
         }
 
     }
+    LaunchedEffect(Unit) {
+        println("Pirate: Empieza")
+        listVehiculos = funConseguirVehiculos()
+        println("Pirate: Acaba")
+
+        if (listVehiculos.isNotEmpty()) {
+            println("Pirate: Encontrado")
+            vehiculo.value = listVehiculos[0]
+        } else {
+            println("Pirate: No Encontrado")
+            hayVehiculos = false
+        }
+
+    }
 
     Surface(
         modifier = Modifier
@@ -176,18 +198,12 @@ fun RutasAddContent(
         ) {
             TopBackBar(onBack)
 
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                val scope = rememberCoroutineScope()
-                val markerImage = rememberIconImage(
-                    key = "default_marker",
-                    painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
-                )/*
+
+            val scope = rememberCoroutineScope()
+            val markerImage = rememberIconImage(
+                key = "default_marker",
+                painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
+            )/*
                 MapboxMap(
                     modifier= Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
                     mapViewportState = mapboxMapState,
@@ -233,19 +249,24 @@ fun RutasAddContent(
                     }
                 )
                 */
-                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(intrinsicSize = IntrinsicSize.Min),
-//                        verticalAlignment = Alignment.Top,
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
+
+            Surface(
+                modifier = Modifier.padding(10.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
                     Column(modifier = Modifier) {
                         Text(text = "Origen")
                         Surface(modifier = Modifier.fillMaxWidth(0.8f)) {
                             ListDropDown(
-                                //                            modifier= Modifier.fillMaxWidth(),
                                 opciones = listLugares,
                                 elegida = inicio,
                                 shownValue = { objeto: LugarInteres? ->
@@ -254,15 +275,17 @@ fun RutasAddContent(
                             )
                         }
                     }
-                        HorizontalDivider(Modifier.padding(vertical = 20.dp))
+
                     Column(modifier = Modifier) {
                         Text(text = "Destino")
                         Surface(modifier = Modifier.fillMaxWidth(0.8f)) {
 
-                        ListDropDown(
+                            ListDropDown(
                                 opciones = listLugares,
                                 elegida = destino,
-                                shownValue = {objeto: LugarInteres? ->   objeto?.nombre ?: "Cargando..." }
+                                shownValue = { objeto: LugarInteres? ->
+                                    objeto?.nombre ?: "Cargando..."
+                                }
                             )
                         }
                     }
@@ -277,64 +300,110 @@ fun RutasAddContent(
                         ) {
                             Text(
                                 modifier = Modifier.padding(15.dp),
-                                text = "No tienes ningúl lugar guardado, así no puedes crear rutas!",
+                                text = "No tienes ningún lugar guardado, así no puedes crear rutas!",
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
-                }
 
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Column {
+                    HorizontalDivider(Modifier.padding(vertical = 20.dp))
 
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier
-                            .height(75.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.End)
-                    ) {
-                        Button(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.End),
-                            colors = ButtonColors(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                MaterialTheme.colorScheme.onPrimaryContainer,
-                                MaterialTheme.colorScheme.tertiaryContainer,
-                                MaterialTheme.colorScheme.onSurface,
-                            ),
-                            onClick = {
-                                // Handle form submission
-                                showAddDialogue.value = true
-                            }) {
-                            Text(
-                                text = "Añadir",
-                                style = MaterialTheme.typography.headlineLarge
+                    Column(modifier = Modifier) {
+                        Text(text = "Vehiculo")
+                        Surface(modifier = Modifier.fillMaxWidth(0.8f)) {
+
+                            ListDropDown(
+                                modifier = Modifier.fillMaxWidth(),
+                                opciones = listVehiculos,
+                                elegida = vehiculo,
+                                shownValue = { objeto: Vehiculo? ->
+                                    objeto?.nombre ?: "Cargando..."
+                                }
                             )
                         }
                     }
+                    if (!hayVehiculos) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp),
+                            contentColor = MaterialTheme.colorScheme.error,
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = MaterialTheme.shapes.medium,
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(15.dp),
+                                text = "No tienes ningún vehiculo guardado, así no puedes crear rutas!",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(Modifier.padding(vertical = 20.dp))
+
+                    Column(modifier = Modifier.fillMaxWidth(0.8f),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Start),
+                            text = "Tipo de ruta"
+                        )
+                        Surface(modifier = Modifier.fillMaxWidth(0.4f)) {
+                            EnumDropDown(
+                                opciones = listaTipoRuta,
+                                elegida = currentTipoRuta
+                            )
+                        }
+                    }
+
                 }
             }
-
-
+            Spacer(
+                Modifier
+                    .fillMaxHeight()
+                    .weight(1f))
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                modifier = Modifier
+                    .height(75.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.End)
+            ) {
+                Button(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.End),
+                    colors = ButtonColors(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onSurface,
+                    ),
+                    onClick = {
+                        // Handle form submission
+                        showAddDialogue.value = true
+                    }) {
+                    Text(
+                        text = "Calcular",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+//                }
+            }
         }
+
+
     }
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
 private fun PreviewRutasAddContent() {
-   RutasAddContent()
+    RutasAddContent()
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable

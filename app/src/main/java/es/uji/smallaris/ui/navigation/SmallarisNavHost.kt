@@ -48,11 +48,15 @@ fun SmallarisNavHost(
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
-//                vehiculosViewModel.debugFillList()
+                vehiculosViewModel.debugFillList()
                 vehiculosViewModel.updateList()
                 //Lugares
                 lugaresViewModel.debugFillList()
                 lugaresViewModel.updateList()
+
+                //Rutas
+                rutasViewModel.debugFillList()
+                rutasViewModel.updateList()
                 navigationEnabled.value = true
             },
             onTimeout = { loading = false }
