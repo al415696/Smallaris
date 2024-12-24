@@ -304,6 +304,7 @@ class TestServicioLugares {
         assertEquals("Castellón de la Plana", resultado.municipio)
         assertEquals(1, servicioLugares.getLugares().size)
         coVerify { mockServicioORS.getCoordenadas(any()) }
+
     }
 
     @Test
