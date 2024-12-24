@@ -1,5 +1,6 @@
 package es.uji.smallaris
 
+import android.util.Log
 import es.uji.smallaris.model.API
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.RepositorioFirebase
@@ -45,6 +46,9 @@ class TestServicioLugares {
                     "Camp de Futbol, Villavieja, Comunidad Valenciana, España"
             coEvery { mockRepositorioLugares.setLugarInteresFavorito(any(), any()) } returns true
             coEvery { mockServicioORS.getCoordenadas("Topónimo_inexistente") } throws UbicationException("No se encontraron coordenadas para el topónimo Topónimo_inexistente")
+            coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.037787, 39.987142)
+            coEvery { mockServicioORS.getToponimoCercano(-0.037787, 39.987142) } returns
+                    "Buzón de Correos, Castellón de la Plana, Comunidad Valenciana, España"
         }
     }
 
@@ -283,6 +287,22 @@ class TestServicioLugares {
             ), lista[0]
         )
 
+    }
+
+    @Test
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
+        // Given
+        val servicioLugares = ServicioLugares(mockRepositorioLugares, servicioAPIs)
+
+        // When
+        val (longitud, latitud) = servicioAPIs.getCoordenadas("Castellón de la Plana")
+        val resultado = servicioLugares.addLugar(longitud, latitud)
+
+        //Then
+        assertEquals(longitud, -0.037787)
+        assertEquals(latitud, 39.987142)
+        assertEquals("Castellón de la Plana", resultado.municipio)
+        assertEquals(1, servicioLugares.getLugares().size)
     }
 
     @Test
