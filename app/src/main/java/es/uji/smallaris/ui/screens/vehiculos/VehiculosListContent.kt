@@ -1,38 +1,42 @@
-package es.uji.smallaris.ui.screens.Vehiculos
+package es.uji.smallaris.ui.screens.vehiculos
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.ui.components.BottomListActionBar
+import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
 
 @Composable
@@ -40,8 +44,9 @@ fun VehiculosListContent(
     modifier: Modifier,
     items: List<Vehiculo> = listOf(),
     addFunction: () -> Unit = {},
-    deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
+    sortFunction: () -> String = {""},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
     updateFunction:(viejo: Vehiculo) -> Unit = {}
 
 ) {
@@ -55,79 +60,99 @@ fun VehiculosListContent(
             )
         )
     }
-    Surface(color = MaterialTheme.colorScheme.primary) {
+    val state = rememberLazyListState()
+    val firstItemVisible by remember {
+        derivedStateOf {
+            state.firstVisibleItemIndex == 0
+        }
+    }
+//    var nombreOrdenActual by remember { mutableStateOf("") }
 
-        Column(
-            modifier = modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                modifier = modifier
-                    .height(55.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+    Column {
+//        if (nombreOrdenActual.isNotEmpty())
+//            Surface(modifier= Modifier.fillMaxWidth(),color = MaterialTheme.colorScheme.secondary){
+//                Text(text = nombreOrdenActual)
+//            }
+        Surface(color = MaterialTheme.colorScheme.primary) {
 
-                ) {
+            Box(
+                modifier = modifier.fillMaxHeight(),
+            ) {
 
-                IconButton(onClick = {}, modifier = modifier.size(75.dp)) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.List,
-//                    ImageVector.vectorResource(R.drawable.directions_car_24px),
-                        stringResource(R.string.default_description_text),
-                        modifier = modifier.fillMaxSize(),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                if (items.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(Modifier.height(30.dp))
+                        Text(
+                            style = MaterialTheme.typography.titleLarge,
+                            text = stringResource(R.string.sin_vehiculos_text),
+                            textAlign = TextAlign.Center,
+                            lineHeight = TextUnit(35f, TextUnitType.Sp)
+                        )
+                    }
+                } else
+                    LazyListVehiculos(
+                        modifier,
+                        state = state,
+                        items = items,
+                        onSelect = { veh: Vehiculo ->
+                            vehiculoSelected = veh
+                        },
+                        checkSelected = { other: Vehiculo -> vehiculoSelected.equals(other) },
+                        updateFunction = updateFunction,
+                        deleteFuncition = deleteFuncition,
+                        favoriteFuncion = favoriteFuncion
                     )
-                }
-                IconButton(onClick = addFunction, modifier = modifier.size(75.dp)) {
-                    Icon(
-                        Icons.Filled.AddCircle,
-//                    ImageVector.vectorResource(R.drawable.directions_car_24px),
-                        stringResource(R.string.default_description_text),
-                        modifier = modifier.fillMaxSize(),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
 
+                BottomListActionBar(
+                    modifier = Modifier
+                        .height(60.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                    showBar = firstItemVisible,
+                    showTextOnSort = true,
+                    addFunction = addFunction,
+//                    sortFunction = {nombreOrdenActual = "Ordenado por " + sortFunction() }
+                    sortFunction = sortFunction
+                )
             }
-            LazyListVehiculos(
-                modifier.weight(1F),
-                items = items,
-                onSelect= {
-                        veh: Vehiculo -> vehiculoSelected = veh
-                    println(vehiculoSelected)
-                },
-                checkSelected = {other: Vehiculo -> vehiculoSelected.equals(other) },
-                updateFunction = updateFunction
-            )
-
-
         }
     }
 }
 @Composable
 fun LazyListVehiculos(
     modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
     items: List<Vehiculo> = vehiculoTestData,
     onSelect: (veh: Vehiculo) -> Unit,
     checkSelected: (otro: Vehiculo)-> Boolean,// = {otro: Vehiculo -> false}
-    addFuncion: (vehiculo: Vehiculo) -> Unit = {},
-    deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
     updateFunction:(viejo:Vehiculo) -> Unit = {}
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val vehiculoABorrar = remember { mutableStateOf<Vehiculo?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) } }
+            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) } },
+            nombreObjetoBorrado = "El vehículo elegido"
 
         )
     }
     LazyColumn(
+        
         modifier = modifier,
+        state = state,
         verticalArrangement = Arrangement.spacedBy(4.dp),
 //        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
+        item{
+            Spacer(Modifier.size(0.dp))
+        }
         items(items) { item: Vehiculo ->
             vehiculoListable(
                 vehiculo = item,
@@ -137,9 +162,14 @@ fun LazyListVehiculos(
                     vehiculoABorrar.value = vehiculo
                     shouldShowDialog.value = true
                 },
-                updateFunction = updateFunction
+                updateFunction = updateFunction,
+                favoriteFuncion = favoriteFuncion,
+
 
             )
+        }
+        item{
+            Spacer(Modifier.size(30.dp))
         }
     }
 
@@ -151,50 +181,33 @@ fun vehiculoListable(
     selected: Boolean,
     addFuncion: (vehiculo: Vehiculo) -> Unit = {},
     deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
     updateFunction:(viejo:Vehiculo) -> Unit = {}
 
 ){
-    ObjetoListable(
-        nombre = vehiculo.nombre,
-        secondaryInfo = vehiculo.consumo.toString(),
-        onGeneralClick = { onSelect(vehiculo) },
-        selected = selected,
-        favoriteFuncion = { favoriteFuncion(vehiculo,!vehiculo.isFavorito()) },
-        deleteFuncition = { deleteFuncition(vehiculo) },
-        updateFunction = {updateFunction(vehiculo)},
-        favorito = vehiculo.isFavorito()
-
-    )
-}
-@Composable
-fun DeleteAlertDialogue(
-    shouldShowDialog: MutableState<Boolean>,
-    deleteFuncition: () -> Unit
-) {
-    if (shouldShowDialog.value) { // 2
-        AlertDialog( // 3
-            onDismissRequest = { // 4
-                shouldShowDialog.value = false
-            },
-            // 5
-            title = { Text(text = "¿Seguro que quieres borrar?") },
-            text = { Text(text = "El vehiculo se borrará permantentemente") },
-            confirmButton = { // 6
-                Button(
-                    onClick = {
-                        shouldShowDialog.value = false
-                        deleteFuncition()
-                    }
-                ) {
-                    Text(
-                        text = "Borrar"
-                    )
-                }
-            }
-        )
+    var cambiandoFavorito by remember{ mutableStateOf(false)}
+    if(cambiandoFavorito) {
+        LaunchedEffect(Unit) {
+            favoriteFuncion(vehiculo, !vehiculo.isFavorito())
+            cambiandoFavorito = false
+        }
     }
+
+        ObjetoListable(
+            primaryInfo = vehiculo.nombre,
+            secondaryInfo = vehiculo.matricula,
+            terciaryInfo =  "${vehiculo.consumo} ${ArquetipoVehiculo.Combustible.getUnidad(vehiculo.tipo)}",
+            onGeneralClick = { onSelect(vehiculo) },
+            favoriteFuncion = { cambiandoFavorito = true },
+            secondActionFuncition = { deleteFuncition(vehiculo) },
+            firstActionFunction = {updateFunction(vehiculo)},
+            favorito = vehiculo.isFavorito(),
+            selected = selected,
+            ratioHiddenFields = 0.4F
+
+        )
 }
+
 val vehiculoTestData = listOf(
     Vehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95),
     Vehiculo("Unicornio", 77.7, "7777LLL", TipoVehiculo.Bici),
@@ -237,22 +250,11 @@ private fun vehiculosListContentPreview() {
 }
 @Preview
 @Composable
-private fun previewVehiculoSinTerciary() {
-    ObjetoListable(
-        nombre = "Prueba",
-        secondaryInfo = "Prueba2"
-    )
+private fun vehiculosListContentVacioPreview() {
+    val modifier: Modifier = Modifier
+    VehiculosListContent(modifier, emptyList())
 }
 
-@Preview
-@Composable
-private fun previewVehiculoConTerciary() {
-    ObjetoListable(
-        nombre = "Prueba",
-        secondaryInfo = "Prueba2",
-        terciaryInfo = "Prueba3"
-    )
-}
 @Preview
 @Composable
 private fun previewListaVehiculos() {

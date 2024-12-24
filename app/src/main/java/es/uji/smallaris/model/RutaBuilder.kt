@@ -61,7 +61,7 @@ class RutaBuilder: IBuilderRutas {
     }
 
     @Throws(IllegalArgumentException::class)
-    override fun getRuta(): Ruta {
+    override fun getRutaCalculada(): Ruta {
         // Validaciones
         if (nombre == "") {
             throw IllegalArgumentException("El nombre no puede estar vacío")
@@ -79,5 +79,9 @@ class RutaBuilder: IBuilderRutas {
         val ruta = Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste, nombre)
         reset()
         return ruta
+    }
+
+    fun getRuta(): Ruta {
+        return Ruta(inicio, fin, vehiculo, tipo, trayecto, distancia, duracion, coste, nombre)
     }
 }

@@ -11,7 +11,7 @@ class ProxyPrecios : IServicioPrecios {
     private val TTL_CARBURANTE = 30 * 60 * 1000L // 30 minutos en milisegundos
     private val TTL_ELECTRICIDAD = 24 * 60 * 60 * 1000L // 1 día en milisegundos
 
-    override suspend  fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
+    override suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         val combustible = getCombustibleFromCacheOrFetch(lugar, tipoVehiculo)
         return combustible[TipoVehiculo.Gasolina95]
     }

@@ -22,13 +22,19 @@ class ServicioLugares(
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
+        val longitudCorrecta: Boolean = (longitud < -180 || longitud > 180 )
+        val latitudCorrecta: Boolean = (latitud < -90 || latitud > 90 )
+        if (longitudCorrecta || latitudCorrecta){
+            val errorMessage = StringBuilder("Las coordenadas deben estar ")
+            if (longitudCorrecta){
+                errorMessage.append("entre -180 y 180 grados de longitud")
+                if (latitudCorrecta)
+                    errorMessage.append("y entre -90 y 90 grados de latitud")
+            }else
+                errorMessage.append("estar entre -90 y 90 grados de latitud")
 
-        if (longitud < -180 || longitud > 180 ) {
-            throw UbicationException("Las coordenadas deben estar entre -180 y 180 grados de longitud")
-        }
+            throw UbicationException(errorMessage.toString())
 
-        if (latitud < -90 || latitud > 90 ) {
-            throw UbicationException("Las coordenadas deben estar entre -90 y 90 grados de latitud")
         }
 
         if ( !repositorioLugares.enFuncionamiento() )
@@ -97,5 +103,14 @@ class ServicioLugares(
             return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
         }
         return false
+    }
+    companion object{
+        private lateinit var servicio: ServicioLugares
+        fun getInstance(): ServicioLugares{
+            if (!this::servicio.isInitialized){
+                servicio = ServicioLugares(repositorioLugares = RepositorioFirebase(), apiObtenerNombres = ServicioAPIs)
+            }
+            return servicio
+        }
     }
 }

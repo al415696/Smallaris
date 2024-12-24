@@ -17,9 +17,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 
 @Composable
 inline fun < reified E: Enum<E>>EnumDropDown(
+    modifier: Modifier = Modifier,
     opciones: List<E> = enumValues<E>().toList(),
     elegida: MutableState<E>
 ) {
@@ -29,12 +31,13 @@ inline fun < reified E: Enum<E>>EnumDropDown(
     }
 
     val itemPosition = remember {
-        mutableStateOf(0)
+        mutableStateOf(opciones.indexOf(elegida.value))
     }
 
     val tiposVehiculo = opciones
 
     Column(
+        modifier= modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

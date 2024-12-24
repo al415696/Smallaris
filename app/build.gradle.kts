@@ -87,6 +87,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+//    Material
+    implementation(libs.material.icons.extended)
+//    implementation ("androidx.compose.material:material-icons-extended:2.8.7")
+
+
 //    lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
@@ -107,4 +112,9 @@ dependencies {
 //    androidTestImplementation("org.mockito:mockito-android:5.0.0")
 //    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
     androidTestImplementation("io.mockk:mockk-android:1.13.13")
+    testImplementation("io.mockk:mockk:1.13.13")
+
+    implementation("com.mapbox.maps:android:11.7.0")
+    implementation("com.mapbox.extension:maps-compose:11.7.0")
+
 }

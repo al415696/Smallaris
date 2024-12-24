@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,23 +39,23 @@ import es.uji.smallaris.ui.navigation.VehiculosDestination
 
 @Composable
 fun SmallarisNavBar(
-    startDestination: SmallarisDestination,
-    onTabSelected: (SmallarisDestination) -> Unit
+    currentDestination: SmallarisDestination,
+    onTabSelected: (SmallarisDestination) -> Unit,
+    navigationEnabled: MutableState<Boolean>
 ) {
-    var selectedDestination by rememberSaveable() { mutableStateOf(startDestination.route)}
 
 
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
         TOP_LEVEL_DESTINATIONS.forEach { appDestination ->
             NavigationBarItem(
-                selected = selectedDestination == appDestination.route,
+                selected = currentDestination.route == appDestination.route,
                 onClick = {
-                    selectedDestination = appDestination.route
-                    onTabSelected(appDestination)
+                    if (navigationEnabled.value)
+                        onTabSelected(appDestination)
                           },
                 icon = {
                     Icon(
-                        imageVector = ImageVector.vectorResource(appDestination.icon),
+                        imageVector = appDestination.icon,
                         contentDescription =  appDestination.route
                     )
                 }

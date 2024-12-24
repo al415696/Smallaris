@@ -2,19 +2,13 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarOK()">
+      <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestServicioLugares">
+      <SelectionState runConfigName="Tests in 'es.uji.smallaris.model'">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="addLugar_R2HU01_darDeAltaLugarOK_mockObtenerNombre()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="getLugares_R2HU03_faltaConexionBBDD()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="addLugar_R2HU02_darDeAltaLugarPorToponimoOK()">
+      <SelectionState runConfigName="TestServicioUsuarios">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
