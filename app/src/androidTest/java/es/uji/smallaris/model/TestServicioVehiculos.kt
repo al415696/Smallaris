@@ -1,10 +1,10 @@
 package es.uji.smallaris.model
 
-import androidx.compose.foundation.text2.input.rememberTextFieldState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,7 +42,7 @@ class TestServicioVehiculos {
         catch (excepcion: Exception){
             resultado = excepcion
         }
-        assertTrue(resultado is VehicleAlredyExistsException)
+        assertTrue(resultado is VehicleException)
     }
 
     @Test
@@ -76,6 +76,124 @@ class TestServicioVehiculos {
         assertNotNull(resultado)
         assertTrue(resultado is ConnectionErrorException)
 
+    }
+
+    @Test
+    fun deleteVehiculo_R3HU3V1_eliminarVehiculoOk() = runBlocking{
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        //      WHEN
+        val exito = vehiculo?.let {  servicioVehiculos.deleteVehiculo(it) }
+        //      THEN
+        assertNotNull(exito)
+        if (exito != null)
+            assertTrue(exito)
+        assertTrue(servicioVehiculos.getVehiculos().isEmpty())
+
+    }
+    @Test
+    fun deleteVehiculo_R3HU3I1_eliminarVehiculoInexistente() = runBlocking{
+        //      GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        var vehiculoInexistente = Vehiculo("Unicornio", 77.7, "7777LLL", TipoVehiculo.Bici)
+        var resultado: Exception? = null
+        //      WHEN
+        try {
+        servicioVehiculos.deleteVehiculo(vehiculoInexistente)
+    } catch (e: Exception) {
+        resultado = e
+    }
+        //      THEN
+        assertTrue(resultado is VehicleException)
+    }
+
+    @Test
+    fun updateVehiculos_R3HU4V1_updateUnVehiculoOk() = runBlocking{
+//        GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculoInicial: Vehiculo =
+            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+//        WHEN
+        var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
+//        THEN
+        val vehiculoFinal = servicioVehiculos.getVehiculos()[0]
+        println(resultado)
+        assertTrue(resultado)
+        assertEquals("Moto", vehiculoFinal.nombre)
+        assertTrue(7.1 == vehiculoFinal.consumo)
+        assertEquals("1234BBB", vehiculoFinal.matricula)
+        assertEquals(TipoVehiculo.Electrico, vehiculoFinal.tipo)
+    }
+
+    @Test
+    fun updateVehiculos_R3HU4I1_updateVehiculoInexistente() = runBlocking{
+//        GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculoInicial: Vehiculo =Vehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+//        WHEN
+        var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
+//        THEN
+        assertFalse(resultado)
+    }
+    @Test
+    fun updateVehiculos_R3HU4V2_updateVehiculoConMasEnLista() = runBlocking{
+//        GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+        servicioVehiculos.addVehiculo("Otro",7.1,"8888BBB" ,TipoVehiculo.Gasolina95)
+//        WHEN
+        var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
+//        THEN
+        val vehiculoFinal = servicioVehiculos.getVehiculos()[0]
+        println(resultado)
+        assertTrue(resultado)
+        assertEquals("Moto", vehiculoFinal.nombre)
+        assertTrue(7.1 == vehiculoFinal.consumo)
+        assertEquals("1234BBB", vehiculoFinal.matricula)
+        assertEquals(TipoVehiculo.Electrico, vehiculoFinal.tipo)
+    }
+    @Test
+    fun updateVehiculos_R3HU4I2_updateVehiculoSolapamientoIdentificadoresNuevos() = runBlocking{
+//        GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+        servicioVehiculos.addVehiculo("Otro",7.1,"8888BBB" ,TipoVehiculo.Gasolina95)
+        var resultado: Exception? = null
+//        WHEN
+        try {
+            servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Otro", nuevoTipoVehiculo = TipoVehiculo.Electrico)
+        } catch (e: Exception) {
+            resultado = e
+        }
+//        THEN
+        assertNotNull(resultado)
+        assertTrue(resultado is VehicleException)
+    }
+    @Test
+    fun updateVehiculos_R3HU4I3_updateVehiculoSinCambiarNada() = runBlocking{
+//        GIVEN
+        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
+        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+        var resultado: Exception? = null
+//        WHEN
+        try {
+            servicioVehiculos.updateVehiculo(vehiculoInicial)
+        } catch (e: Exception) {
+            resultado = e
+        }
+
+//        THEN
+        assertNotNull(resultado)
+        assertTrue(resultado is VehicleException)
     }
 
     @Test

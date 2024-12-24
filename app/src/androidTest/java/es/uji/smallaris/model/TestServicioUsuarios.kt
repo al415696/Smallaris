@@ -1,113 +1,175 @@
 package es.uji.smallaris.model
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.experimental.runners.Enclosed
+import org.junit.runner.RunWith
 
+@RunWith(Enclosed::class)
 class TestServicioUsuarios {
 
-    private lateinit var repositorioUsuarios: RepositorioUsuarios
-    private lateinit var servicioUsuarios: ServicioUsuarios
+    class PruebasQueNoBorranFirebase {
 
-    @After
-    fun tearDown() {
-        runBlocking {
-            val auth = repositorioUsuarios.obtenerAuth()
-            val firestore = repositorioUsuarios.obtenerFirestore()
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
 
-            // Guardar UID antes de eliminar al usuario
-            val usuarioId = auth.currentUser?.uid
-
-            // Eliminar usuario de Firebase Authentication
-            try {
-                auth.currentUser?.delete()?.await()
-                println("Usuario autenticado eliminado correctamente.")
-            } catch (e: Exception) {
-                println("Error al eliminar usuario autenticado: ${e.localizedMessage}")
-            }
-
-            // Eliminar documentos relacionados en Firestore usando el UID
-            if (usuarioId != null) {
-                try {
-                    firestore.collection("usuarios").document(usuarioId).delete().await()
-                    println("Documento del usuario eliminado de Firestore.")
-                } catch (e: Exception) {
-                    println("Error al eliminar documento de Firestore: ${e.localizedMessage}")
+        @After
+        fun tearDown(): Unit {
+            runBlocking {
+                val auth = FirebaseAuth.getInstance()
+                // Cierra sesión si hay un usuario activo
+                auth.currentUser?.let {
+                    auth.signOut()
                 }
-            } else {
-                println("No se pudo obtener el UID del usuario para borrar datos en Firestore.")
             }
         }
-    }
 
+        @Test
+        fun registrarUsuario_R1HU01_registrarUsuarioYaExistente() {
+            runBlocking {
+                var resultado: UserAlreadyExistsException? = null
+                // Dado
+                repositorioUsuarios = RepositorioFirebase()
+                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
 
+                // Cuando
+                try {
+                    servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
+                } catch (excepcion: UserAlreadyExistsException) {
+                    resultado = excepcion
+                }
 
-    @Test
-    fun registrarUsuario_R1HU01_registrarUsuarioExito() {
-        runBlocking {
-            // Dado
-            repositorioUsuarios = RepositorioFirebase()
-            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-            // Cuando
-            val usuario = servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
-            // Entonces
-            assertEquals(Usuario(uid = "", correo = "al415617@uji.es"), usuario)
+                // Entonces
+                assertNotNull(resultado)
+                assertTrue(resultado is UserAlreadyExistsException)
+            }
         }
-    }
 
-    @Test
-    fun registrarUsuario_R1HU01_registrarUsuarioYaExistente() {
-        runBlocking {
-            var resultado: UserAlreadyExistsException? = null
+        @Test
+        fun iniciarSesion_R1HU02_iniciarSesionExito() {
+            runBlocking {
+                // Dado
+                repositorioUsuarios = RepositorioFirebase()
+                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
+
+                // Cuando
+                val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+
+                // Entonces
+                assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
+                assertNotNull(servicioUsuarios.obtenerUsuarioActual())
+            }
+        }
+
+        @Test
+        fun iniciarSesion_R1HU02_iniciarSesionSinRegistrarse() = runBlocking {
+            var resultado: UnregisteredUserException? = null
+
             // Dado
             repositorioUsuarios = RepositorioFirebase()
             servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
-            println("Primer usuario registrado")
+
             // Cuando
             try {
-                servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
-            } catch (excepcion: UserAlreadyExistsException) {
+                servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+            } catch (excepcion: UnregisteredUserException) {
                 resultado = excepcion
             }
+
             // Entonces
             assertNotNull(resultado)
-            assertTrue(resultado is UserAlreadyExistsException)
+            assertTrue(resultado is UnregisteredUserException)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
+        }
+
+        @Test
+        fun cerrarSesion_R1HU03_cerrarSesionExito() {
+            runBlocking {
+                // Dado
+                repositorioUsuarios = RepositorioFirebase()
+                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+
+                // Cuando
+                val resultado = servicioUsuarios.cerrarSesion()
+
+                // Entonces
+                assertTrue("Devuelve true solo en caso de cerrar sesión con éxito.", resultado)
+                assertNull(servicioUsuarios.obtenerUsuarioActual())
+            }
+        }
+
+        @Test
+        fun cerrarSesion_R1HU03_cerrarSesionSinIniciarSesion() {
+            runBlocking {
+                var resultado: UnloggedUserException? = null
+                // Dado
+                val repositorioUsuarios = RepositorioFirebase()
+                val servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                // Cuando
+                try {
+                    servicioUsuarios.cerrarSesion() // Intentar cerrar sesión sin usuario
+                } catch (excepcion: UnloggedUserException) {
+                    resultado = excepcion
+                }
+                // Entonces
+                assertNotNull(resultado)
+                assertTrue(resultado is UnloggedUserException)
+                assertNull(servicioUsuarios.obtenerUsuarioActual())
+            }
         }
     }
 
-    @Test
-    fun iniciarSesion_R1HU02_iniciarSesionExito() {
-        runBlocking {
-            // Dado
-            repositorioUsuarios = RepositorioFirebase()
-            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
-            // Cuando
-            val usuario = servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
-            // Entonces
-            assertEquals(Usuario(uid = "", correo = "al415617@uji.es"), usuario)
-        }
-    }
+    class RegistrarUsuarioExitoTest {
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
 
-    @Test
-    fun iniciarSesion_R1HU02_iniciarSesionSinRegistrarse() = runBlocking {
-        var resultado: UnregisteredUserException? = null
-        // Dado
-        repositorioUsuarios = RepositorioFirebase()
-        servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-        // Cuando
-        try {
-            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
-        } catch (excepcion: UnregisteredUserException) {
-            resultado = excepcion
+        @Test
+        fun registrarUsuario_R1HU01_registrarUsuarioExito() {
+            runBlocking {
+                // Dado
+                repositorioUsuarios = RepositorioFirebase()
+                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                // Cuando
+                val usuario =
+                    servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+                // Entonces
+                assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+                assertNotNull(servicioUsuarios.obtenerUsuarioActual())
+            }
         }
-        // Entonces
-        assertNotNull(resultado)
-        assertTrue(resultado is UnregisteredUserException)
+
+        @After
+        fun tearDown() {
+            runBlocking {
+                val auth = FirebaseAuth.getInstance()
+                val firestore = FirebaseFirestore.getInstance()
+
+                // Elimina el usuario creado y su documento en la colección usuarios-test
+                auth.currentUser?.let { user ->
+                    try {
+                        firestore.collection("usuarios")
+                            .document(user.uid).delete()
+                            .await()
+                        user.delete().await()
+                    } catch (ex: Exception) {
+                        // Manejo de excepciones si es necesario
+                    } finally {
+                        auth.signOut()
+                    }
+                }
+            }
+        }
     }
 }

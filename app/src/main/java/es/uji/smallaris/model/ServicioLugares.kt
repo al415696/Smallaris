@@ -22,16 +22,30 @@ class ServicioLugares(
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
+        val longitudCorrecta: Boolean = (longitud < -180 || longitud > 180 )
+        val latitudCorrecta: Boolean = (latitud < -90 || latitud > 90 )
+        if (longitudCorrecta || latitudCorrecta){
+            val errorMessage = StringBuilder("Las coordenadas deben estar ")
+            if (longitudCorrecta){
+                errorMessage.append("entre -180 y 180 grados de longitud")
+                if (latitudCorrecta)
+                    errorMessage.append("y entre -90 y 90 grados de latitud")
+            }else
+                errorMessage.append("estar entre -90 y 90 grados de latitud")
+
+            throw UbicationException(errorMessage.toString())
+
+        }
 
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
 
         val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
-        println("Toponimo obtenido: $toponimo")
         val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
         if (nombre.isEmpty()) {
@@ -64,6 +78,20 @@ class ServicioLugares(
             ordenLugares.comparator()
         )
     }
+
+    @Throws(ConnectionErrorException::class, UbicationException::class)
+    suspend fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+        if ( !repositorioLugares.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+
+        if (lugarInteres.isFavorito()) {
+            throw UbicationException("Ubicación favorita")
+        }
+
+        lugares.remove(lugarInteres)
+        return repositorioLugares.deleteLugar(lugarInteres)
+    }
+
     @Throws(UbicationException::class)
     suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )
@@ -75,5 +103,14 @@ class ServicioLugares(
             return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
         }
         return false
+    }
+    companion object{
+        private lateinit var servicio: ServicioLugares
+        fun getInstance(): ServicioLugares{
+            if (!this::servicio.isInitialized){
+                servicio = ServicioLugares(repositorioLugares = RepositorioFirebase(), apiObtenerNombres = ServicioAPIs)
+            }
+            return servicio
+        }
     }
 }
