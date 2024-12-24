@@ -5,7 +5,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -17,7 +16,8 @@ import org.junit.runner.RunWith
 @RunWith(Enclosed::class)
 class TestServicioUsuarios {
 
-    class PruebasSinAfterPropioTest {
+    class PruebasQueNoBorranFirebase {
+
         private lateinit var repositorioUsuarios: RepositorioUsuarios
         private lateinit var servicioUsuarios: ServicioUsuarios
 
@@ -25,12 +25,10 @@ class TestServicioUsuarios {
         fun tearDown(): Unit {
             runBlocking {
                 val auth = FirebaseAuth.getInstance()
-
                 // Cierra sesión si hay un usuario activo
                 auth.currentUser?.let {
                     auth.signOut()
                 }
-                Thread.sleep(2000)
             }
         }
 
@@ -161,7 +159,8 @@ class TestServicioUsuarios {
                 // Elimina el usuario creado y su documento en la colección usuarios-test
                 auth.currentUser?.let { user ->
                     try {
-                        firestore.collection("usuarios-test").document(user.uid).delete()
+                        firestore.collection("usuarios")
+                            .document(user.uid).delete()
                             .await()
                         user.delete().await()
                     } catch (ex: Exception) {
@@ -170,7 +169,6 @@ class TestServicioUsuarios {
                         auth.signOut()
                     }
                 }
-                Thread.sleep(2000)
             }
         }
     }
