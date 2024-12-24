@@ -1,5 +1,6 @@
-package es.uji.smallaris.model
+package es.uji.smallaris.model.lugares
 
+import es.uji.smallaris.model.Favoritable
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.pow

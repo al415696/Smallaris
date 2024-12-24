@@ -1,6 +1,5 @@
 package es.uji.smallaris
 
-import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.RepositorioUsuarios
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.UnloggedUserException

@@ -2,7 +2,7 @@ package es.uji.smallaris.model.integration
 
 
 import es.uji.smallaris.model.CalculadorRutasORS
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.RepositorioRutas
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.ServicioORS
@@ -10,18 +10,15 @@ import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import androidx.test.platform.app.InstrumentationRegistry
-import es.uji.smallaris.model.API
 import es.uji.smallaris.model.ProxyPrecios
 import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.VehicleException
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.verify
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before

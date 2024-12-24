@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotEquals
