@@ -86,11 +86,6 @@ enum class ArquetipoVehiculo(){
         private val unidad: String = "L/100km"
         override fun getAllOfArquetipo(): List<TipoVehiculo> {
             return members
-//            var test = TipoVehiculo.entries.toMutableList()
-//            test.removeAll(listOf(TipoVehiculo.Electrico, TipoVehiculo.Pie, TipoVehiculo.Bici, TipoVehiculo.Desconocido))
-//            return test
-
-
         }
 
         override fun getUnidad(): String {

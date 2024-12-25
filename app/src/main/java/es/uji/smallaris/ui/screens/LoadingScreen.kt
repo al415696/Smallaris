@@ -31,13 +31,6 @@ fun LoadingScreen(loadingProcess: suspend ()->Unit, onTimeout: () -> Unit){
             verticalArrangement = Arrangement.Center){
             LoadingCircle(size =  100.dp)
             Spacer(Modifier.height(100.dp))
-
-//            Icon(
-//                imageVector = Icons.Filled.Build,
-//                contentDescription = "Cargando",
-//                Modifier.size(100.dp)
-//            )
-
         }
 
     }

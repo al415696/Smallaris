@@ -48,15 +48,16 @@ fun SmallarisNavHost(
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
-                vehiculosViewModel.debugFillList()
+//                vehiculosViewModel.debugFillList()
                 vehiculosViewModel.updateList()
                 //Lugares
-                lugaresViewModel.debugFillList()
+//                lugaresViewModel.debugFillList()
                 lugaresViewModel.updateList()
 
                 //Rutas
-                rutasViewModel.debugFillList()
+//                rutasViewModel.debugFillList()
                 rutasViewModel.updateList()
+
                 navigationEnabled.value = true
             },
             onTimeout = { loading = false }
@@ -71,27 +72,10 @@ fun SmallarisNavHost(
         {
 
 
-            composable(route = MapaDestination.route) {
 
-                MapaScreen(
-                    viewModel = mapaViewModel
-//                onClickSeeAllAccounts = {
-//                    navController.navigateSingleTopTo(Accounts.route)
-//                },
-//                onClickSeeAllBills = {
-//                    navController.navigateSingleTopTo(Bills.route)
-//                },
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
-                )
-            }
             composable(route = LugaresDestination.route) {
                 LugaresScreen(
                     viewModel = lugaresViewModel
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
                 )
             }
             composable(route = VehiculosDestination.route) {
@@ -124,6 +108,3 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
-private fun NavHostController.navigateToMapWithCoords(longitud: Double, latitud: Double, onBack: ()-> Unit) {
-    this.navigateSingleTopTo("${MapaDestination.route}/$longitud")
-}

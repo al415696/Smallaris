@@ -59,8 +59,6 @@ fun RutasMapContent(
                         (ruta.getInicio().longitud+ruta.getFin().longitud)/2,
                         (ruta.getInicio().latitud+ruta.getFin().latitud)/2
                         )
-
-//                    marker
                 ) // Coordenadas de la Universidad Jaume I.
                 pitch(0.0)
                 bearing(0.0)
@@ -86,7 +84,7 @@ fun RutasMapContent(
             TopBackBar(onBack)
 
             MapboxMap(
-                modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                modifier = Modifier.fillMaxSize(),
                 mapViewportState = mapboxMapState,
                 compass = {},
                 logo = {},
@@ -155,11 +153,4 @@ fun RutasMapContent(
         }
     }
 }
-
-
-//@Preview
-//@Composable
-//private fun previewRutasMapContent() {
-//    RutasMapContent({ println("Hola")}, ruta = rutaDebug)
-//}
 

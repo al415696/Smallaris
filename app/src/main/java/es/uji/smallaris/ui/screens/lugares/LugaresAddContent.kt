@@ -95,13 +95,10 @@ fun LugaresAddContent(
     val reasonForInvalidLongitud by remember {
         derivedStateOf {
             if (tempLongitud.value.isEmpty())
-//                "Se necesita una longitud"
                 "Necesaria"
             else if (tempLongitud.value.safeToDouble() < -180)
-//                    "Debe ser mayor de -180º"
                 "Debe ser > -180º"
             else if (tempLongitud.value.safeToDouble() > 180)
-//                    "Debe ser menor de 180º"
                 "Debe ser < 180º"
             else
                 ""
@@ -412,7 +409,6 @@ private fun OpcionAddCoordenadas(
                         Text(
                             text = reasonInvalidLatitude,
                             color = MaterialTheme.colorScheme.error,
-//                            style = MaterialTheme.typography.bodySmall
                         )
                 }
             ) {
@@ -437,7 +433,6 @@ private fun OpcionAddCoordenadas(
                         Text(
                             text = reasonInvalidLongitud,
                             color = MaterialTheme.colorScheme.error,
-//                            style = MaterialTheme.typography.bodySmall
                         )
                 }
             ) {

@@ -66,13 +66,8 @@ fun VehiculosListContent(
             state.firstVisibleItemIndex == 0
         }
     }
-//    var nombreOrdenActual by remember { mutableStateOf("") }
 
     Column {
-//        if (nombreOrdenActual.isNotEmpty())
-//            Surface(modifier= Modifier.fillMaxWidth(),color = MaterialTheme.colorScheme.secondary){
-//                Text(text = nombreOrdenActual)
-//            }
         Surface(color = MaterialTheme.colorScheme.primary) {
 
             Box(
@@ -116,7 +111,6 @@ fun VehiculosListContent(
                     showBar = firstItemVisible,
                     showTextOnSort = true,
                     addFunction = addFunction,
-//                    sortFunction = {nombreOrdenActual = "Ordenado por " + sortFunction() }
                     sortFunction = sortFunction
                 )
             }
@@ -148,7 +142,6 @@ fun LazyListVehiculos(
         modifier = modifier,
         state = state,
         verticalArrangement = Arrangement.spacedBy(4.dp),
-//        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         item{
             Spacer(Modifier.size(0.dp))

@@ -61,8 +61,6 @@ fun RutasScreen(
                     funConseguirLugares = viewModel::getLugares,
                     funCalcRuta = viewModel::calcRuta
 
-//                    funConseguirToponimos = viewModel::getToponimo,//{_,_-> ""}
-//                    funConseguirCoordenadas = viewModel::getCoordenadas
                 )
 
             RutaScreenContent.Map ->

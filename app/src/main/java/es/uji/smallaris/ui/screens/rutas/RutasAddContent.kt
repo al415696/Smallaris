@@ -162,36 +162,11 @@ fun RutasAddContent(
     }
 
     LaunchedEffect(Unit) {
-//        println("Freddy: Empieza")
         listLugares.addAll(funConseguirLugares())
         listVehiculos.addAll(funConseguirVehiculos())
         initialLoadEnded = true
-
-//        println("Freddy: Acaba")
-//
-//        if (listLugares.isNotEmpty()) {
-//            println("Freddy: Encontrado")
-////            inicio.value = listLugares[0]
-////            destino.value = listLugares[0]
-//        } else {
-//            println("Freddy: No Encontrado")
-//            hayLugares = false
-//        }
-
     }
-//    LaunchedEffect(Unit) {
-////        println("Pirate: Empieza")
-//        listVehiculos.addAll(funConseguirVehiculos())
-////        println("Pirate: Acaba")
-////
-////        if (listVehiculos.isNotEmpty()) {
-//////            println("Pirate: Encontrado")
-//////            vehiculo.value = listVehiculos[0]
-////        } else {
-////            println("Pirate: No Encontrado")
-////            hayVehiculos = false
-////        }
-//    }
+
     if (calculatingRuta)
         LaunchedEffect(Unit) {
             val resultadoCalc = funCalcRuta(
@@ -506,8 +481,6 @@ fun RutaAddAlertDialogue(
                         (ruta.getInicio().longitud+ruta.getFin().longitud)/2,
                         (ruta.getInicio().latitud+ruta.getFin().latitud)/2,
 
-//                        -0.068547,
-//                        39.994259
                     )
                 ) // Coordenadas de la Universidad Jaume I.
                 pitch(0.0)
@@ -538,7 +511,6 @@ fun RutaAddAlertDialogue(
                         onValueChange = {if (it.length <=150)  optionalName.value = it },
                         placeholder = { Text(text = defaultNombre) },
                         label = { Text(text = "Nombre para el ruta") },
-//                        supportingText = { Text(text = "(Deja vacío para que sea el topónimo)") }
                     )
                     Text(
                         modifier = Modifier.align(Alignment.Start),

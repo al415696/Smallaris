@@ -153,7 +153,6 @@ fun VehiculosUpdateContent(
                     .height(75.dp)
                     .fillMaxWidth()
             ) {
-//                Surface(color = MaterialTheme.colorScheme.primaryContainer) {// Submit Button
                 Button(
                     modifier = Modifier.fillMaxSize(),
                     enabled = nombreValid.value && matriculaValid.value,
@@ -170,7 +169,6 @@ fun VehiculosUpdateContent(
                     Text(text="Modificar",
                         style = MaterialTheme.typography.headlineLarge)
                 }
-//                }
             }
         }
     }

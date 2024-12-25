@@ -64,7 +64,6 @@ fun SmallarisNavBar(
     }
 }
 val TOP_LEVEL_DESTINATIONS = listOf(
-    MapaDestination,
     LugaresDestination,
     VehiculosDestination,
     RutasDestination,

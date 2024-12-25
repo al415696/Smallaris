@@ -67,7 +67,7 @@ fun LugaresMapContent(
                 painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
             )
             MapboxMap(
-                modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                modifier = Modifier.fillMaxSize(),
                 mapViewportState = mapboxMapState,
                 compass = {},
                 logo = {},

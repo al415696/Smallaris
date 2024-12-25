@@ -42,7 +42,6 @@ import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
 import java.util.Locale
 
-//private val CutreDummList = listOf(dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,)
 
 @Composable
 fun RutasListContent(
@@ -64,13 +63,9 @@ fun RutasListContent(
         }
     }
 
-//    var nombreOrdenActual by remember { mutableStateOf("") }
 
     Column {
-//        if (nombreOrdenActual.isNotEmpty())
-//            Surface(modifier= Modifier.fillMaxWidth(),color = MaterialTheme.colorScheme.secondary){
-//                Text(text = nombreOrdenActual)
-//            }
+
         Surface(color = MaterialTheme.colorScheme.primary) {
 
             Box(
@@ -114,7 +109,6 @@ fun RutasListContent(
                     showBar = firstItemVisible,
                     showTextOnSort = true,
                     addFunction = addFunction,
-//                    sortFunction = {nombreOrdenActual = "Ordenado por " + sortFunction() }
                     sortFunction = sortFunction
                 )
             }
@@ -127,7 +121,7 @@ fun LazyListRuta(
     state: LazyListState = rememberLazyListState(),
     items: List<Ruta> = emptyList(),
     onSelect: (rut: Ruta) -> Unit,
-    checkSelected: (otro: Ruta)-> Boolean,// = {otro: Ruta -> false}
+    checkSelected: (otro: Ruta)-> Boolean,
     viewFunction: (ruta: Ruta) -> Unit = {},
     deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
     favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
@@ -146,7 +140,6 @@ fun LazyListRuta(
         modifier = modifier,
         state = state,
         verticalArrangement = Arrangement.spacedBy(4.dp),
-//        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         item{
             Spacer(Modifier.size(0.dp))
@@ -193,9 +186,9 @@ fun rutaListable(
         ObjetoListable(
             primaryInfo = ruta.getNombre(),
             secondaryInfo =  (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
-                    "\n"+
+                    "\n\n"+
             ruta.getCoste().toCleanCost(),
-            terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n"+ruta.getDuracion().toTimeFormat(),
+            terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n\n"+ruta.getDuracion().toTimeFormat(),
             onGeneralClick = { onSelect(ruta) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
