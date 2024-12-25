@@ -213,8 +213,8 @@ fun LugaresAddContent(
                     onMapClickListener = OnMapClickListener { point ->
                         // Llamada a la función suspend dentro de una corutina
                         scope.launch {
-                            val functionalLongitud = "%.5f".format(point.longitude()).toDouble()
-                            val functionalLatitud = "%.5f".format(point.latitude()).toDouble()
+                            val functionalLongitud = "%.5f".format(point.longitude()).replace(",", ".").toDouble()
+                            val functionalLatitud = "%.5f".format(point.latitude()).replace(",", ".").toDouble()
                             tempLongitud.value = functionalLongitud.toCleanString()
                             tempLatitud.value = functionalLatitud.toCleanString()
                             val result = funConseguirToponimos(functionalLongitud, functionalLatitud)

@@ -98,8 +98,13 @@ fun String.safeToDouble(): Double {
     if (this.isEmpty() || this == "-")
         return 0.0
 
-    return this.toDouble()
+    return try {
+        this.replace(",", ".").toDouble()
+    } catch (e: NumberFormatException) {
+        0.0 // Retorna un valor predeterminado si la conversión falla
+    }
 }
+
 
 fun Double.toCleanString(): String {
     return if (this % 1.0 == 0.0) {

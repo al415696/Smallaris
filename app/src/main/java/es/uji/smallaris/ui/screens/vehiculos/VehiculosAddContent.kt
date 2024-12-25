@@ -58,7 +58,7 @@ fun VehiculosAddContent(
         LaunchedEffect(Unit) {
             mensajeError = funAddVehiculo(
                 nombre.value,
-                if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(),
+                if (consumo.value.isEmpty()) 0.0 else consumo.value.replace(",", ".").toDouble(),
                 matricula.value,
                 tipoVehiculo.value
             )
