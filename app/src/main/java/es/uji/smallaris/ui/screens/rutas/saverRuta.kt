@@ -2,7 +2,7 @@ package es.uji.smallaris.ui.screens.rutas
 
 import androidx.compose.runtime.saveable.Saver
 import com.mapbox.geojson.LineString
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.Vehiculo

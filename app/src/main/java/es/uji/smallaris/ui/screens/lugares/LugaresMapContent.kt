@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +49,14 @@ fun LugaresMapContent(
         onBack()
     }
 
+    val markerImage =
+        rememberIconImage(
+            key = "default_marker",
+            painter = painterResource(R.drawable.add_location_alt_24px) // Cambia esto por el icono que prefieras
+        )
+
+    val savedMarker = rememberSaveable { mutableStateOf(marker) }
+
     Surface(
         modifier = Modifier
             .fillMaxHeight()
@@ -75,7 +84,7 @@ fun LugaresMapContent(
                 attribution = {},
 
                 content = {
-                    marker.let { point ->
+                    savedMarker.value.let { point ->
                         PointAnnotation(point = point) {
                             iconColor = Color.Red
                             iconImage = markerImage
@@ -101,8 +110,6 @@ fun LugaresMapContent(
         }
     }
 }
-
-
 
 
 @Preview

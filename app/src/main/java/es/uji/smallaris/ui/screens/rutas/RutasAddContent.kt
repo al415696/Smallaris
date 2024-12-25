@@ -53,7 +53,7 @@ import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import com.mapbox.maps.plugin.viewport.data.OverviewViewportStateOptions
 import es.uji.smallaris.R
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
