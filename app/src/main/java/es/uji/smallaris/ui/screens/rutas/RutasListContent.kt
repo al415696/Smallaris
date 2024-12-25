@@ -21,7 +21,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,16 +35,12 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
-import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.Ruta
-import es.uji.smallaris.model.RutaBuilder
-import es.uji.smallaris.model.TipoRuta
-import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
 import java.util.Locale
+
 //private val CutreDummList = listOf(dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,dummyRuta,)
 
 @Composable
@@ -193,10 +188,11 @@ fun rutaListable(
         }
     }
 
+
         ObjetoListable(
             primaryInfo = ruta.getNombre(),
-            secondaryInfo =  ruta.getDistancia().toCleanString(),
-            terciaryInfo = ruta.getDuracion().toCleanString(),
+            secondaryInfo =  ruta.getDistancia().toCleanDistance(),
+            terciaryInfo = minutosAHorasYMinutos(ruta.getDuracion()),
             onGeneralClick = { onSelect(ruta) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
@@ -229,7 +225,16 @@ private fun previewListaRuta() {
     LazyListRuta(onSelect =  {},
         checkSelected = {true})
 }
-fun Double.toReasonableString(): String {
-    return String.format(Locale.US,"%.5f", this)
-
-}
+fun minutosAHorasYMinutos(minutos: Float): String{
+    val horas: Int = (minutos / 60).toInt()
+    val minutos: Int = (minutos % 60).toInt()
+    val segundos: Int = (minutos * 60)
+    return if (horas == 0){
+        if (minutos == 0)
+            String.format(Locale.US, "%d s", segundos)
+        else
+        String.format(Locale.US, "%d min", minutos)
+    }
+    else
+        String.format(Locale.US, "%d h %d m", horas, minutos)
+    }

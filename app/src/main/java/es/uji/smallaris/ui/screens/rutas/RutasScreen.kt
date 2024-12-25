@@ -101,6 +101,11 @@ fun Float.toCleanString(): String {
 }
 fun Double.toCleanCost(): String {
     return String.format(Locale.US,"%.2f", this) + "€"
-
+}
+fun Float.toCleanDistance(): String {
+    return if (this < 1)
+        String.format(Locale.US,"%.0f", this*1000) + " m"
+    else
+     String.format(Locale.US,"%.3f", this) + " km"
 }
 

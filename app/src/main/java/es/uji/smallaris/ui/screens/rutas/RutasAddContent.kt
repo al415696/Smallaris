@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -219,6 +220,16 @@ fun RutasAddContent(
                 defaultNombre.append(destino.value!!.nombre.substring(0, 49) + "...")
             else
                 defaultNombre.append(destino.value!!.nombre)
+
+            if (vehiculo.value!!.tipo == TipoVehiculo.Pie)
+                defaultNombre.append( "a pie")
+            else {
+                defaultNombre.append(" con ")
+                if (vehiculo.value!!.nombre.length > 50)
+                    defaultNombre.append(vehiculo.value!!.nombre.substring(0, 49) + "...")
+                else
+                    defaultNombre.append(vehiculo.value!!.nombre)
+            }
 
             RutaAddAlertDialogue(
                 showAddDialogue,
@@ -478,7 +489,7 @@ private fun OpcionesAddRutaToponimoBurbujaError() {
 fun RutaAddAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
     addFuncition: suspend (nombre: String) -> String = { "" },
-    defaultNombre: String = "Tu ubicación, donde si no",
+    defaultNombre: String = "Una ruta cualquiera",
     ruta: Ruta = rutaDebug,
     onBack: () -> Unit = {}
 ) {
@@ -492,8 +503,11 @@ fun RutaAddAlertDialogue(
                 zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
                 center(
                     Point.fromLngLat(
-                        -0.068547,
-                        39.994259
+                        (ruta.getInicio().longitud+ruta.getFin().longitud)/2,
+                        (ruta.getInicio().latitud+ruta.getFin().latitud)/2,
+
+//                        -0.068547,
+//                        39.994259
                     )
                 ) // Coordenadas de la Universidad Jaume I.
                 pitch(0.0)
@@ -521,7 +535,7 @@ fun RutaAddAlertDialogue(
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     TextField(value = optionalName.value,
-                        onValueChange = { optionalName.value = it },
+                        onValueChange = {if (it.length <=150)  optionalName.value = it },
                         placeholder = { Text(text = defaultNombre) },
                         label = { Text(text = "Nombre para el ruta") },
 //                        supportingText = { Text(text = "(Deja vacío para que sea el topónimo)") }
@@ -540,7 +554,6 @@ fun RutaAddAlertDialogue(
                             // Configura otras propiedades según sea necesario
                         }
                     }
-
                     MapboxMap(
                         modifier = Modifier
                             .fillMaxWidth()

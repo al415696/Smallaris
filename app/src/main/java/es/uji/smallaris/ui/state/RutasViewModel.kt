@@ -10,6 +10,7 @@ import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.OrdenRuta
+import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.RutaBuilder
 import es.uji.smallaris.model.ServicioAPIs
@@ -105,6 +106,9 @@ class RutasViewModel() : ViewModel() {
         }
         catch (e: UbicationException){
             e.printStackTrace()
+            return  Pair(e.message?: "Error de ubicación de lugares",builder.getRuta())
+        }catch (e: RouteException){
+            e.printStackTrace()
             return  Pair(e.message?: "Error de construcción de ruta",builder.getRuta())
         }catch(e: Exception){
             e.printStackTrace()
@@ -132,21 +136,21 @@ class RutasViewModel() : ViewModel() {
 
         // Esta ruta es dummy, no tiene ni trayecto ni duración ni distancia
         // La diferencia esta en la última llamada a getRuta()
-        val ruta1 = builder.setNombre("Ruta 1").setInicio(
-            LugarInteres(
-                -0.03778,
-                39.98574,
-                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
-                "Castellón de la Plana"
-            )
-        ).setFin(
-            LugarInteres(-2.934, 43.268, "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao")
-        ).setVehiculo(Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95))
-            .setTipo(TipoRuta.Economica).getRuta()
+//        val ruta1 = builder.setNombre("Ruta 1").setInicio(
+//            LugarInteres(
+//                -0.03778,
+//                39.98574,
+//                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
+//                "Castellón de la Plana"
+//            )
+//        ).setFin(
+//            LugarInteres(-2.934, 43.268, "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao")
+//        ).setVehiculo(Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95))
+//            .setTipo(TipoRuta.Economica).getRuta()
 
         // Esta ruta es completa, tiene trayecto, duración y distancia
         // La diferencia esta en la última llamada a build()
-        val ruta2 = builder.setNombre("Ruta 2").setInicio(
+        val ruta2 = builder.setNombre("Ruta 1").setInicio(
             LugarInteres(
                 -0.03778,
                 39.98574,
@@ -161,7 +165,7 @@ class RutasViewModel() : ViewModel() {
         // Lo comento por qué cada vez que entras al mapa genércio recrea la ruta y lanza excepción
         //servicioRutas.addRuta(ruta1)
 
-        servicioRutas.addRuta(ruta1)
+//        servicioRutas.addRuta(ruta1)
         servicioRutas.addRuta(ruta2)
     }
 

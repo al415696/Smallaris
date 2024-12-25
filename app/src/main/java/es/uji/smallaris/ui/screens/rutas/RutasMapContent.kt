@@ -39,7 +39,6 @@ import java.util.Locale
 @Composable
 fun RutasMapContent(
     onBack: () -> Unit = {},
-    marker: Point = Point.fromLngLat(-0.068547, 39.994259),
     ruta: Ruta
 ) {
     val routeLine by rememberSaveable { mutableStateOf<LineString?>(ruta.getTrayecto()) }
@@ -56,7 +55,12 @@ fun RutasMapContent(
             setCameraOptions {
                 zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
                 center(
-                    marker
+                    Point.fromLngLat(
+                        (ruta.getInicio().longitud+ruta.getFin().longitud)/2,
+                        (ruta.getInicio().latitud+ruta.getFin().latitud)/2
+                        )
+
+//                    marker
                 ) // Coordenadas de la Universidad Jaume I.
                 pitch(0.0)
                 bearing(0.0)
@@ -96,7 +100,7 @@ fun RutasMapContent(
                             mapboxMapState.transitionToOverviewState(
                                 OverviewViewportStateOptions.Builder()
                                     .geometry(line)
-                                    .padding(EdgeInsets(50.0, 50.0, 50.0, 50.0))
+                                    .padding(EdgeInsets(100.0, 100.0, 100.0, 100.0))
                                     .build()
                             )
                         }
