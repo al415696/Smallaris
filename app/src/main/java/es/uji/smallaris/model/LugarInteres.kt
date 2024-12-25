@@ -24,7 +24,31 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
     }
 
     override fun toString(): String {
-        return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre')"
+        return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre', municipio='$municipio')"
+    }
+
+    // Método companion que convierte un String a un objeto LugarInteres
+    companion object {
+        fun fromString(lugarString: String): LugarInteres {
+            // Expresión regular para extraer los valores del String incluyendo municipio
+            val regex = """LugarInteres\(longitud=(.*?), latitud=(.*?), nombre='(.*?)', municipio='(.*?)'\)""".toRegex()
+
+            val matchResult = regex.find(lugarString)
+
+            if (matchResult != null) {
+                val (longitud, latitud, nombre, municipio) = matchResult.destructured
+
+                // Crear un objeto LugarInteres con los valores extraídos
+                return LugarInteres(
+                    longitud = longitud.toDouble(),
+                    latitud = latitud.toDouble(),
+                    nombre = nombre,
+                    municipio = municipio
+                )
+            } else {
+                throw IllegalArgumentException("El formato del String no es válido.")
+            }
+        }
     }
 
     fun distancia(otro: LugarInteres): Double{

@@ -25,7 +25,7 @@ fun RutasScreen(
     val modifier: Modifier = Modifier
     val items = viewModel.listRutas
     val currentContent = rememberSaveable { mutableStateOf(RutaScreenContent.Lista) }
-    val currentViewedRuta: MutableState<Ruta?> = remember { mutableStateOf(null) }
+    var currentViewedRuta: Ruta = rememberSaveable(saver = rutaSaver) { rutaDebug }
     var currentOrderIndex: Int = 0
 
 
@@ -46,8 +46,8 @@ fun RutasScreen(
                     }
                     ,
                     viewFunction = {ruta: Ruta ->
-                            currentViewedRuta.value = ruta
-
+                        currentViewedRuta = ruta
+                        currentContent.value = RutaScreenContent.Map
                      },
                     deleteFuncition = {ruta: Ruta ->  viewModel.deleteRuta(ruta) }
                 )
@@ -68,7 +68,7 @@ fun RutasScreen(
             RutaScreenContent.Map ->
                 RutasMapContent(
                     onBack = {currentContent.value = RutaScreenContent.Lista},
-//                    marker = Point.fromLngLat(currentViewedRuta?.value.longitud, currentViewedRuta.value.latitud)
+                    ruta = currentViewedRuta,
                 )
         }
     }
