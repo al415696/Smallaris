@@ -55,7 +55,7 @@ fun VehiculosUpdateContent(
 
     var mensajeError by rememberSaveable { mutableStateOf("") }
     var errorConAdd by rememberSaveable { mutableStateOf(false) }
-    val arquetipo = rememberSaveable { mutableStateOf(ArquetipoVehiculo.Combustible.classify(viejoVehiculo.tipo)) }
+    val arquetipo = rememberSaveable { mutableStateOf(viejoVehiculo.tipo.getArquetipo()) }
 
 
     BackHandler {

@@ -53,12 +53,12 @@ import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import com.mapbox.maps.plugin.viewport.data.OverviewViewportStateOptions
 import es.uji.smallaris.R
-import es.uji.smallaris.model.LugarInteres
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
@@ -304,7 +304,7 @@ fun RutasAddContent(
                             ) {
                                 Text(
                                     modifier = Modifier.padding(15.dp),
-                                    text = if (listLugares.size == 0)"No tienes ningún lugar guardado" else "Solo tienes un lugar guardado" + ", así no puedes crear rutas!",
+                                    text = (if (listLugares.size == 0)"No tienes ningún lugar guardado" else "Solo tienes un lugar guardado") + ", así no puedes crear rutas!",
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
