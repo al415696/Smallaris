@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import es.uji.smallaris.ui.navigation.LugaresDestination
-import es.uji.smallaris.ui.navigation.MapaDestination
 import es.uji.smallaris.ui.navigation.RutasDestination
 import es.uji.smallaris.ui.navigation.SmallarisDestination
 import es.uji.smallaris.ui.navigation.UsuarioDestination

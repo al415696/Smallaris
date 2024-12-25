@@ -7,19 +7,19 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.OrdenRuta
 import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.RutaBuilder
 import es.uji.smallaris.model.ServicioAPIs
-import es.uji.smallaris.model.ServicioLugares
+import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.model.UbicationException
+import es.uji.smallaris.model.lugares.UbicationException
 import es.uji.smallaris.model.Vehiculo
 
 //@HiltViewModel
