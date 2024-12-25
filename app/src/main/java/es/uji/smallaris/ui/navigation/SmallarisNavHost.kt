@@ -15,8 +15,8 @@ import androidx.navigation.compose.composable
 import es.uji.smallaris.ui.screens.LoadingScreen
 import es.uji.smallaris.ui.screens.lugares.LugaresScreen
 import es.uji.smallaris.ui.screens.MapaScreen
-import es.uji.smallaris.ui.screens.RutasScreen
 import es.uji.smallaris.ui.screens.UsuarioScreen
+import es.uji.smallaris.ui.screens.rutas.RutasScreen
 import es.uji.smallaris.ui.screens.vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
 import es.uji.smallaris.ui.state.MapaViewModel
@@ -53,6 +53,11 @@ fun SmallarisNavHost(
                 //Lugares
 //                lugaresViewModel.debugFillList()
                 lugaresViewModel.updateList()
+
+                //Rutas
+//                rutasViewModel.debugFillList()
+                rutasViewModel.updateList()
+
                 navigationEnabled.value = true
             },
             onTimeout = { loading = false }
@@ -67,27 +72,10 @@ fun SmallarisNavHost(
         {
 
 
-            composable(route = MapaDestination.route) {
 
-                MapaScreen(
-                    viewModel = mapaViewModel
-//                onClickSeeAllAccounts = {
-//                    navController.navigateSingleTopTo(Accounts.route)
-//                },
-//                onClickSeeAllBills = {
-//                    navController.navigateSingleTopTo(Bills.route)
-//                },
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
-                )
-            }
             composable(route = LugaresDestination.route) {
                 LugaresScreen(
                     viewModel = lugaresViewModel
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
                 )
             }
             composable(route = VehiculosDestination.route) {
@@ -120,6 +108,3 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
-private fun NavHostController.navigateToMapWithCoords(longitud: Double, latitud: Double, onBack: ()-> Unit) {
-    this.navigateSingleTopTo("${MapaDestination.route}/$longitud")
-}

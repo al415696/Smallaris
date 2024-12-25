@@ -29,9 +29,27 @@ class Ruta(
     fun getCoste(): Double {
         return coste
     }
+
     fun getNombre(): String {
         return nombre
     }
+
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
+    fun getVehiculo(): Vehiculo {
+        return vehiculo
+    }
+
+    fun getTipo(): TipoRuta {
+        return tipo
+    }
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

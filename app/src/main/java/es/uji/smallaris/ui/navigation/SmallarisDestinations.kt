@@ -14,11 +14,6 @@ interface SmallarisDestination {
     val route: String
 }
 
-object MapaDestination : SmallarisDestination {
-    override val icon = Icons.Filled.Map
-
-    override val route = "screens/MapaScreen"
-}
 
 object LugaresDestination : SmallarisDestination {
     override val icon = Icons.Filled.LocationOn

@@ -1,4 +1,4 @@
-package es.uji.smallaris.ui.screens.lugares
+package es.uji.smallaris.ui.screens.rutas
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,29 +35,27 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
-import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.Ruta
+import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
 import java.util.Locale
 
+
 @Composable
-fun LugaresListContent(
+fun RutasListContent(
     modifier: Modifier,
-    items: List<LugarInteres> = listOf(),
+    items: List<Ruta> = listOf(),
     addFunction: () -> Unit = {},
-    viewFunction: (lugar: LugarInteres) -> Unit = {},
+    viewFunction: (ruta: Ruta) -> Unit = {},
     sortFunction: () -> String = {""},
-    deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
-    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { _, _ ->},
+    deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ ->},
     state: LazyListState = rememberLazyListState()
 
 ) {
-    var lugarInteresSelected by remember {
-        mutableStateOf(
-            LugarInteres(0.0,0.0,"Nada", "Abismo")
-
-        )
+    var rutaSelected: Ruta? by remember { mutableStateOf(null)
     }
     val firstItemVisible by remember {
         derivedStateOf {
@@ -65,7 +63,9 @@ fun LugaresListContent(
         }
     }
 
+
     Column {
+
         Surface(color = MaterialTheme.colorScheme.primary) {
 
             Box(
@@ -82,20 +82,20 @@ fun LugaresListContent(
                         Spacer(Modifier.height(30.dp))
                         Text(
                             style = MaterialTheme.typography.titleLarge,
-                            text = stringResource(R.string.sin_lugaresInteres_text),
+                            text = stringResource(R.string.sin_rutas_text),
                             textAlign = TextAlign.Center,
                             lineHeight = TextUnit(35f, TextUnitType.Sp)
                         )
                     }
                 } else
-                    LazyListLugarInteres(
+                    LazyListRuta(
                         modifier,
                         state = state,
                         items = items,
-                        onSelect = { lug: LugarInteres ->
-                            lugarInteresSelected = lug
+                        onSelect = { rut: Ruta ->
+                            rutaSelected = rut
                         },
-                        checkSelected = { other: LugarInteres -> lugarInteresSelected.equals(other) },
+                        checkSelected = { other: Ruta -> rutaSelected?.equals(other) ?: false },
                         deleteFuncition = deleteFuncition,
                         viewFunction = viewFunction,
                         favoriteFuncion = favoriteFuncion
@@ -116,22 +116,22 @@ fun LugaresListContent(
     }
 }
 @Composable
-fun LazyListLugarInteres(
+fun LazyListRuta(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
-    items: List<LugarInteres> = lugarInteresTestData,
-    onSelect: (lug: LugarInteres) -> Unit,
-    checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
-    viewFunction: (lugar: LugarInteres) -> Unit = {},
-    deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
-    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { lugarInteres, favorito ->},
+    items: List<Ruta> = emptyList(),
+    onSelect: (rut: Ruta) -> Unit,
+    checkSelected: (otro: Ruta)-> Boolean,
+    viewFunction: (ruta: Ruta) -> Unit = {},
+    deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
-    val lugarInteresABorrar = remember { mutableStateOf<LugarInteres?>(null )}
+    val rutaABorrar = remember { mutableStateOf<Ruta?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { lugarInteresABorrar.value?.let { deleteFuncition(it) } },
-            nombreObjetoBorrado = "El lugar elegido"
+            deleteFuncition = { rutaABorrar.value?.let { deleteFuncition(it) } },
+            nombreObjetoBorrado = "El ruta elegido"
 
         )
     }
@@ -144,14 +144,14 @@ fun LazyListLugarInteres(
         item{
             Spacer(Modifier.size(0.dp))
         }
-        items(items) { item: LugarInteres ->
-            lugarInteresListable(
-                lugarInteres = item,
+        items(items) { item: Ruta ->
+            rutaListable(
+                ruta = item,
                 onSelect = onSelect,
                 selected = checkSelected(item),
                 viewFunction = viewFunction,
-                deleteFuncition = {lugarInteres ->
-                    lugarInteresABorrar.value = lugarInteres
+                deleteFuncition = {ruta ->
+                    rutaABorrar.value = ruta
                     shouldShowDialog.value = true
                 },
                 favoriteFuncion = favoriteFuncion
@@ -165,87 +165,59 @@ fun LazyListLugarInteres(
 
 }
 @Composable
-fun lugarInteresListable(
-    lugarInteres: LugarInteres,
-    onSelect: (lug: LugarInteres) -> Unit,
+fun rutaListable(
+    ruta: Ruta,
+    onSelect: (rut: Ruta) -> Unit,
     selected: Boolean,
-    viewFunction: (lugar: LugarInteres) -> Unit = {},
-    deleteFuncition: (lugarInteres: LugarInteres) -> Unit = {},
-    favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { lugarInteres, favorito ->},
+    viewFunction: (ruta: Ruta) -> Unit = {},
+    deleteFuncition: (ruta: Ruta) -> Unit = {},
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
 
-    ){
+){
     var cambiandoFavorito by remember{ mutableStateOf(false)}
     if(cambiandoFavorito) {
         LaunchedEffect(Unit) {
-            favoriteFuncion(lugarInteres, !lugarInteres.isFavorito())
+            favoriteFuncion(ruta, !ruta.isFavorito())
             cambiandoFavorito = false
         }
     }
 
+
         ObjetoListable(
-            primaryInfo = lugarInteres.nombre,
-            secondaryInfo =  lugarInteres.municipio,
-            terciaryInfo ="N ${lugarInteres.latitud.toReasonableString()}\nW ${ lugarInteres.longitud.toReasonableString()}",
-            onGeneralClick = { onSelect(lugarInteres) },
+            primaryInfo = ruta.getNombre(),
+            secondaryInfo =  (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
+                    "\n\n"+
+            ruta.getCoste().toCleanCost(),
+            terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n\n"+ruta.getDuracion().toTimeFormat(),
+            onGeneralClick = { onSelect(ruta) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
-            firstActionFunction = {viewFunction(lugarInteres)},
-            secondActionFuncition = { deleteFuncition(lugarInteres)},
-            favorito = lugarInteres.isFavorito(),
+            firstActionFunction = {viewFunction(ruta)},
+            secondActionFuncition = { deleteFuncition(ruta)},
+            favorito = ruta.isFavorito(),
             selected = selected,
             ratioHiddenFields = 0.6f
 
         )
 }
 
-val lugarInteresTestData = listOf(
-    LugarInteres(15.8567, 92.5188, "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana"),
-    LugarInteres(40.4168, -3.7038, "Puerta del Sol, Madrid, España", "Madrid"),
-    LugarInteres(41.3825, 2.1769, "Sagrada Familia, Barcelona, Cataluña, España", "Barcelona"),
-    LugarInteres(37.3891, -5.9845, "La Giralda, Sevilla, Andalucía, España", "Sevilla"),
-    LugarInteres(39.4699, -0.3763, "Ciudad de las Artes y las Ciencias, Valencia, Comunidad Valenciana, España", "Valencia"),
-    LugarInteres(43.2630, -2.9350, "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao"),
-    LugarInteres(36.7213, -4.4214, "La Alcazaba, Málaga, Andalucía, España", "Málaga"),
-    LugarInteres(39.8628, -4.0273, "El Alcázar, Toledo, Castilla-La Mancha, España", "Toledo"),
-    LugarInteres(42.8584, -2.6819, "San Juan de Gaztelugatxe, Bermeo, País Vasco, España", "Bermeo"),
-    LugarInteres(38.3452, -0.4811, "Castillo de Santa Bárbara, Alicante, Comunidad Valenciana, España", "Alicante"),
-    LugarInteres(40.4168, -3.7038, "Parque de las Aves", "Madrid"),
-    LugarInteres(41.3825, 2.1769, "Cascada de los Elfos", "Barcelona"),
-    LugarInteres(37.3891, -5.9845, "Bosque Encantado", "Sevilla"),
-    LugarInteres(39.4699, -0.3763, "Puente del Dragón", "Valencia"),
-    LugarInteres(43.2630, -2.9350, "Lago de Cristal", "Bilbao"),
-    LugarInteres(36.7213, -4.4214, "Casa del Tiempo", "Málaga"),
-    LugarInteres(39.8628, -4.0273, "Monte de los Suspiros", "Toledo"),
-    LugarInteres(42.8584, -2.6819, "Cueva del Relámpago", "Bermeo"),
-    LugarInteres(38.3452, -0.4811, "Palacio de las Sombras", "Alicante"),
-    LugarInteres(40.9631, -5.6698, "Jardines del Silencio", "Salamanca"),
-    LugarInteres(42.6986, -1.6323, "Torre de la Eternidad", "Pamplona"),
-    LugarInteres(41.6561, -0.8773, "Templo de los Milagros", "Zaragoza"),
-    LugarInteres(37.9834, -1.1280, "Camino de los Ancestros", "Murcia"),
-    LugarInteres(28.4682, -16.2546, "Isla de las Almas", "Santa Cruz de Tenerife")
-)
-
 
 @Preview
 @Composable
-private fun lugarInteresListContentPreview() {
+private fun rutaListContentPreview() {
     val modifier: Modifier = Modifier
-    LugaresListContent(modifier, lugarInteresTestData)
+    RutasListContent(modifier, emptyList())
 }
 @Preview
 @Composable
-private fun lugarInteresListContentVacioPreview() {
+private fun rutaListContentVacioPreview() {
     val modifier: Modifier = Modifier
-    LugaresListContent(modifier, emptyList())
+    RutasListContent(modifier, emptyList())
 }
 
 @Preview
 @Composable
-private fun previewListaLugarInteres() {
-    LazyListLugarInteres(onSelect =  {},
+private fun previewListaRuta() {
+    LazyListRuta(onSelect =  {},
         checkSelected = {true})
-}
-fun Double.toReasonableString(): String {
-    return String.format(Locale.US,"%.5f", this)
-
 }

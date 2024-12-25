@@ -58,7 +58,7 @@ fun LugaresScreen(
                 LugaresAddContent(
                     funAddLugar = {longitud: Double, latitud: Double, nombre: String ->viewModel.addLugar(longitud, latitud, nombre)},
                     onBack = {currentContent.value = LugarScreenContent.Lista },
-                    funConseguirToponimos = viewModel::getToponimo,//{_,_-> ""}
+                    funConseguirToponimos = viewModel::getToponimo,
                     funConseguirCoordenadas = viewModel::getCoordenadas
                 )
 

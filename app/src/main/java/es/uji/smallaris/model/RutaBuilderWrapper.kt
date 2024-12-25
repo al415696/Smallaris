@@ -69,4 +69,8 @@ class RutaBuilderWrapper(
         return builder.getRutaCalculada()
     }
 
+    fun getRuta(): Ruta {
+        return builder.getRuta()
+    }
+
 }
