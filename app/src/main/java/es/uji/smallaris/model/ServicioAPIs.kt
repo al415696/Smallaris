@@ -1,6 +1,8 @@
 package es.uji.smallaris.model
 
 import es.uji.smallaris.BuildConfig
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.UbicationException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 

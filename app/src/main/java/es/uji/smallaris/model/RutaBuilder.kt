@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 class RutaBuilder: IBuilderRutas {
     private var inicio: LugarInteres = LugarInteres(0.0, 0.0, "", "")

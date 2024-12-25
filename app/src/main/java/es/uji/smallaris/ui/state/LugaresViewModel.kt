@@ -1,30 +1,18 @@
 package es.uji.smallaris.ui.state
 
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import com.mapbox.geojson.Point
-import com.mapbox.maps.CameraState
-import com.mapbox.maps.EdgeInsets
-import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
-import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
-import com.mapbox.maps.extension.style.expressions.generated.Expression.Companion.zoom
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.ErrorCategory
 import es.uji.smallaris.model.OrdenLugarInteres
-import es.uji.smallaris.model.ServicioLugares
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.ServicioAPIs
-import es.uji.smallaris.model.UbicationException
+import es.uji.smallaris.model.lugares.UbicationException
 
 //@HiltViewModel
 class LugaresViewModel() : ViewModel() {

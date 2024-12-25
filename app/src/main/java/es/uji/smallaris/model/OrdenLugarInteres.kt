@@ -1,5 +1,7 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
+
 enum class OrdenLugarInteres{
     FAVORITO_THEN_NOMBRE{
         private val nombre = "Nombre"

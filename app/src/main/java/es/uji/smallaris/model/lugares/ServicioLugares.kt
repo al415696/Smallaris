@@ -1,5 +1,10 @@
-package es.uji.smallaris.model
+package es.uji.smallaris.model.lugares
 
+import es.uji.smallaris.model.ConnectionErrorException
+import es.uji.smallaris.model.OrdenLugarInteres
+import es.uji.smallaris.model.RepositorioFirebase
+import es.uji.smallaris.model.RepositorioLugares
+import es.uji.smallaris.model.ServicioAPIs
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -40,12 +45,20 @@ class ServicioLugares(
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
 
+        val lugarBarato = LugarInteres(longitud, latitud, nombre, "")
+
+        // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
+        if (lugares.contains(lugarBarato)) {
+            throw UbicationException("Ya existe un lugar con la misma ubicación")
+        }
+
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
         // 2. Topónimo más cercano obtenido por el usuario
         // 3. Longitud, latitud
 
         val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
+        println(toponimo)
         val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
         if (nombre.isEmpty()) {
@@ -58,11 +71,6 @@ class ServicioLugares(
         }
 
         val lugar = LugarInteres(longitud, latitud, identificador, municipio)
-
-        // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
-        if (lugares.contains(lugar)) {
-            throw UbicationException("Ya existe un lugar con la misma ubicación")
-        }
 
         lugares.add(lugar)
         repositorioLugares.addLugar(lugar)
@@ -88,8 +96,11 @@ class ServicioLugares(
             throw UbicationException("Ubicación favorita")
         }
 
-        lugares.remove(lugarInteres)
-        return repositorioLugares.deleteLugar(lugarInteres)
+        if (repositorioLugares.deleteLugar(lugarInteres)) {
+            lugares.remove(lugarInteres)
+            return true
+        }
+        return false
     }
 
     @Throws(UbicationException::class)
@@ -106,7 +117,7 @@ class ServicioLugares(
     }
     companion object{
         private lateinit var servicio: ServicioLugares
-        fun getInstance(): ServicioLugares{
+        fun getInstance(): ServicioLugares {
             if (!this::servicio.isInitialized){
                 servicio = ServicioLugares(repositorioLugares = RepositorioFirebase(), apiObtenerNombres = ServicioAPIs)
             }

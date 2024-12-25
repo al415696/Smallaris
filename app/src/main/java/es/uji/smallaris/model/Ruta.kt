@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 class Ruta(
     private val inicio: LugarInteres,

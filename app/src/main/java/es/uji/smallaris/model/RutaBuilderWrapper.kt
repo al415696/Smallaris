@@ -1,5 +1,8 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.UbicationException
+
 class RutaBuilderWrapper(
     private val calculadorRutas: CalculadorRutas,
     private val servicioRutasYCoste: ServicioAPIs,

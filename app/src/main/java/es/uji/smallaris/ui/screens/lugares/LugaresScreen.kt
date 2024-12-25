@@ -2,7 +2,6 @@ package es.uji.smallaris.ui.screens.lugares
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -11,10 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.mapbox.geojson.Point
 import es.uji.smallaris.model.OrdenLugarInteres
-import es.uji.smallaris.model.LugarInteres
-import es.uji.smallaris.ui.screens.lugares.LugarScreenContent
-import es.uji.smallaris.ui.screens.lugares.LugaresAddContent
-import es.uji.smallaris.ui.screens.lugares.LugaresListContent
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.state.LugaresViewModel
 import java.util.Locale
 
