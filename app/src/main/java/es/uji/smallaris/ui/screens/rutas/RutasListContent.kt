@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
 import es.uji.smallaris.model.Ruta
+import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
@@ -191,8 +192,10 @@ fun rutaListable(
 
         ObjetoListable(
             primaryInfo = ruta.getNombre(),
-            secondaryInfo =  ruta.getDistancia().toCleanDistance(),
-            terciaryInfo = minutosAHorasYMinutos(ruta.getDuracion()),
+            secondaryInfo =  (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
+                    "\n"+
+            ruta.getCoste().toCleanCost(),
+            terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n"+ruta.getDuracion().toTimeFormat(),
             onGeneralClick = { onSelect(ruta) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
@@ -225,16 +228,3 @@ private fun previewListaRuta() {
     LazyListRuta(onSelect =  {},
         checkSelected = {true})
 }
-fun minutosAHorasYMinutos(minutos: Float): String{
-    val horas: Int = (minutos / 60).toInt()
-    val minutos: Int = (minutos % 60).toInt()
-    val segundos: Int = (minutos * 60)
-    return if (horas == 0){
-        if (minutos == 0)
-            String.format(Locale.US, "%d s", segundos)
-        else
-        String.format(Locale.US, "%d min", minutos)
-    }
-    else
-        String.format(Locale.US, "%d h %d m", horas, minutos)
-    }

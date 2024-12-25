@@ -540,9 +540,12 @@ fun RutaAddAlertDialogue(
                         label = { Text(text = "Nombre para el ruta") },
 //                        supportingText = { Text(text = "(Deja vacío para que sea el topónimo)") }
                     )
-                    TextField(value = ruta.getCoste().toCleanCost(),
-                        onValueChange = {},
-                        enabled = false
+                    Text(
+                        modifier = Modifier.align(Alignment.Start),
+                        text =
+                            "Coste: ${ruta.getCoste().toCleanCost()}\n" +
+                            "Duración: ${ruta.getDuracion().toTimeFormat()}\n" +
+                            "Distancia: ${ruta.getDistancia().toCleanDistance()}"
 
                     )
 

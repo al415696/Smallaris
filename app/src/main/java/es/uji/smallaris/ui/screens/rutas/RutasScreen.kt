@@ -108,4 +108,17 @@ fun Float.toCleanDistance(): String {
     else
      String.format(Locale.US,"%.3f", this) + " km"
 }
+fun Float.toTimeFormat(): String{
+    val horas: Int = (this / 60).toInt()
+    val minutos: Int = (this % 60).toInt()
+    val segundos: Int = (this * 60).toInt()
+    return if (horas == 0){
+        if (minutos == 0)
+            String.format(Locale.US, "%d s", segundos)
+        else
+            String.format(Locale.US, "%d min", minutos)
+    }
+    else
+        String.format(Locale.US, "%d h %d m", horas, minutos)
+}
 
