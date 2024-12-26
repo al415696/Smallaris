@@ -154,7 +154,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         private lateinit var servicio: ServicioVehiculos
         fun getInstance(): ServicioVehiculos{
             if (!this::servicio.isInitialized){
-                servicio = ServicioVehiculos(repositorio = RepositorioFirebase())
+                servicio = ServicioVehiculos(repositorio = RepositorioFirebase.getInstance())
             }
             return servicio
         }

@@ -32,11 +32,6 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         }
 
         return repositorioUsuarios.cerrarSesion()
-        try {
-            return repositorioUsuarios.cerrarSesion()
-        } catch (e: FirebaseAuthException) {
-            throw UnloggedUserException("Error inesperado: ${e.localizedMessage}")
-        }
     }
 
     fun obtenerUsuarioActual(): FirebaseUser? {
@@ -50,5 +45,15 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         }
 
         return repositorioUsuarios.borrarUsuario()
+    }
+
+    companion object{
+        private lateinit var servicioUsuarios: ServicioUsuarios
+        fun getInstance(): ServicioUsuarios{
+            if (!this::servicioUsuarios.isInitialized){
+                servicioUsuarios = ServicioUsuarios(RepositorioFirebase.getInstance())
+            }
+            return servicioUsuarios
+        }
     }
 }

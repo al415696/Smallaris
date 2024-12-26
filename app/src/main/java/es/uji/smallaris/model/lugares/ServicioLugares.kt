@@ -119,7 +119,7 @@ class ServicioLugares(
         private lateinit var servicio: ServicioLugares
         fun getInstance(): ServicioLugares {
             if (!this::servicio.isInitialized){
-                servicio = ServicioLugares(repositorioLugares = RepositorioFirebase(), apiObtenerNombres = ServicioAPIs)
+                servicio = ServicioLugares(repositorioLugares = RepositorioFirebase.getInstance(), apiObtenerNombres = ServicioAPIs)
             }
             return servicio
         }

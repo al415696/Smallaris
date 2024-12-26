@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
@@ -25,7 +26,7 @@ class TestPersistencia {
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         val servicioAPIs = ServicioAPIs
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
-        servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
     }
 
     @After
@@ -80,7 +81,7 @@ class TestPersistencia {
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         val servicioAPIs = ServicioAPIs
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
-        servicioRutas = ServicioRutas(CalculadorRutasORS())
+        servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
         // Entonces
         val vehiculosRecuperados = servicioVehiculos.getVehiculos()

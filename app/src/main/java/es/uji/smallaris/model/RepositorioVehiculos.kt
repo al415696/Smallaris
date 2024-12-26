@@ -9,5 +9,5 @@ interface RepositorioVehiculos: Repositorio {
 
     suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean
 
-    fun removeVehiculo(vehiculo: Vehiculo) :Boolean
+    suspend fun removeVehiculo(vehiculo: Vehiculo) :Boolean
 }

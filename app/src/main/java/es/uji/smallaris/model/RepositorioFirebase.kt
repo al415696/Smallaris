@@ -106,7 +106,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
-            val vehiculosExistentes = (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val vehiculosExistentes =
+                (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
 
             val vehiculosActualizados = vehiculosExistentes.map {
                 if (it["nombre"] == viejo.nombre && it["matricula"] == viejo.matricula) {
@@ -121,6 +122,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } catch (e: Exception) {
             return false
         }
+    }
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         try {
@@ -152,6 +154,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+    override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
+        return true
+    }
+
     override suspend fun getLugares(): List<LugarInteres> {
         return mutableListOf()
     }
@@ -165,7 +171,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override fun deleteLugar(lugar: LugarInteres): Boolean {
+    override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
         return true
     }
 
@@ -287,13 +293,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     @Throws(UnloggedUserException::class)
-    override suspend fun cerrarSesion(): Boolean {
+    override suspend fun cerrarSesion(): Usuario {
 
         if (auth.currentUser == null) {
             throw UnloggedUserException("No se había iniciado sesión.")  // Error si no hay sesión activa
         }
 
         return try {
+            val correo = auth.currentUser!!.email ?: "correoDesconocido"
 
             auth.signOut()  // Intentar cerrar sesión
 
@@ -302,7 +309,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 throw Exception("No se pudo cerrar sesión correctamente.")
             }
 
-            true // La sesión se cerró correctamente
+            Usuario(correo) // La sesión se cerró correctamente
         } catch (e: FirebaseAuthException) {
             // Manejar las excepciones específicas de Firebase
             throw Exception("Error de autenticación al cerrar sesión: ${e.localizedMessage}", e)
@@ -333,6 +340,16 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             return usuario
         } catch (e: Exception) {
             throw UserException("No se pudo eliminar el usuario.")
+        }
+    }
+
+    companion object{
+        private lateinit var repositorioFirebase: RepositorioFirebase
+        fun getInstance(): RepositorioFirebase{
+            if (!this::repositorioFirebase.isInitialized){
+                repositorioFirebase = RepositorioFirebase()
+            }
+            return repositorioFirebase
         }
     }
 }

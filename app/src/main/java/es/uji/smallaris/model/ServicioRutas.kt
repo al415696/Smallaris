@@ -79,7 +79,7 @@ class ServicioRutas(
         private lateinit var servicio: ServicioRutas
         fun getInstance(): ServicioRutas{
             if (!this::servicio.isInitialized){
-                servicio = ServicioRutas(CalculadorRutasORS(ServicioAPIs), RepositorioFirebase(), ServicioAPIs)
+                servicio = ServicioRutas(CalculadorRutasORS(ServicioAPIs), RepositorioFirebase.getInstance(), ServicioAPIs)
             }
             return servicio
         }
