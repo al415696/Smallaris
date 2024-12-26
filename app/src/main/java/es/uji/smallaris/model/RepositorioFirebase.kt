@@ -217,11 +217,59 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
+        /*
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            val lugaresActualizados = lugaresExistentes.map {
+                if (it.nombre == nombreLugar && it.longitud == longitud && it.latitud == latitud) {
+                    mapOf(
+                        "nombre" to lugar.nombre,
+                        "latitud" to lugar.latitud,
+                        "longitud" to lugar.longitud,
+                        "municipio" to lugar.municipio,
+                        "favorito" to lugar.favorito
+                    )
+                } else {
+                    it
+                }
+            }
+
+            userDocRef.update("lugares", lugaresActualizados).await()
+            return true
+        } catch (e: Exception) {
+            println("Error al actualizar lugar: ${e.message}")
+            return false
+        }
+        */
         return true
     }
 
     override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            // Filtra los lugares para eliminar el especificado
+            val lugaresActualizados = lugaresExistentes.filterNot {
+                it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio
+            }
+
+            userDocRef.update("lugares", lugaresActualizados).await()
+            return true
+        } catch (e: Exception) {
+            println("Error al eliminar lugar: ${e.message}")
+            return false
+        }
     }
 
     @Throws(UserAlreadyExistsException::class)
