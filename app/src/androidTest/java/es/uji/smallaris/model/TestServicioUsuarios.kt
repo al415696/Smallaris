@@ -41,35 +41,10 @@ class TestServicioUsuarios {
         fun tearDown() {
             runBlocking {
                 val auth = FirebaseAuth.getInstance()
-                val firestore = FirebaseFirestore.getInstance()
-                repositorioUsuarios = RepositorioFirebase()
-                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
 
-                auth.currentUser?.let { user ->
-                    try {
-                        val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
-
-                        val subcolecciones = listOf("vehículos", "lugares")
-                        for (subcoleccion in subcolecciones) {
-                            val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
-                            val documentos = subcoleccionRef.get().await()
-
-                            for (documento in documentos) {
-                                subcoleccionRef.document(documento.id).delete().await()
-                            }
-                        }
-
-                        usuarioDocRef.delete().await()
-
-                        user.delete().await()
-
-                    } catch (ex: Exception) {
-                        // Manejo de excepciones si es necesario
-                        println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
-                    } finally {
-                        auth.signOut()
-                    }
+                // Cierra sesión si hay un usuario activo
+                auth.currentUser?.let {
+                    auth.signOut()
                 }
             }
         }
@@ -186,20 +161,8 @@ class TestServicioUsuarios {
 
                 auth.currentUser?.let { user ->
                     try {
-                        val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
-
-                        val subcolecciones = listOf("vehículos", "lugares")
-                        for (subcoleccion in subcolecciones) {
-                            val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
-                            val documentos = subcoleccionRef.get().await()
-
-                            for (documento in documentos) {
-                                subcoleccionRef.document(documento.id).delete().await()
-                            }
-                        }
-
-                        usuarioDocRef.delete().await()
-
+                        firestore.collection("usuarios-test").document(user.uid).delete()
+                            .await()
                         user.delete().await()
 
                     } catch (ex: Exception) {
@@ -211,5 +174,27 @@ class TestServicioUsuarios {
                 }
             }
         }
+    }
+
+    class BorrarUsuarioExitoTest {
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
+
+        @Test
+        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking{
+            // Dado
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+
+            // Cuando
+            val usuario = servicioUsuarios.borrarUsuario()
+
+            // Entonces
+            assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
+        }
+
     }
 }

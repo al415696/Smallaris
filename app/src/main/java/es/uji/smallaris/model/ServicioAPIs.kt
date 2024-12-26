@@ -1,34 +1,46 @@
 package es.uji.smallaris.model
 
 import es.uji.smallaris.BuildConfig
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.UbicationException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 object ServicioAPIs {
 
-    private val servicioORS: ServicioORS = ServicioORS()
-    private val servicioPrecios: IServicioPrecios = ProxyPrecios()
+    private var servicioORS: ServicioORS = ServicioORS()
+    private var servicioPrecios: IServicioPrecios = ProxyPrecios()
+
+    // Métodos públicos para inyectar dependencias durante las pruebas
+    fun setServicioMapa(servicioORS: ServicioORS) {
+        this.servicioORS = servicioORS
+    }
+    fun setServicioPrecios(servicioPrecios: IServicioPrecios) {
+        this.servicioPrecios = servicioPrecios
+    }
 
     @Throws(UbicationException::class)
-    fun getToponimoCercano(longitud: Double, latitud: Double): String {
+    suspend fun getToponimoCercano(longitud: Double, latitud: Double): String {
         return servicioORS.getToponimoCercano(longitud, latitud)
     }
 
     @Throws(RouteException::class)
-    fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+    suspend fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
         return servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
     }
 
     @Throws(UbicationException::class)
-    fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+    suspend fun getCoordenadas(toponimo: String): Pair<Double, Double> {
+        // Retornamos las coordenadas en un par (longitud, latitud)
         return servicioORS.getCoordenadas(toponimo)
     }
 
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         return when (tipoVehiculo) {
-            TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
             TipoVehiculo.Electrico -> servicioPrecios.getPrecioElectrico()
-            else -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
+            TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
+            else -> throw VehicleException("No hace falta pedir el precio en bici o pie")
         }
     }
 

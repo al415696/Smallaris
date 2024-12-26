@@ -1,13 +1,22 @@
 package es.uji.smallaris.model
 
+import android.accounts.NetworkErrorException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import es.uji.smallaris.model.lugares.LugarInteres
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.jvm.Throws
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
     RepositorioRutas,
@@ -81,6 +90,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 userDocRef.set(initialData, SetOptions.merge()).await()
             }
 
+
             return true
         } catch (e: Exception) {
             // Manejo de errores
@@ -111,7 +121,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } catch (e: Exception) {
             return false
         }
-    }
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         try {
@@ -144,100 +153,29 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
-        try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
-            val userDocRef = obtenerFirestore()
-                .collection("usuarios")
-                .document(currentUser.uid)
-
-            val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { lugarMap ->
-                (lugarMap as? Map<*, *>)?.let {
-                    LugarInteres(
-                        longitud = (it["longitud"] as? Double) ?: 0.0,
-                        latitud = (it["latitud"] as? Double) ?: 0.0,
-                        nombre = it["nombre"] as? String ?: "",
-                        municipio = it["municipio"] as? String ?: ""
-                    )
-                }
-            } ?: emptyList()
-
-            return lugaresExistentes
-        } catch (e: Exception) {
-            return emptyList()
-        }
+        return mutableListOf()
     }
 
     override suspend fun addLugar(lugar: LugarInteres): Boolean {
-        try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
-            val userDocRef = obtenerFirestore()
-                .collection("usuarios")
-                .document(currentUser.uid)
-
-            val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
-
-            val nuevoLugar = lugar.toMap()
-
-            userDocRef.update("lugares", lugaresExistentes + nuevoLugar).await()
-            return true
-        } catch (e: Exception) {
-            return false
-        }
+        return true
     }
+
 
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
-        try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
-            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
-            val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
-
-            val lugaresActualizados = lugaresExistentes.map {
-                if (it["longitud"] == lugar.longitud && it["latitud"] == lugar.latitud) {
-                    lugar.toMap() + ("favorito" to favorito) // Usar método toMap y agregar el campo favorito
-                } else {
-                    it
-                }
-            }
-
-            userDocRef.update("lugares", lugaresActualizados).await()
-            return true
-        } catch (e: Exception) {
-            return false
-        }
+        return true
     }
 
-    override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
-        try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
-            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
-            val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
-
-            val lugaresActualizados = lugaresExistentes.filter {
-                it["longitud"] != lugar.longitud || it["latitud"] != lugar.latitud
-            }
-
-            userDocRef.update("lugares", lugaresActualizados).await()
-            return true
-        } catch (e: Exception) {
-            return false
-        }
+    override fun deleteLugar(lugar: LugarInteres): Boolean {
+        return true
     }
 
+    @Throws(UserAlreadyExistsException::class)
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
-        val resultadoAutenticacion = obtenerAuth().createUserWithEmailAndPassword(correo, contrasena).await()
-        val usuario = resultadoAutenticacion.user
+        try {
+            // Intenta crear un usuario con el correo y contraseña
+            val resultadoAutenticacion =
+                auth.createUserWithEmailAndPassword(correo, contrasena).await()
+            val usuario = resultadoAutenticacion.user
 
         if (usuario != null) {
             val usuarioData = mapOf(
@@ -272,35 +210,47 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             // Crear subcolección 'vehículos' con documento 'data' y array 'items'
             usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
 
-            // Datos predeterminados de lugares
-            val lugarEjemplo = mapOf(
-                "nombre" to "Lugar Ejemplo",
-                "municipio" to "Ejemplo",
-                "longitud" to 0.0,
-                "latitud" to 0.0
-            )
 
-            val lugaresData = mapOf(
-                "items" to listOf(lugarEjemplo)
-            )
+            db.collection("usuarios")
+                .document(usuario.uid)
+                .set(usuarioData)
+                .await()
 
-            // Crear subcolección 'lugares' con documento 'data' y array 'items'
-            usuarioDocRef.collection("lugares").document("data").set(lugaresData).await()
-
-            return Usuario(correo = usuario.email ?: "")
-        } else {
-            throw Exception("No se pudo crear el usuario y la colección asociada.")
+                return Usuario(correo = usuario.email ?: "")
+            } else {
+                throw Exception("No se pudo crear el usuario y la colección asociada.")
+            }
+        } catch (e: FirebaseAuthWeakPasswordException) {
+            throw Exception("La contraseña es demasiado débil. Por favor, usa una contraseña más segura.")
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw Exception("El correo electrónico está mal formado o es inválido.")
+        } catch (e: FirebaseAuthUserCollisionException) {
+            throw UserAlreadyExistsException("El correo electrónico ya está registrado.")
+        } catch (e: FirebaseFirestoreException) {
+            throw Exception("Error al guardar los datos del usuario en Firestore: ${e.message}")
+        } catch (e: Exception) {
+            throw Exception("Ocurrió un error inesperado: ${e.message}")
         }
     }
 
-    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
-        val resultadoAutenticacion = obtenerAuth().signInWithEmailAndPassword(correo, contrasena).await()
-        val usuario = resultadoAutenticacion.user
 
-        if (usuario != null) {
-            return Usuario(correo = usuario.email ?: "")
-        } else {
-            throw Exception("No se pudo iniciar sesión.")
+    override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
+        try {
+            // Intentar iniciar sesión
+            val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
+            val usuario = resultadoAutenticacion.user
+
+            if (usuario != null) {
+                return Usuario(correo = usuario.email ?: "")
+            } else {
+                throw Exception("No se pudo iniciar sesión correctamente. Usuario no encontrado.")
+            }
+        } catch (e: FirebaseAuthInvalidUserException) {
+            throw UnregisteredUserException("El usuario no está registrado.")
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw UnregisteredUserException("Credenciales inválidas. ${e.errorCode}")
+        } catch (e: Exception) {
+            throw Exception("Ocurrió un error inesperado al iniciar sesión: ${e.message}")
         }
     }
 
@@ -309,6 +259,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
+        return true
+    }
+
+    override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean): Boolean {
+        return true
+    }
+
+    override suspend fun deleteLugar(ruta: Ruta): Boolean {
         return true
     }
 
@@ -328,14 +286,53 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    override suspend fun cerrarSesion(): Usuario {
-        val currentUser = obtenerUsuarioActual()
-            ?: throw UnloggedUserException("No hay usuario autenticado actualmente.")
+    @Throws(UnloggedUserException::class)
+    override suspend fun cerrarSesion(): Boolean {
 
-        val usuario = Usuario(correo = currentUser.email ?: "")
+        if (auth.currentUser == null) {
+            throw UnloggedUserException("No se había iniciado sesión.")  // Error si no hay sesión activa
+        }
 
-        obtenerAuth().signOut()
+        return try {
 
-        return usuario
+            auth.signOut()  // Intentar cerrar sesión
+
+            // Verificar que no haya ningún usuario autenticado
+            if (auth.currentUser != null) {
+                throw Exception("No se pudo cerrar sesión correctamente.")
+            }
+
+            true // La sesión se cerró correctamente
+        } catch (e: FirebaseAuthException) {
+            // Manejar las excepciones específicas de Firebase
+            throw Exception("Error de autenticación al cerrar sesión: ${e.localizedMessage}", e)
+        } catch (e: NetworkErrorException) {
+            // Manejar errores relacionados con la red, si fuera necesario
+            throw Exception("Error de red al intentar cerrar sesión: ${e.localizedMessage}", e)
+        } catch (e: Exception) {
+            // Manejar cualquier otra excepción inesperada
+            throw Exception("Error inesperado al cerrar sesión: ${e.localizedMessage}", e)
+        }
+    }
+
+    override suspend fun borrarUsuario(): Usuario {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+
+            val usuario = Usuario(correo = currentUser.email ?: "")
+
+            userDocRef.delete().await()
+
+            currentUser.delete().await()
+
+            return usuario
+        } catch (e: Exception) {
+            throw UserException("No se pudo eliminar el usuario.")
+        }
     }
 }

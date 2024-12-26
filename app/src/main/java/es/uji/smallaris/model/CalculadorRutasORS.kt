@@ -3,14 +3,17 @@ package es.uji.smallaris.model
 import com.google.gson.JsonParser
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlin.jvm.Throws
 
-class CalculadorRutasORS : CalculadorRutas() {
+class CalculadorRutasORS(
+    private val servicioORS: ServicioAPIs
+) : CalculadorRutas() {
 
     @Throws(RouteException::class)
-    override fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): Triple<LineString, Float, Float> {
+    override suspend fun calcularTrayecto(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): Triple<LineString, Float, Float> {
         // Obtener el GeoJSON como String
-        val geoJsonResponse = ServicioAPIs.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
+        val geoJsonResponse = servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
 
         // Usar JsonParser para convertir el GeoJSON en un JsonElement
         val jsonElement = JsonParser.parseString(geoJsonResponse).asJsonObject

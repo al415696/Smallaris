@@ -12,4 +12,8 @@ data class Usuario(val correo: String) {
     override fun hashCode(): Int {
         return correo.hashCode()
     }
+
+    override fun toString(): String {
+        return "Usuario(correo='$correo')"
+    }
 }

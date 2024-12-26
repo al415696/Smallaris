@@ -1,9 +1,10 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlin.jvm.Throws
 
 
-class ServicioPrecio{
+class ServicioPrecio {
 
     private val valueForNotPresent = -1.0 // valor negativo
     private val servicioPrecioCombustible: IServicioPrecioCombustible = ServicioPrecioCombustible(valueForNotPresent)

@@ -1,6 +1,13 @@
 package es.uji.smallaris.model
 
-class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calculorRuta: CalculadorRutas) {
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.UbicationException
+
+class RutaBuilderWrapper(
+    private val calculadorRutas: CalculadorRutas,
+    private val servicioRutasYCoste: ServicioAPIs,
+    private val servicioRutas: ServicioRutas
+) {
 
     private val builder = RutaBuilder()
 
@@ -12,19 +19,10 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
     fun setNombre(nombre: String) = apply { builder.setNombre(nombre) }
 
     // Método para terminar de construir y guardar la ruta
-    @Throws(VehicleException::class)
+    @Throws(VehicleException::class, UbicationException::class, RouteException::class)
     suspend fun build(): Ruta {
 
-        // Hacer los cálculos necesarios aquí
-        when(builder.getVehiculo().tipo) {
-            TipoVehiculo.Electrico -> calculorRuta.setStrategy(CosteElectricoSimple())
-            TipoVehiculo.Pie -> calculorRuta.setStrategy(CostePieSimple())
-            TipoVehiculo.Bici -> calculorRuta.setStrategy(CosteBiciSimple())
-            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculorRuta.setStrategy(CosteCarburanteSimple())
-            else -> throw VehicleException("Tipo de vehículo no válido")
-        }
-
-        if (builder.getInicio().nombre == "" ) {
+        if (builder.getInicio().nombre == "") {
             throw UbicationException("El origen no puede estar vacío")
         }
 
@@ -32,11 +30,47 @@ class RutaBuilderWrapper(private val servicio: ServicioRutas, private val calcul
             throw UbicationException("El destino no puede estar vacío")
         }
 
-        calculorRuta.terminarRuta(builder)
+        if (builder.getVehiculo().tipo == TipoVehiculo.Desconocido) {
+            throw VehicleException("Debes configurar un vehiculo")
+        }
 
-        // Crear la ruta y guardarla
-        val ruta = builder.getRuta()
-        return ruta
+        if (builder.getTipo() == TipoRuta.Desconocida) {
+            throw RouteException("Debes configurar un tipo de ruta")
+        }
+
+        if (builder.getRuta().getNombre() == "") {
+            throw RouteException("Debes configurar un nombre para la ruta")
+        }
+
+        if (servicioRutas.contains(builder.getRuta())) {
+            throw RouteException("La ruta ya existe")
+        }
+
+
+        // Determinar la estrategia para obtener el coste de la ruta
+        when (builder.getVehiculo().tipo) {
+            TipoVehiculo.Pie -> calculadorRutas.setStrategy(CostePieSimple())
+            TipoVehiculo.Bici -> calculadorRutas.setStrategy(CosteBiciSimple())
+            TipoVehiculo.Electrico -> calculadorRutas.setStrategy(
+                CosteElectricoSimple(
+                    servicioRutasYCoste
+                )
+            )
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
+                CosteCarburanteSimple(servicioRutasYCoste)
+            )
+
+            else -> throw VehicleException("Tipo de vehículo no válido")
+        }
+
+        calculadorRutas.terminarRuta(builder)
+
+        // Crear la ruta y devolverla
+        return builder.getRutaCalculada()
+    }
+
+    fun getRuta(): Ruta {
+        return builder.getRuta()
     }
 
 }

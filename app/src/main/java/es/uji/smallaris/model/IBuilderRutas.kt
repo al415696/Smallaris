@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 interface IBuilderRutas {
     fun setInicio(inicio: LugarInteres): IBuilderRutas
@@ -13,5 +14,5 @@ interface IBuilderRutas {
     fun setCoste(coste: Double): IBuilderRutas
     fun setNombre(nombre: String): IBuilderRutas
     fun reset()
-    fun getRuta(): Ruta
+    fun getRutaCalculada(): Ruta
 }

@@ -24,7 +24,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         }
     }
 
-    @Throws(VehicleAlredyExistsException::class, ConnectionErrorException::class)
+    @Throws(VehicleException::class, ConnectionErrorException::class)
     suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -49,7 +49,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         // Hay un nombre, una matriculo, y el consumo no es negativo
         return nombre.isNotEmpty() && matricula.isNotEmpty() && consumo >=0
     }
-    private fun checkUnicidadVehiculo(nombre: String,  matricula: String){
+    private fun checkUnicidadVehiculo(nombre: String, matricula: String, vehiculoIgnorado: Vehiculo? = null){
         var nombreRep: Boolean
         var matriculaRep: Boolean
         for (otro in vehiculos){
@@ -58,13 +58,14 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             if (nombreRep || matriculaRep){
                 var errorMessage = StringBuilder("Vehiculo con ")
                 if (nombreRep){
-                    errorMessage.append("nombre \"$nombre\"")
+                    errorMessage.append("nombre \"$nombre\" ")
                     if (matriculaRep)
-                        errorMessage.append("y matricula \"$matricula\"")
+                        errorMessage.append("y matricula \"$matricula\" ")
                 }else
-                    errorMessage.append("matricula \"$matricula\"")
-                errorMessage.append(" ya existe")
-                throw VehicleAlredyExistsException(errorMessage.toString())
+                    errorMessage.append("matricula \"$matricula\" ")
+                errorMessage.append("ya existe")
+                if (vehiculoIgnorado == null || otro != vehiculoIgnorado)
+                    throw VehicleException(errorMessage.toString())
             }
         }
     }
@@ -90,6 +91,50 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         }
         return null
     }
+    @Throws(VehicleException::class, ConnectionErrorException::class)
+    suspend fun updateVehiculo(viejo: Vehiculo,
+                               nuevoNombre: String = viejo.nombre,
+                               nuevoConsumo: Double = viejo.consumo,
+                               nuevaMatricula: String = viejo.matricula,
+                               nuevoTipoVehiculo: TipoVehiculo = viejo.tipo
+                               ) : Boolean{
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        val indexViejo = vehiculos.indexOf(viejo)
+        if (indexViejo != -1 || !checkValidezVehiculo(nuevoNombre,nuevoConsumo,nuevaMatricula,nuevoTipoVehiculo)) {
+            val nuevoVehiculo = Vehiculo(nuevoNombre,nuevoConsumo,nuevaMatricula,nuevoTipoVehiculo)
+            // Si no se está cambiando nada, anula la operación
+            if (nuevoVehiculo == viejo)
+                throw VehicleException("No se está modificando ningún dato")
+            //Lanza excepción si los nuevos atributos causan conflictos
+            checkUnicidadVehiculo(nuevoNombre,nuevaMatricula, viejo)
+
+            nuevoVehiculo.setFavorito(viejo.isFavorito())
+
+            if ( repositorio.updateVehiculos(viejo, nuevoVehiculo)){
+                vehiculos[indexViejo] = nuevoVehiculo
+                return true
+            }
+
+        }
+        return false
+    }
+
+    @Throws(ConnectionErrorException::class, VehicleException::class)
+    suspend fun deleteVehiculo(vehiculo: Vehiculo): Boolean{
+        if ( !repositorio.enFuncionamiento() )
+            throw ConnectionErrorException("Firebase no está disponible")
+        if (vehiculos.contains(vehiculo)){
+            return if(repositorio.removeVehiculo(vehiculo)){
+                vehiculos.remove(vehiculo)
+            }else{
+                false
+            }
+        }else{
+            throw VehicleException("Se ha intentado eliminar un vehiculo no existente")
+        }
+
+    }
 
     @Throws(ConnectionErrorException::class)
     suspend fun setFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
@@ -105,5 +150,13 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         return false
     }
 
-
+    companion object{
+        private lateinit var servicio: ServicioVehiculos
+        fun getInstance(): ServicioVehiculos{
+            if (!this::servicio.isInitialized){
+                servicio = ServicioVehiculos(repositorio = RepositorioFirebase())
+            }
+            return servicio
+        }
+    }
 }

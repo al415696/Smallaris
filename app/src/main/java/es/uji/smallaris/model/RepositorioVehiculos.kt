@@ -8,4 +8,6 @@ interface RepositorioVehiculos: Repositorio {
     suspend fun  updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo) : Boolean
 
     suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) :Boolean
+
+    fun removeVehiculo(vehiculo: Vehiculo) :Boolean
 }
