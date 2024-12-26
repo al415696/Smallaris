@@ -13,6 +13,14 @@ class Ruta(
     private val coste: Double,
     private val nombre: String
 ) {
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
     fun getTrayecto(): LineString {
         return trayecto
     }
@@ -27,6 +35,10 @@ class Ruta(
 
     fun getCoste(): Double {
         return coste
+    }
+
+    fun getNombre(): String {
+        return nombre
     }
 
     override fun equals(other: Any?): Boolean {

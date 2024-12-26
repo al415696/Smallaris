@@ -12,6 +12,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     private suspend fun cargarVehiculos() {
         if (repositorio.enFuncionamiento()) {
             vehiculos.addAll(repositorio.getVehiculos())
+            Log.i("CARGADOS VEHICULOS: ", vehiculos.toString())
         } else {
             throw ConnectionErrorException("Firebase no está disponible")
         }

@@ -10,5 +10,5 @@ interface RepositorioUsuarios: Repositorio {
     fun obtenerUsuarioActual(): FirebaseUser?
     suspend fun registrarUsuario(correo: String, contrasena: String): Usuario
     suspend fun iniciarSesion(correo: String, contrasena: String): Usuario
-    suspend fun cerrarSesion(): Boolean
+    suspend fun cerrarSesion(): Usuario
 }

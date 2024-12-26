@@ -16,11 +16,15 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
     suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
 
         // Comprobación de conexión a Firebase
-        if ( !repositorioUsuarios.enFuncionamiento() )
+        if (!repositorioUsuarios.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible.")
 
         try {
-            return repositorioUsuarios.registrarUsuario(correo, contrasena)
+            // Primero, registramos al usuario
+            val usuario = repositorioUsuarios.registrarUsuario(correo, contrasena)
+
+            // Retornamos el usuario que está autenticado
+            return usuario
         } catch (e: FirebaseAuthWeakPasswordException) {
             throw Exception("La contraseña es demasiado débil.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
@@ -55,24 +59,15 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
     }
 
     @Throws(UnloggedUserException::class, ConnectionErrorException::class)
-    suspend fun cerrarSesion(): Boolean {
-
-        // Comprobación de conexión a Firebase
+    suspend fun cerrarSesion(): Usuario {
         if (!repositorioUsuarios.enFuncionamiento()) {
             throw ConnectionErrorException("Firebase no está disponible.")
         }
 
-        val auth = FirebaseAuth.getInstance()
-        val currentUser = auth.currentUser
-
-        if (currentUser == null) {
-            throw UnloggedUserException("No hay usuario autenticado actualmente.")
-        }
-
         try {
             return repositorioUsuarios.cerrarSesion()
-        } catch (e: Exception) {
-            throw Exception("Error inesperado: ${e.localizedMessage}")
+        } catch (e: FirebaseAuthException) {
+            throw UnloggedUserException("Error inesperado: ${e.localizedMessage}")
         }
     }
 

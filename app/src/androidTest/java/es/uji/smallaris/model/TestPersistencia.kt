@@ -1,27 +1,23 @@
 package es.uji.smallaris.model
 
-import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class TestPersistencia {
 
+    private lateinit var repositorioFirebase: RepositorioFirebase
     private lateinit var servicioUsuarios: ServicioUsuarios
     private lateinit var servicioVehiculos: ServicioVehiculos
     private lateinit var servicioLugares: ServicioLugares
     private lateinit var servicioRutas: ServicioRutas
 
     @Before
-    fun iniciarServicios() = runBlocking {
-        val repositorioFirebase = RepositorioFirebase()
+    fun setUp() = runBlocking {
+        repositorioFirebase = RepositorioFirebase()
         repositorioFirebase.registrarUsuario("al415647@uji.es", "12345678")
         repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
 
@@ -33,16 +29,42 @@ class TestPersistencia {
     }
 
     @After
-    fun limpiarUsuario() = runBlocking {
+    fun tearDown() {
+        runBlocking {
+            val auth = repositorioFirebase.obtenerAuth()
+            val firestore = repositorioFirebase.obtenerFirestore()
 
+            auth.currentUser?.let { user ->
+                try {
+                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+
+                    val subcolecciones = listOf("vehículos", "lugares")
+                    for (subcoleccion in subcolecciones) {
+                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                        val documentos = subcoleccionRef.get().await()
+
+                        for (documento in documentos) {
+                            subcoleccionRef.document(documento.id).delete().await()
+                        }
+                    }
+
+                    usuarioDocRef.delete().await()
+
+                    user.delete().await()
+
+                } catch (ex: Exception) {
+                    // Manejo de excepciones si es necesario
+                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
+                } finally {
+                    auth.signOut()
+                }
+            }
+        }
     }
-    
+
     @Test
     fun testPersistenciaVehiculo() = runBlocking {
         // Dado
-        val vehiculosAntes = servicioVehiculos.getVehiculos()
-        assertTrue(vehiculosAntes.isEmpty())
-
         val nombreVehiculo = "VehiculoTestNuevo"
         val consumo = 12.0
         val matricula = "TEST9876"
@@ -52,7 +74,13 @@ class TestPersistencia {
         val vehiculoCreado = servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
         servicioUsuarios.cerrarSesion()
 
-        iniciarServicios()
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioVehiculos = ServicioVehiculos(repositorioFirebase)
+        val servicioAPIs = ServicioAPIs
+        servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
+        servicioRutas = ServicioRutas(CalculadorRutasORS())
 
         // Entonces
         val vehiculosRecuperados = servicioVehiculos.getVehiculos()

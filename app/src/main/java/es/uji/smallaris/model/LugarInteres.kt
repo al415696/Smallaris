@@ -23,6 +23,16 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
         return true
     }
 
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "longitud" to longitud,
+            "latitud" to latitud,
+            "nombre" to nombre,
+            "municipio" to municipio,
+            "favorito" to isFavorito()
+        )
+    }
+
     override fun toString(): String {
         return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre')"
     }

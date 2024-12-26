@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
@@ -31,37 +30,31 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun getVehiculos(): List<Vehiculo> {
         try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
-
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
                 .collection("vehículos")
                 .document("data")
+            val document = userDocRef.get().await()
 
-            // Obtenemos el documento de Firestore
-            val snapshot = userDocRef.get().await()
-
-            // Obtenemos el array "items" del documento
-            val vehiculosExistentes = (snapshot["items"] as? List<*>)?.mapNotNull { vehiculoMap ->
-                // Mapeamos cada elemento de "items" a un objeto Vehiculo
-                (vehiculoMap as? Map<*, *>)?.let {
-                    Vehiculo(
-                        nombre = it["nombre"] as? String ?: "",
-                        consumo = (it["consumo"] as? Double) ?: 0.0,
-                        matricula = it["matricula"] as? String ?: "",
-                        tipo = (it["tipo"] as? String)?.let { tipo ->
-                            TipoVehiculo.valueOf(tipo)
-                        } ?: TipoVehiculo.Desconocido,
-                        favorito = (it["favorito"] as? Boolean) ?: false
-                    )
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val consumo = item["consumo"] as? Double
+                    val matricula = item["matricula"] as? String
+                    val tipo = item["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido
+                    val favorito = item["favorito"] as? Boolean ?: false
+                    if (nombre != null && matricula != null && consumo != null) {
+                        Vehiculo(nombre, consumo, matricula, tipo, favorito)
+                    } else {
+                        null
+                    }
                 }
-            } ?: emptyList()
-
-            return vehiculosExistentes
+            }
+            return emptyList()
         } catch (e: Exception) {
-            // Manejo de errores
             println("Error al obtener vehículos: ${e.message}")
             return emptyList()
         }
@@ -249,17 +242,16 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         if (usuario != null) {
             val usuarioData = mapOf(
                 "correo" to usuario.email,
-                "uid" to usuario.uid
             )
 
-            obtenerFirestore().collection("usuarios")
-                .document(usuario.uid)
-                .set(usuarioData)
-                .await()
+            // Crear el documento del usuario en la colección 'usuarios'
+            val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
+            usuarioDocRef.set(usuarioData).await()
 
+            // Datos predeterminados de vehículos
             val vehiculoPie = mapOf(
                 "nombre" to "A pie",
-                "consumo" to 50.0,
+                "consumo" to 0.0,
                 "matricula" to "Sin matrícula",
                 "tipo" to "Pie",
                 "favorito" to false
@@ -267,7 +259,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             val vehiculoBici = mapOf(
                 "nombre" to "Bicicleta",
-                "consumo" to 30.0,
+                "consumo" to 0.0,
                 "matricula" to "Sin matrícula",
                 "tipo" to "Bici",
                 "favorito" to false
@@ -277,12 +269,23 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 "items" to listOf(vehiculoPie, vehiculoBici)
             )
 
-            obtenerFirestore().collection("usuarios")
-                .document(usuario.uid)
-                .collection("vehículos")
-                .document("data")
-                .set(vehiculosData)
-                .await()
+            // Crear subcolección 'vehículos' con documento 'data' y array 'items'
+            usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
+
+            // Datos predeterminados de lugares
+            val lugarEjemplo = mapOf(
+                "nombre" to "Lugar Ejemplo",
+                "municipio" to "Ejemplo",
+                "longitud" to 0.0,
+                "latitud" to 0.0
+            )
+
+            val lugaresData = mapOf(
+                "items" to listOf(lugarEjemplo)
+            )
+
+            // Crear subcolección 'lugares' con documento 'data' y array 'items'
+            usuarioDocRef.collection("lugares").document("data").set(lugaresData).await()
 
             return Usuario(correo = usuario.email ?: "")
         } else {
@@ -325,12 +328,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    override suspend fun cerrarSesion(): Boolean {
+    override suspend fun cerrarSesion(): Usuario {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay usuario autenticado actualmente.")
+
+        val usuario = Usuario(correo = currentUser.email ?: "")
+
         obtenerAuth().signOut()
 
-        if (obtenerAuth().currentUser != null) {
-            throw Exception("No se pudo cerrar sesión correctamente.")
-        }
-        return true
+        return usuario
     }
 }
