@@ -77,46 +77,6 @@ private enum class RutaScreenContent(){
     Add,
     Map
 }
-fun String.safeToDouble(): Double {
-    if (this.isEmpty() || this == "-")
-        return 0.0
 
-    return this.toDouble()
-}
-fun Double.toCleanString(): String {
-    return if (this % 1.0 == 0.0) {
-        String.format(Locale.US,"%.0f", this)
-    } else {
-        this.toString()
-    }
-}
-fun Float.toCleanString(): String {
-    return if (this % 1.0 == 0.0) {
-        String.format(Locale.US,"%.0f", this)
-    } else {
-        this.toString()
-    }
-}
-fun Double.toCleanCost(): String {
-    return String.format(Locale.US,"%.2f", this) + "€"
-}
-fun Float.toCleanDistance(): String {
-    return if (this < 1)
-        String.format(Locale.US,"%.0f", this*1000) + " m"
-    else
-     String.format(Locale.US,"%.3f", this) + " km"
-}
-fun Float.toTimeFormat(): String{
-    val horas: Int = (this / 60).toInt()
-    val minutos: Int = (this % 60).toInt()
-    val segundos: Int = (this * 60).toInt()
-    return if (horas == 0){
-        if (minutos == 0)
-            String.format(Locale.US, "%d s", segundos)
-        else
-            String.format(Locale.US, "%d min", minutos)
-    }
-    else
-        String.format(Locale.US, "%d h %d m", horas, minutos)
-}
+
 

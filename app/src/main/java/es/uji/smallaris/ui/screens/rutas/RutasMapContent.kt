@@ -78,8 +78,6 @@ fun RutasMapContent(
             }
         }
 
-    val opcionesAddRuta = rememberSaveable { mutableStateOf(OpcionesAddRuta.Toponimo) }
-
     BackHandler {
         onBack()
     }

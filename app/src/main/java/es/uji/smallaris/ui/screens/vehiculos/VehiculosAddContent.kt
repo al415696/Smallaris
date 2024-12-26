@@ -31,6 +31,7 @@ import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
+import es.uji.smallaris.ui.screens.safeToDouble
 
 @Composable
 fun VehiculosAddContent(
@@ -58,7 +59,7 @@ fun VehiculosAddContent(
         LaunchedEffect(Unit) {
             mensajeError = funAddVehiculo(
                 nombre.value,
-                if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(),
+                consumo.value.safeToDouble(),
                 matricula.value,
                 tipoVehiculo.value
             )

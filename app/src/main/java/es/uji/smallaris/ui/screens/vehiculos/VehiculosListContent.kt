@@ -38,6 +38,7 @@ import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
+import es.uji.smallaris.ui.screens.toCleanString
 
 @Composable
 fun VehiculosListContent(
@@ -189,7 +190,7 @@ fun vehiculoListable(
         ObjetoListable(
             primaryInfo = vehiculo.nombre,
             secondaryInfo = vehiculo.matricula,
-            terciaryInfo =  "${vehiculo.consumo} ${ArquetipoVehiculo.Combustible.getUnidad(vehiculo.tipo)}",
+            terciaryInfo =  "${vehiculo.consumo.toCleanString()} ${ArquetipoVehiculo.Combustible.getUnidad(vehiculo.tipo)}",
             onGeneralClick = { onSelect(vehiculo) },
             favoriteFuncion = { cambiandoFavorito = true },
             secondActionFuncition = { deleteFuncition(vehiculo) },

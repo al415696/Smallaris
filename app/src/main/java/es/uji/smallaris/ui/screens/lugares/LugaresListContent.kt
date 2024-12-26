@@ -39,6 +39,7 @@ import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
+import es.uji.smallaris.ui.screens.toCleanString
 import java.util.Locale
 
 @Composable
@@ -185,7 +186,7 @@ fun lugarInteresListable(
         ObjetoListable(
             primaryInfo = lugarInteres.nombre,
             secondaryInfo =  lugarInteres.municipio,
-            terciaryInfo ="N ${lugarInteres.latitud.toReasonableString()}\nW ${ lugarInteres.longitud.toReasonableString()}",
+            terciaryInfo ="N ${lugarInteres.latitud.toCleanString(5)}\nW ${ lugarInteres.longitud.toCleanString(5)}",
             onGeneralClick = { onSelect(lugarInteres) },
             favoriteFuncion = { cambiandoFavorito = true },
             firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
@@ -244,8 +245,4 @@ private fun lugarInteresListContentVacioPreview() {
 private fun previewListaLugarInteres() {
     LazyListLugarInteres(onSelect =  {},
         checkSelected = {true})
-}
-fun Double.toReasonableString(): String {
-    return String.format(Locale.US,"%.5f", this)
-
 }

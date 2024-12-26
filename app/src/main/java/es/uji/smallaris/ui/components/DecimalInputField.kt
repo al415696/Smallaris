@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.uji.smallaris.ui.screens.lugares.safeToDouble
 import java.text.DecimalFormatSymbols
 
 @Composable
@@ -129,7 +128,8 @@ class CoordinateDecimalFormatter : IDecimalFormatter() {
         if (input.matches("0+".toRegex())) return "0"
         if (input.matches("-0+".toRegex())) return "-0"
 
-        if (input.matches("-?\\d{3}[^.]".toRegex())) return input.substring(0,input.length-1)
+        if (input.matches(("-?\\d{3}[^$decimalSeparator]").toRegex())) return input.substring(0,input.length-1)
+//        if (input.matches(("-?\\d{3}[^.]").toRegex())) return input.substring(0,input.length-1)
 
         val sb = StringBuilder()
 
