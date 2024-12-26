@@ -99,7 +99,7 @@ fun String.safeToDouble(): Double {
         return 0.0
 
     return try {
-        this.replace(",", ".").toDouble()
+        this.toDouble()
     } catch (e: NumberFormatException) {
         0.0 // Retorna un valor predeterminado si la conversión falla
     }
