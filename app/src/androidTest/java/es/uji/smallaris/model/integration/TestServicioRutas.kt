@@ -2,7 +2,7 @@ package es.uji.smallaris.model.integration
 
 
 import es.uji.smallaris.model.CalculadorRutasORS
-import es.uji.smallaris.model.LugarInteres
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.RepositorioRutas
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.ServicioORS
@@ -10,18 +10,15 @@ import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import androidx.test.platform.app.InstrumentationRegistry
-import es.uji.smallaris.model.API
 import es.uji.smallaris.model.ProxyPrecios
 import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.VehicleException
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.verify
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -65,7 +62,7 @@ class TestServicioRutas {
 
             // Configurar respuestas de los mocks
             val mockResponse = readFileFromAssets("car_route.txt")
-            every { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
+            coEvery { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
             coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns PRECIO_CARBURANTE
             coEvery { mockServicioPrecio.getPrecioElectrico() } returns PRECIO_ELECTRICO
 
@@ -116,7 +113,7 @@ class TestServicioRutas {
                 )
             )
             assert(servicioRutas.getRutas().size == 1)
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockRepositorioRutas.addRuta(any()) }
         }
 
@@ -160,7 +157,7 @@ class TestServicioRutas {
             "Se tienen ${servicioRutas.getRutas().size} rutas guardadas",
             servicioRutas.getRutas().size == 1
         )
-        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+        coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
         coVerify { mockRepositorioRutas.addRuta(any()) }
     }
 
@@ -185,7 +182,7 @@ class TestServicioRutas {
         // Then
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
-        verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+        coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
     }
 
     @Test
@@ -210,7 +207,7 @@ class TestServicioRutas {
                 } vs esperado: ${redondear(costeEsperado.toFloat())}",
                 redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
             )
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockServicioPrecio.getPrecioCombustible(any(), any()) }
         }
 
@@ -237,7 +234,7 @@ class TestServicioRutas {
                 } vs esperado: ${redondear(costeEsperado.toFloat())}",
                 redondear(ruta.getCoste().toFloat()) == redondear(costeEsperado.toFloat())
             )
-            verify { mockServicioORS.getRuta(any(), any(), any(), any()) }
+            coVerify { mockServicioORS.getRuta(any(), any(), any(), any()) }
             coVerify { mockServicioPrecio.getPrecioElectrico() }
         }
 

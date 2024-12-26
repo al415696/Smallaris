@@ -1,5 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Smallaris</string>
     <string name="default_description_text">Lo siento ciegos</string>
+    <string name="mapbox_access_token" translatable="false" tools:ignore="UnusedResources">sk.eyJ1IjoiYWw0MTU2NDciLCJhIjoiY20zZXZwd29sMGd5YzJxcjMzNmlyZmg5ayJ9.KZ9bnhjTlUFDXW4Lvt7LyA</string>
     <string name="sin_vehiculos_text">Parece que no tienes ningún vehículo registrado :/</string>
+    <string name="sin_lugaresInteres_text">Parece que no tienes ningún lugar de interés registrado :/</string>
+    <string name="sin_rutas_text">Parece que no tienes ningúna ruta registrada :/</string>
 </resources>

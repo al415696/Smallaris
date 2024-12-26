@@ -1,47 +1,39 @@
-package es.uji.smallaris.ui.screens.Vehiculos
+package es.uji.smallaris.ui.screens.vehiculos
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import es.uji.smallaris.ui.components.DecimalFormatter
-import es.uji.smallaris.ui.components.DecimalInputField
-import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
+import es.uji.smallaris.ui.screens.safeToDouble
+import es.uji.smallaris.ui.screens.toCleanString
 import java.util.Locale
 
 @Composable
@@ -50,22 +42,22 @@ fun VehiculosUpdateContent(
     funUpdateVehiculo: suspend (viejo: Vehiculo, nuevoNombre: String,
                         nuevoConsumo: Double,
                         nuevaMatricula: String,
-                        nuevoTipoVehiculo: TipoVehiculo) -> String,
+                        nuevoTipoVehiculo: TipoVehiculo) -> String = {_,_,_,_,_-> ""},
     onBack: () -> Unit = {}
 ) {
-    var nombre = remember { mutableStateOf(viejoVehiculo.nombre) }
-    var nombreValid = remember { mutableStateOf(true) }
-    var tipoVehiculo = remember { mutableStateOf(viejoVehiculo.tipo) }
-    var matricula = remember { mutableStateOf(viejoVehiculo.matricula) }
-    var matriculaValid = remember { mutableStateOf(true) }
-    var consumo = remember { mutableStateOf(viejoVehiculo.consumo.toCleanString()) }
+    val nombre = rememberSaveable { mutableStateOf(viejoVehiculo.nombre) }
+    val nombreValid = rememberSaveable { mutableStateOf(true) }
+    val tipoVehiculo = rememberSaveable { mutableStateOf(viejoVehiculo.tipo) }
+    val matricula = rememberSaveable { mutableStateOf(viejoVehiculo.matricula) }
+    val matriculaValid = rememberSaveable { mutableStateOf(true) }
+    val consumo = rememberSaveable { mutableStateOf(viejoVehiculo.consumo.toCleanString()) }
 
-    var confirmadoAdd by remember { mutableStateOf(false) }
+    var confirmadoAdd by rememberSaveable { mutableStateOf(false) }
 
 
-    var mensajeError by remember { mutableStateOf("") }
-    var errorConAdd by remember { mutableStateOf(false) }
-    var arquetipo = remember { mutableStateOf(ArquetipoVehiculo.Combustible.classify(viejoVehiculo.tipo)) }
+    var mensajeError by rememberSaveable { mutableStateOf("") }
+    var errorConAdd by rememberSaveable { mutableStateOf(false) }
+    val arquetipo = rememberSaveable { mutableStateOf(viejoVehiculo.tipo.getArquetipo()) }
 
 
     BackHandler {
@@ -77,7 +69,7 @@ fun VehiculosUpdateContent(
                 funUpdateVehiculo(
                     viejoVehiculo,
                 nombre.value,
-                if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(),
+                consumo.value.safeToDouble(),
                 matricula.value,
                 tipoVehiculo.value
             )
@@ -102,26 +94,7 @@ fun VehiculosUpdateContent(
                 .fillMaxWidth()
 
         ) {
-            Surface(modifier = Modifier,
-                color= MaterialTheme.colorScheme.secondary) {
-                Row(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-
-                    ) {
-
-                    IconButton(onClick = onBack, modifier = Modifier.size(75.dp)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.default_description_text),
-                            modifier = Modifier.fillMaxSize(),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            }
+            TopBackBar(onBack)
 
             Column(
                 modifier = Modifier
@@ -182,7 +155,6 @@ fun VehiculosUpdateContent(
                     .height(75.dp)
                     .fillMaxWidth()
             ) {
-//                Surface(color = MaterialTheme.colorScheme.primaryContainer) {// Submit Button
                 Button(
                     modifier = Modifier.fillMaxSize(),
                     enabled = nombreValid.value && matriculaValid.value,
@@ -199,15 +171,14 @@ fun VehiculosUpdateContent(
                     Text(text="Modificar",
                         style = MaterialTheme.typography.headlineLarge)
                 }
-//                }
             }
         }
     }
 }
-fun Double.toCleanString(): String {
-    return if (this % 1.0 == 0.0) {
-        String.format(Locale.US,"%.0f", this)
-    } else {
-        this.toString()
-    }
+
+
+@Preview
+@Composable
+private fun PreviewVehiculosUpdateContent() {
+    VehiculosUpdateContent(Vehiculo("Test", 12.587,"1234YYY", TipoVehiculo.Gasolina98))
 }

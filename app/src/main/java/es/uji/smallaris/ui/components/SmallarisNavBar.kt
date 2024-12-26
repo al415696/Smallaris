@@ -22,15 +22,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import es.uji.smallaris.ui.navigation.LugaresDestination
-import es.uji.smallaris.ui.navigation.MapaDestination
 import es.uji.smallaris.ui.navigation.RutasDestination
 import es.uji.smallaris.ui.navigation.SmallarisDestination
 import es.uji.smallaris.ui.navigation.UsuarioDestination
@@ -64,7 +57,6 @@ fun SmallarisNavBar(
     }
 }
 val TOP_LEVEL_DESTINATIONS = listOf(
-    MapaDestination,
     LugaresDestination,
     VehiculosDestination,
     RutasDestination,

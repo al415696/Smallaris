@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import java.util.Locale
 import kotlin.text.*
 
@@ -13,7 +14,7 @@ class ProxyPrecios : IServicioPrecios {
 
     override suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         val combustible = getCombustibleFromCacheOrFetch(lugar, tipoVehiculo)
-        return combustible[TipoVehiculo.Gasolina95]
+        return combustible[tipoVehiculo]
     }
 
     override suspend fun getPrecioElectrico(): Double {
@@ -32,7 +33,7 @@ class ProxyPrecios : IServicioPrecios {
         }
 
         // Si no está en caché o ha caducado, obtener los datos del servicio real
-        val fetchedCombustible = servicioReal.getPrecioCombustible(lugar)
+        val fetchedCombustible = servicioReal.getPrecioCombustible(lugar, tipoVehiculo)
 
         // Actualizar la caché
         cacheCarburante[cacheKey] = fetchedCombustible

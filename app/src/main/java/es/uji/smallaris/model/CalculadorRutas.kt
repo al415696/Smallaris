@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 abstract class CalculadorRutas {
 
@@ -31,7 +32,7 @@ abstract class CalculadorRutas {
     }
 
     @Throws(RouteException::class)
-    abstract fun calcularTrayecto(
+    abstract suspend fun calcularTrayecto(
         inicio: LugarInteres,
         fin: LugarInteres,
         tipoRuta: TipoRuta,

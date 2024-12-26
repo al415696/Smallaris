@@ -3,6 +3,7 @@ package es.uji.smallaris.ui.components.Vehiculos
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,12 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.ui.components.DecimalFormatter
+import es.uji.smallaris.ui.components.StandardDecimalFormatter
 import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.FilteredTextField
-import es.uji.smallaris.ui.screens.Vehiculos.ArquetipoVehiculo
 
 @Composable
 fun ArquetipoDependantFields(
@@ -43,7 +44,7 @@ fun ArquetipoDependantFields(
         ) {
 
             EnumDropDown(
-                modifier = Modifier.padding(top = 5.dp),
+                modifier = Modifier.padding(top = 5.dp).width(intrinsicSize = IntrinsicSize.Min),
                 opciones = listOf(
                     ArquetipoVehiculo.Combustible,
                     ArquetipoVehiculo.Electrico
@@ -117,6 +118,7 @@ private fun CombustibleExclusiveOptions(
                 style = MaterialTheme.typography.labelLarge
             )
             EnumDropDown(
+                modifier = Modifier.width(intrinsicSize = IntrinsicSize.Min) ,
                 opciones = ArquetipoVehiculo.Combustible.getAllOfArquetipo(),
                 elegida = tipoVehiculo
             )
@@ -125,7 +127,7 @@ private fun CombustibleExclusiveOptions(
         DecimalInputField(
             modifier = Modifier.width(150.dp),
             text = consumo,
-            decimalFormatter = DecimalFormatter(),
+            decimalFormatter = StandardDecimalFormatter(),
             maxLenght = 7
         ) {
             Text(
@@ -164,7 +166,7 @@ private fun ElectricoExclusiveOptions(
     DecimalInputField(
         modifier = Modifier.width(175.dp),
         text = consumo,
-        decimalFormatter = DecimalFormatter(),
+        decimalFormatter = StandardDecimalFormatter(),
         maxLenght = 7
     ) {
         Text(
@@ -192,7 +194,18 @@ private fun ElectricoExclusiveOptions(
 
 
 }
-
+@SuppressLint("UnrememberedMutableState")
+@Preview
+@Composable
+private fun PreviewArquetipo() {
+    ArquetipoDependantFields(
+        arquetipo =  mutableStateOf(ArquetipoVehiculo.Combustible),
+        tipoVehiculo = mutableStateOf(TipoVehiculo.Gasolina95),
+        matricula = mutableStateOf(""),
+        matriculaValid = mutableStateOf(false),
+        consumo = mutableStateOf("")
+    )
+}
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable

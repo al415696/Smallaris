@@ -1,6 +1,9 @@
 package es.uji.smallaris.model
 
 import android.util.Log
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
+import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull

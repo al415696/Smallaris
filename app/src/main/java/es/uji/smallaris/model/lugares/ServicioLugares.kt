@@ -1,5 +1,10 @@
-package es.uji.smallaris.model
+package es.uji.smallaris.model.lugares
 
+import es.uji.smallaris.model.ConnectionErrorException
+import es.uji.smallaris.model.OrdenLugarInteres
+import es.uji.smallaris.model.RepositorioFirebase
+import es.uji.smallaris.model.RepositorioLugares
+import es.uji.smallaris.model.ServicioAPIs
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -22,17 +27,30 @@ class ServicioLugares(
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
     suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): LugarInteres {
+        val longitudCorrecta: Boolean = (longitud < -180 || longitud > 180 )
+        val latitudCorrecta: Boolean = (latitud < -90 || latitud > 90 )
+        if (longitudCorrecta || latitudCorrecta){
+            val errorMessage = StringBuilder("Las coordenadas deben estar ")
+            if (longitudCorrecta){
+                errorMessage.append("entre -180 y 180 grados de longitud")
+                if (latitudCorrecta)
+                    errorMessage.append("y entre -90 y 90 grados de latitud")
+            }else
+                errorMessage.append("estar entre -90 y 90 grados de latitud")
 
-        if (longitud < -180 || longitud > 180 ) {
-            throw UbicationException("Las coordenadas deben estar entre -180 y 180 grados de longitud")
-        }
+            throw UbicationException(errorMessage.toString())
 
-        if (latitud < -90 || latitud > 90 ) {
-            throw UbicationException("Las coordenadas deben estar entre -90 y 90 grados de latitud")
         }
 
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+
+        val lugarBarato = LugarInteres(longitud, latitud, nombre, "")
+
+        // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
+        if (lugares.contains(lugarBarato)) {
+            throw UbicationException("Ya existe un lugar con la misma ubicación")
+        }
 
         // Regla de negocio: Cada POI tiene un nombre identificativo que corresponde a:
         // 1. Nombre dado por el usuario
@@ -40,6 +58,7 @@ class ServicioLugares(
         // 3. Longitud, latitud
 
         val toponimo = apiObtenerNombres.getToponimoCercano(longitud, latitud)
+        println(toponimo)
         val municipio = toponimo.split(",").map { it.trim() }[1]
         var identificador = nombre
         if (nombre.isEmpty()) {
@@ -52,11 +71,6 @@ class ServicioLugares(
         }
 
         val lugar = LugarInteres(longitud, latitud, identificador, municipio)
-
-        // Regla de negocio: No se pueden dar de alta dos lugares con la misma ubicación
-        if (lugares.contains(lugar)) {
-            throw UbicationException("Ya existe un lugar con la misma ubicación")
-        }
 
         lugares.add(lugar)
         repositorioLugares.addLugar(lugar)
@@ -82,8 +96,11 @@ class ServicioLugares(
             throw UbicationException("Ubicación favorita")
         }
 
-        lugares.remove(lugarInteres)
-        return repositorioLugares.deleteLugar(lugarInteres)
+        if (repositorioLugares.deleteLugar(lugarInteres)) {
+            lugares.remove(lugarInteres)
+            return true
+        }
+        return false
     }
 
     @Throws(UbicationException::class)
@@ -97,5 +114,14 @@ class ServicioLugares(
             return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
         }
         return false
+    }
+    companion object{
+        private lateinit var servicio: ServicioLugares
+        fun getInstance(): ServicioLugares {
+            if (!this::servicio.isInitialized){
+                servicio = ServicioLugares(repositorioLugares = RepositorioFirebase(), apiObtenerNombres = ServicioAPIs)
+            }
+            return servicio
+        }
     }
 }
