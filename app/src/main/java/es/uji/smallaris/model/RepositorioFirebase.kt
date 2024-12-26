@@ -320,7 +320,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun deleteLugar(ruta: Ruta): Boolean {
+    override suspend fun deleteRuta(ruta: Ruta): Boolean {
         return true
     }
 

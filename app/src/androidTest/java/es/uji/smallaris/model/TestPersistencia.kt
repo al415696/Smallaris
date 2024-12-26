@@ -4,6 +4,7 @@ import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -90,13 +91,12 @@ class TestPersistencia {
 
     @Test
     fun testPersistenciaLugar() = runBlocking {
-        // Dado
         val longitud = -0.12345
         val latitud = 39.98765
         val nombreLugar = "LugarTestNuevo"
 
-        // Cuando
         val lugarCreado = servicioLugares.addLugar(longitud, latitud, nombreLugar)
+
         servicioUsuarios.cerrarSesion()
 
         repositorioFirebase = RepositorioFirebase()
@@ -107,8 +107,17 @@ class TestPersistencia {
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
         servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
-        // Entonces
         val lugaresRecuperados = servicioLugares.getLugares()
         assertTrue(lugaresRecuperados.contains(lugarCreado))
+
+        val lugarFavorito = servicioLugares.setLugarInteresFavorito(lugarCreado, true)
+        assertTrue(lugarFavorito)
+        val lugarRecuperadoFavorito = lugaresRecuperados.find { it.nombre == nombreLugar && it.longitud == longitud && it.latitud == latitud}
+        assertTrue(lugarRecuperadoFavorito?.isFavorito() == true)
+
+        val lugarEliminado = servicioLugares.deleteLugar(lugarCreado)
+        assertTrue(lugarEliminado)
+        val lugaresRecuperadosPostEliminacion = servicioLugares.getLugares()
+        assertFalse(lugaresRecuperadosPostEliminacion.contains(lugarCreado))
     }
 }

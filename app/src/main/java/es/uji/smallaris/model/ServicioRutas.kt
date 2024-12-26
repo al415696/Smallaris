@@ -68,7 +68,7 @@ class ServicioRutas(
         }
 
         rutas.remove(ruta)
-        return repositorioRutas.deleteLugar(ruta)
+        return repositorioRutas.deleteRuta(ruta)
     }
 
     fun contains(ruta: Ruta): Boolean {

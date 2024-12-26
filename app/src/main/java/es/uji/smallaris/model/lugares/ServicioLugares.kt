@@ -104,7 +104,7 @@ class ServicioLugares(
     }
 
     @Throws(UbicationException::class)
-    suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
+    suspend fun setLugarInteresFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (lugarInteres.isFavorito() == favorito)
