@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
+import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
