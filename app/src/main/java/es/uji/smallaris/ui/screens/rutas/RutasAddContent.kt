@@ -53,16 +53,19 @@ import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import com.mapbox.maps.plugin.viewport.data.OverviewViewportStateOptions
 import es.uji.smallaris.R
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
+import es.uji.smallaris.ui.screens.toCleanCost
+import es.uji.smallaris.ui.screens.toCleanDistance
+import es.uji.smallaris.ui.screens.toTimeFormat
 import java.util.Locale
 
 val rutaDebug = ServicioRutas.getInstance().builder().setNombre("Ruta 1").setInicio(
@@ -602,9 +605,4 @@ fun RutaAddAlertDialogue(
             }
         )
     }
-}
-
-
-enum class OpcionesAddRuta() {
-    Toponimo, Coordenadas
 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import es.uji.smallaris.model.OrdenVehiculo
+import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
@@ -75,17 +76,8 @@ fun VehiculosScreen(
 
 }
 
-
 private enum class VehiculoScreenContent(){
     Lista,
     Add,
     Update
-}
-
-fun Double.toCleanString(): String {
-    return if (this % 1.0 == 0.0) {
-        String.format(Locale.US,"%.0f", this)
-    } else {
-        this.toString()
-    }
 }

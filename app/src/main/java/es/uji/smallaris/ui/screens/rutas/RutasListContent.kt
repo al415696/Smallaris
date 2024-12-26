@@ -40,6 +40,9 @@ import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.ObjetoListable
+import es.uji.smallaris.ui.screens.toCleanCost
+import es.uji.smallaris.ui.screens.toCleanDistance
+import es.uji.smallaris.ui.screens.toTimeFormat
 import java.util.Locale
 
 

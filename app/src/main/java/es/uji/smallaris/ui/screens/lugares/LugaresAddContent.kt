@@ -60,7 +60,8 @@ import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
-import es.uji.smallaris.ui.screens.vehiculos.toCleanString
+import es.uji.smallaris.ui.screens.safeToDouble
+import es.uji.smallaris.ui.screens.toCleanString
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -213,8 +214,9 @@ fun LugaresAddContent(
                     onMapClickListener = OnMapClickListener { point ->
                         // Llamada a la función suspend dentro de una corutina
                         scope.launch {
-                            val functionalLongitud = "%.5f".format(point.longitude()).toDouble()
-                            val functionalLatitud = "%.5f".format(point.latitude()).toDouble()
+                            val functionalLongitud = "%.5f".format(point.longitude()).safeToDouble()
+                            val functionalLatitud = "%.5f".format(point.latitude()).safeToDouble()
+                            println("Epic1: $functionalLongitud")
                             tempLongitud.value = functionalLongitud.toCleanString()
                             tempLatitud.value = functionalLatitud.toCleanString()
                             val result = funConseguirToponimos(functionalLongitud, functionalLatitud)
