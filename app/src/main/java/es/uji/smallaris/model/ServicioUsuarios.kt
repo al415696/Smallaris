@@ -38,4 +38,13 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
     fun obtenerUsuarioActual(): FirebaseUser? {
         return repositorioUsuarios.obtenerUsuarioActual()
     }
+
+    suspend fun borrarUsuario(): Usuario {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.borrarUsuario()
+    }
 }

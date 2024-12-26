@@ -190,4 +190,25 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw Exception("Error inesperado al cerrar sesión: ${e.localizedMessage}", e)
         }
     }
+
+    override suspend fun borrarUsuario(): Usuario {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+
+            val usuario = Usuario(correo = currentUser.email ?: "")
+
+            userDocRef.delete().await()
+
+            currentUser.delete().await()
+
+            return usuario
+        } catch (e: Exception) {
+            throw UserException("No se pudo eliminar el usuario.")
+        }
+    }
 }

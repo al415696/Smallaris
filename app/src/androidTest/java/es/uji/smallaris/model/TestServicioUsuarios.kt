@@ -172,4 +172,26 @@ class TestServicioUsuarios {
             }
         }
     }
+
+    class BorrarUsuarioExitoTest {
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
+
+        @Test
+        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking{
+            // Dado
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+
+            // Cuando
+            val usuario = servicioUsuarios.borrarUsuario()
+
+            // Entonces
+            assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
+        }
+
+    }
 }
