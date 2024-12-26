@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import es.uji.smallaris.ui.screens.vehiculos.ArquetipoVehiculo
 
 enum class TipoVehiculo {
     Gasolina95 {

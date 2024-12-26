@@ -172,7 +172,7 @@ open class ServicioORS {
 
                 responseBody  // Retorna el GeoJSON completo como String
             } else {
-                throw RouteException("Error en la solicitud: ${response.code} - ${response.message}")
+                throw RouteException("No se encontró una ruta válida entre ${inicio.nombre} y ${fin.nombre}")
             }
         }
     }
