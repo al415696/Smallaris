@@ -159,13 +159,62 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
-        return mutableListOf()
+        try {
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val municipio = item["municipio"] as? String
+                    val latitud = item["latitud"] as? Double
+                    val longitud = item["longitud"] as? Double
+                    if (nombre != null && municipio != null && latitud != null && longitud != null) {
+                        LugarInteres(longitud, latitud, nombre, municipio)
+                    } else {
+                        null
+                    }
+                }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            println("Error al obtener lugares: ${e.message}")
+            return emptyList()
+        }
     }
 
     override suspend fun addLugar(lugar: LugarInteres): Boolean {
-        return true
-    }
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
 
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                userDocRef.update("items", FieldValue.arrayUnion(lugar.toMap())).await()
+            } else {
+                val initialData = mapOf("items" to listOf(lugar.toMap()))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+            return true
+        } catch (e: Exception) {
+            println("Error al agregar lugar: ${e.message}")
+            return false
+        }
+    }
 
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
         return true
@@ -238,7 +287,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw Exception("Ocurrió un error inesperado: ${e.message}")
         }
     }
-
 
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
         try {
