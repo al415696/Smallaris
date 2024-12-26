@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
+import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
@@ -148,19 +149,18 @@ fun LazyListVehiculos(
             Spacer(Modifier.size(0.dp))
         }
         items(items) { item: Vehiculo ->
-            vehiculoListable(
-                vehiculo = item,
-                onSelect = onSelect,
-                selected = checkSelected(item),
-                deleteFuncition = {vehiculo ->
-                    vehiculoABorrar.value = vehiculo
-                    shouldShowDialog.value = true
-                },
-                updateFunction = updateFunction,
-                favoriteFuncion = favoriteFuncion,
-
-
-            )
+            if (item.tipo.getArquetipo() != ArquetipoVehiculo.Otro)
+                vehiculoListable(
+                    vehiculo = item,
+                    onSelect = onSelect,
+                    selected = checkSelected(item),
+                    deleteFuncition = {vehiculo ->
+                        vehiculoABorrar.value = vehiculo
+                        shouldShowDialog.value = true
+                    },
+                    updateFunction = updateFunction,
+                    favoriteFuncion = favoriteFuncion,
+                )
         }
         item{
             Spacer(Modifier.size(30.dp))
@@ -190,7 +190,7 @@ fun vehiculoListable(
         ObjetoListable(
             primaryInfo = vehiculo.nombre,
             secondaryInfo = vehiculo.matricula,
-            terciaryInfo =  "${vehiculo.consumo.toCleanString()} ${ArquetipoVehiculo.Combustible.getUnidad(vehiculo.tipo)}",
+            terciaryInfo =  "${vehiculo.consumo.toCleanString()} ${vehiculo.tipo.getArquetipo().unidad}",
             onGeneralClick = { onSelect(vehiculo) },
             favoriteFuncion = { cambiandoFavorito = true },
             secondActionFuncition = { deleteFuncition(vehiculo) },

@@ -307,7 +307,7 @@ fun RutasAddContent(
                             ) {
                                 Text(
                                     modifier = Modifier.padding(15.dp),
-                                    text = if (listLugares.size == 0)"No tienes ningún lugar guardado" else "Solo tienes un lugar guardado" + ", así no puedes crear rutas!",
+                                    text = (if (listLugares.size == 0)"No tienes ningún lugar guardado" else "Solo tienes un lugar guardado") + ", así no puedes crear rutas!",
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
