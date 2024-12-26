@@ -1,13 +1,27 @@
 package es.uji.smallaris.model
 
+import android.util.Log
+import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
 class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
     private val vehiculos = mutableListOf<Vehiculo>()
 
+    // Función suspendida para initializer los vehículos
+    private suspend fun cargarVehiculos() {
+        if (repositorio.enFuncionamiento()) {
+            vehiculos.addAll(repositorio.getVehiculos())
+            Log.i("CARGADOS VEHICULOS: ", vehiculos.toString())
+        } else {
+            throw ConnectionErrorException("Firebase no está disponible")
+        }
+    }
+
     init {
-        this.vehiculos.addAll(repositorio.getVehiculos())
+        runBlocking {
+            cargarVehiculos()
+        }
     }
 
     @Throws(VehicleException::class, ConnectionErrorException::class)
@@ -25,6 +39,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             // Se ejecuta el método add del repositorio
             if (repositorio.addVehiculos(vehiculo)){
                 vehiculos.add(vehiculo)
+                Log.i("SE HA GUARDADO EN LOCAL", ":)")
                 return vehiculo
             }
         }
@@ -59,6 +74,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     suspend fun getVehiculos(ordenVehiculos: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE): List<Vehiculo>{
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
+
         return vehiculos.sortedWith(
             ordenVehiculos.comparator()
         )
@@ -138,7 +154,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         private lateinit var servicio: ServicioVehiculos
         fun getInstance(): ServicioVehiculos{
             if (!this::servicio.isInitialized){
-                servicio = ServicioVehiculos(repositorio = RepositorioFirebase())
+                servicio = ServicioVehiculos(repositorio = RepositorioFirebase.getInstance())
             }
             return servicio
         }

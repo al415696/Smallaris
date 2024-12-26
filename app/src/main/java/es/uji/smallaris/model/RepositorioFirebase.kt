@@ -8,9 +8,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import es.uji.smallaris.model.lugares.LugarInteres
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -35,23 +37,124 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return auth.currentUser
     }
 
-    override fun getVehiculos(): List<Vehiculo> {
-        return mutableListOf()
+    override suspend fun getVehiculos(): List<Vehiculo> {
+        try {
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val consumo = item["consumo"] as? Double
+                    val matricula = item["matricula"] as? String
+                    val tipo = item["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido
+                    val favorito = item["favorito"] as? Boolean ?: false
+                    if (nombre != null && matricula != null && consumo != null) {
+                        Vehiculo(nombre, consumo, matricula, tipo, favorito)
+                    } else {
+                        null
+                    }
+                }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            println("Error al obtener vehículos: ${e.message}")
+            return emptyList()
+        }
     }
 
-    override fun addVehiculos(nuevo: Vehiculo): Boolean {
-        return true
+    override suspend fun addVehiculos(nuevo: Vehiculo): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            // Primero, intentamos obtener el documento para verificar si el array "items" existe
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                userDocRef.update("items", FieldValue.arrayUnion(nuevo.toMap())).await()
+            } else {
+                val initialData = mapOf("items" to listOf(nuevo.toMap()))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+
+            return true
+        } catch (e: Exception) {
+            // Manejo de errores
+            println("Error al agregar vehículo: ${e.message}")
+            return false
+        }
     }
 
-    override fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
-        return true
+    override suspend fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val vehiculosExistentes =
+                (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            val vehiculosActualizados = vehiculosExistentes.map {
+                if (it["nombre"] == viejo.nombre && it["matricula"] == viejo.matricula) {
+                    nuevo.toMap()
+                } else {
+                    it
+                }
+            }
+
+            userDocRef.update("vehículos", vehiculosActualizados).await()
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
-    override fun removeVehiculo(vehiculo: Vehiculo): Boolean {
-        return true
+    override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val vehiculosExistentes = (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            val vehiculosActualizados = vehiculosExistentes.map {
+                if (it["nombre"] == vehiculo.nombre && it["matricula"] == vehiculo.matricula) {
+                    mapOf(
+                        "nombre" to vehiculo.nombre,
+                        "consumo" to vehiculo.consumo,
+                        "matricula" to vehiculo.matricula,
+                        "tipo" to vehiculo.tipo.name,
+                        "favorito" to favorito
+                    )
+                } else {
+                    it
+                }
+            }
+
+            userDocRef.update("vehículos", vehiculosActualizados).await()
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
-    override fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
+    override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
         return true
     }
 
@@ -68,7 +171,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override fun deleteLugar(lugar: LugarInteres): Boolean {
+    override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
         return true
     }
 
@@ -80,17 +183,44 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 auth.createUserWithEmailAndPassword(correo, contrasena).await()
             val usuario = resultadoAutenticacion.user
 
-            if (usuario != null) {
-                val usuarioData = mapOf(
-                    "correo" to usuario.email,
-                    "uid" to usuario.uid
-                )
+        if (usuario != null) {
+            val usuarioData = mapOf(
+                "correo" to usuario.email,
+            )
 
-                // Guarda los datos del usuario en Firestore
-                db.collection("usuarios")
-                    .document(usuario.uid)
-                    .set(usuarioData)
-                    .await()
+            // Crear el documento del usuario en la colección 'usuarios'
+            val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
+            usuarioDocRef.set(usuarioData).await()
+
+            // Datos predeterminados de vehículos
+            val vehiculoPie = mapOf(
+                "nombre" to "A pie",
+                "consumo" to 0.0,
+                "matricula" to "Sin matrícula",
+                "tipo" to "Pie",
+                "favorito" to false
+            )
+
+            val vehiculoBici = mapOf(
+                "nombre" to "Bicicleta",
+                "consumo" to 0.0,
+                "matricula" to "Sin matrícula",
+                "tipo" to "Bici",
+                "favorito" to false
+            )
+
+            val vehiculosData = mapOf(
+                "items" to listOf(vehiculoPie, vehiculoBici)
+            )
+
+            // Crear subcolección 'vehículos' con documento 'data' y array 'items'
+            usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
+
+
+            db.collection("usuarios")
+                .document(usuario.uid)
+                .set(usuarioData)
+                .await()
 
                 return Usuario(correo = usuario.email ?: "")
             } else {
@@ -108,6 +238,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw Exception("Ocurrió un error inesperado: ${e.message}")
         }
     }
+
 
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
         try {
@@ -128,7 +259,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw Exception("Ocurrió un error inesperado al iniciar sesión: ${e.message}")
         }
     }
-
 
     override suspend fun getRutas(): List<Ruta> {
         return listOf()
@@ -163,13 +293,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     @Throws(UnloggedUserException::class)
-    override suspend fun cerrarSesion(): Boolean {
+    override suspend fun cerrarSesion(): Usuario {
 
         if (auth.currentUser == null) {
             throw UnloggedUserException("No se había iniciado sesión.")  // Error si no hay sesión activa
         }
 
         return try {
+            val correo = auth.currentUser!!.email ?: "correoDesconocido"
 
             auth.signOut()  // Intentar cerrar sesión
 
@@ -178,7 +309,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 throw Exception("No se pudo cerrar sesión correctamente.")
             }
 
-            true // La sesión se cerró correctamente
+            Usuario(correo) // La sesión se cerró correctamente
         } catch (e: FirebaseAuthException) {
             // Manejar las excepciones específicas de Firebase
             throw Exception("Error de autenticación al cerrar sesión: ${e.localizedMessage}", e)
@@ -209,6 +340,16 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             return usuario
         } catch (e: Exception) {
             throw UserException("No se pudo eliminar el usuario.")
+        }
+    }
+
+    companion object{
+        private lateinit var repositorioFirebase: RepositorioFirebase
+        fun getInstance(): RepositorioFirebase{
+            if (!this::repositorioFirebase.isInitialized){
+                repositorioFirebase = RepositorioFirebase()
+            }
+            return repositorioFirebase
         }
     }
 }

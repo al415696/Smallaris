@@ -13,7 +13,17 @@ class Ruta(
     private val duracion: Float,
     private val coste: Double,
     private val nombre: String
+
 ) : Favoritable() {
+
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
     fun getTrayecto(): LineString {
         return trayecto
     }
@@ -32,14 +42,6 @@ class Ruta(
 
     fun getNombre(): String {
         return nombre
-    }
-
-    fun getInicio(): LugarInteres {
-        return inicio
-    }
-
-    fun getFin(): LugarInteres {
-        return fin
     }
 
     fun getVehiculo(): Vehiculo {
@@ -61,6 +63,11 @@ class Ruta(
         if (fin != other.fin) return false
         if (vehiculo != other.vehiculo) return false
         if (tipo != other.tipo) return false
+        if (trayecto != other.trayecto) return false
+        if (distancia != other.distancia) return false
+        if (duracion != other.duracion) return false
+        if (coste != other.coste) return false
+        if (nombre != other.nombre) return false
 
         return true
     }

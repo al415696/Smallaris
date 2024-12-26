@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.auth.FirebaseUser
+import kotlin.Throws
 
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
@@ -25,9 +26,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
     }
 
     @Throws(UnloggedUserException::class, ConnectionErrorException::class)
-    suspend fun cerrarSesion(): Boolean {
-
-        // Comprobación de conexión a Firebase
+    suspend fun cerrarSesion(): Usuario {
         if (!repositorioUsuarios.enFuncionamiento()) {
             throw ConnectionErrorException("Firebase no está disponible.")
         }
@@ -46,5 +45,15 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         }
 
         return repositorioUsuarios.borrarUsuario()
+    }
+
+    companion object{
+        private lateinit var servicioUsuarios: ServicioUsuarios
+        fun getInstance(): ServicioUsuarios{
+            if (!this::servicioUsuarios.isInitialized){
+                servicioUsuarios = ServicioUsuarios(RepositorioFirebase.getInstance())
+            }
+            return servicioUsuarios
+        }
     }
 }

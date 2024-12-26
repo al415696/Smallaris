@@ -19,7 +19,7 @@ class TestServicioVehiculos {
         var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         //      THEN
-        assertEquals(vehiculo, Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95 ))
+        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95 ), vehiculo)
         assertEquals(true, servicioVehiculos.getVehiculos().contains(vehiculo))
         assertEquals(1, servicioVehiculos.getVehiculos().count())
 

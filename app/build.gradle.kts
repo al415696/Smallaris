@@ -103,7 +103,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-geojson:7.3.1")
 
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
     implementation(kotlin("script-runtime"))

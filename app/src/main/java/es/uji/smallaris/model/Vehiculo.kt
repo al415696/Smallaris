@@ -32,6 +32,16 @@ class Vehiculo : Favoritable {
         this.setFavorito(favorito)
     }
 
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "nombre" to nombre,
+            "consumo" to consumo,
+            "matricula" to matricula,
+            "tipo" to tipo.name,
+            "favorito" to isFavorito()
+        )
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
