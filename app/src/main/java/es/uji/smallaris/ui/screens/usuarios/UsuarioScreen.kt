@@ -1,4 +1,4 @@
-package es.uji.smallaris.ui.screens
+package es.uji.smallaris.ui.screens.usuarios
 
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text

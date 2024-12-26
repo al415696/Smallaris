@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.mapbox.maps.extension.style.expressions.dsl.generated.color
 import com.mapbox.maps.extension.style.expressions.dsl.generated.mod
@@ -26,6 +27,7 @@ fun FilteredTextField(
     valid: MutableState<Boolean>,
     filter: (input: String) -> String = {input -> ""},
     maxLength: Int = 100,
+    visualTransformation : VisualTransformation = VisualTransformation.None,
     label: String = ""
 
 ){

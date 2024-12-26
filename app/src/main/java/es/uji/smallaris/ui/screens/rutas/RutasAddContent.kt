@@ -60,6 +60,7 @@ import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.EnumDropDown
+import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
@@ -121,7 +122,7 @@ fun RutasAddContent(
 
     var currentRuta: Ruta? by remember { mutableStateOf(null) }
 
-    var calcRutaError: String by remember { mutableStateOf("") }
+    var calcRutaError: MutableState<String> = remember { mutableStateOf("") }
     var initialLoadEnded by remember { mutableStateOf(false) }
 
     val mapboxMapState =
@@ -179,7 +180,7 @@ fun RutasAddContent(
                 vehiculo.value!!,
                 currentTipoRuta.value
             )
-            calcRutaError = resultadoCalc.first
+            calcRutaError.value = resultadoCalc.first
             if (resultadoCalc.first.isEmpty()) {
                 currentRuta = resultadoCalc.second
                 showAddDialogue.value = true
@@ -366,23 +367,9 @@ fun RutasAddContent(
                                 )
                             }
                         }
-                        if (calcRutaError.isNotEmpty()) {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp),
-                                contentColor = MaterialTheme.colorScheme.error,
-                                color = MaterialTheme.colorScheme.errorContainer,
-                                shape = MaterialTheme.shapes.medium,
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(15.dp),
-                                    text = calcRutaError,
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
+
+                        ErrorBubble(errorText = calcRutaError)
+
 
 
                     }

@@ -2,6 +2,7 @@ package es.uji.smallaris.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,11 +13,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.ui.screens.LoadingScreen
 import es.uji.smallaris.ui.screens.lugares.LugaresScreen
-import es.uji.smallaris.ui.screens.MapaScreen
-import es.uji.smallaris.ui.screens.UsuarioScreen
+import es.uji.smallaris.ui.screens.usuarios.UsuarioScreen
 import es.uji.smallaris.ui.screens.rutas.RutasScreen
+import es.uji.smallaris.ui.screens.usuarios.LoginScreen
 import es.uji.smallaris.ui.screens.vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
 import es.uji.smallaris.ui.state.MapaViewModel
@@ -41,10 +43,11 @@ fun SmallarisNavHost(
     val rutasViewModel = rememberSaveable(saver = RutasViewModel.Saver) { RutasViewModel()}
     val usuarioViewModel = rememberSaveable(saver = UsuarioViewModel.Saver) { UsuarioViewModel()}
 
-
-
-    var loading by remember { mutableStateOf(true) }
-    if (loading){
+    var loadingServiciosObjetos by remember { mutableStateOf(true) }
+    if (!usuarioViewModel.isSesionIniciada()){
+        LoginScreen(usuarioViewModel)
+    }
+    else if (loadingServiciosObjetos){
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
@@ -60,7 +63,7 @@ fun SmallarisNavHost(
 
                 navigationEnabled.value = true
             },
-            onTimeout = { loading = false }
+            onTimeout = { loadingServiciosObjetos = false }
         )
     }
         else {
