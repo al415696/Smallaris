@@ -8,6 +8,15 @@ import kotlin.math.sin
 
 class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String, val municipio: String) : Favoritable() {
 
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "longitud" to longitud,
+            "latitud" to latitud,
+            "nombre" to nombre,
+            "municipio" to municipio
+        )
+    }
+
     private fun redondear(valor: Double): Double {
         val factor = 10.0.pow(5.0)
         return Math.round(valor * factor) / factor

@@ -137,13 +137,13 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     @Throws(ConnectionErrorException::class)
-    suspend fun setFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
+    suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean = true): Boolean{
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculo.isFavorito() == favorito)
             return false
-        vehiculo.setFavorito(favorito)
         if (vehiculos.contains(vehiculo)){
+            vehiculo.setFavorito(favorito)
             repositorio.setVehiculoFavorito(vehiculo, favorito)
             return true
         }

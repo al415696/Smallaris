@@ -11,12 +11,11 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import es.uji.smallaris.model.lugares.LugarInteres
 import com.google.firebase.firestore.SetOptions
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlin.jvm.Throws
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
     RepositorioRutas,
@@ -101,78 +100,202 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
 
-            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
-            val snapshot = userDocRef.get().await()
-            val vehiculosExistentes =
-                (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val document = userDocRef.get().await()
 
-            val vehiculosActualizados = vehiculosExistentes.map {
-                if (it["nombre"] == viejo.nombre && it["matricula"] == viejo.matricula) {
-                    nuevo.toMap()
-                } else {
-                    it
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["matricula"] == viejo.matricula }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedVehiculo = items[index].toMutableMap()
+
+                    updatedVehiculo["nombre"] = nuevo.nombre
+                    updatedVehiculo["consumo"] = nuevo.consumo
+                    updatedVehiculo["matricula"] = nuevo.matricula
+                    updatedVehiculo["tipo"] = nuevo.tipo.name
+                    updatedVehiculo["favorito"] = nuevo.isFavorito() // Actualizamos el campo favorito
+
+                    updatedItems[index] = updatedVehiculo
+                    userDocRef.update("items", updatedItems).await()
+                    return true
                 }
             }
-
-            userDocRef.update("vehículos", vehiculosActualizados).await()
-            return true
+            return false
         } catch (e: Exception) {
+            println("Error al actualizar vehículo: ${e.message}")
             return false
         }
     }
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["matricula"] == vehiculo.matricula }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedVehiculo = items[index].toMutableMap()
+                    updatedVehiculo["favorito"] = favorito
+                    updatedItems[index] = updatedVehiculo
+                    userDocRef.update("items", updatedItems).await()
+                    return true
+                }
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al actualizar vehículo favorito: ${e.message}")
+            return false
+        }
+    }
+
+    override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val updatedItems = items.filter { it["matricula"] != vehiculo.matricula }
+                userDocRef.update("items", updatedItems).await()
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al eliminar vehículo: ${e.message}")
+            return false
+        }
+    }
+
+    override suspend fun getLugares(): List<LugarInteres> {
+        try {
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val municipio = item["municipio"] as? String
+                    val latitud = item["latitud"] as? Double
+                    val longitud = item["longitud"] as? Double
+                    if (nombre != null && municipio != null && latitud != null && longitud != null) {
+                        LugarInteres(longitud, latitud, nombre, municipio)
+                    } else {
+                        null
+                    }
+                }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            println("Error al obtener lugares: ${e.message}")
+            return emptyList()
+        }
+    }
+
+    override suspend fun addLugar(lugar: LugarInteres): Boolean {
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                userDocRef.update("items", FieldValue.arrayUnion(lugar.toMap())).await()
+            } else {
+                val initialData = mapOf("items" to listOf(lugar.toMap()))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+            return true
+        } catch (e: Exception) {
+            println("Error al agregar lugar: ${e.message}")
+            return false
+        }
+    }
+
+    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
+        try {
             val currentUser = obtenerUsuarioActual()
                 ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
-            val vehiculosExistentes = (snapshot["vehículos"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
 
-            val vehiculosActualizados = vehiculosExistentes.map {
-                if (it["nombre"] == vehiculo.nombre && it["matricula"] == vehiculo.matricula) {
+            val lugaresActualizados = lugaresExistentes.map {
+                if (it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio) {
                     mapOf(
-                        "nombre" to vehiculo.nombre,
-                        "consumo" to vehiculo.consumo,
-                        "matricula" to vehiculo.matricula,
-                        "tipo" to vehiculo.tipo.name,
+                        "nombre" to lugar.nombre,
+                        "latitud" to lugar.latitud,
+                        "longitud" to lugar.longitud,
+                        "municipio" to lugar.municipio,
                         "favorito" to favorito
                     )
                 } else {
                     it
                 }
             }
-
-            userDocRef.update("vehículos", vehiculosActualizados).await()
+            userDocRef.update("lugares", lugaresActualizados).await()
             return true
         } catch (e: Exception) {
+            println("Error al actualizar lugar: ${e.message}")
             return false
         }
     }
 
-    override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
-        return true
-    }
-
-    override suspend fun getLugares(): List<LugarInteres> {
-        return mutableListOf()
-    }
-
-    override suspend fun addLugar(lugar: LugarInteres): Boolean {
-        return true
-    }
-
-
-    override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
-        return true
-    }
-
     override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            // Filtra los lugares para eliminar el especificado
+            val lugaresActualizados = lugaresExistentes.filterNot {
+                it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio
+            }
+
+            userDocRef.update("lugares", lugaresActualizados).await()
+            return true
+        } catch (e: Exception) {
+            println("Error al eliminar lugar: ${e.message}")
+            return false
+        }
     }
 
     @Throws(UserAlreadyExistsException::class)
@@ -239,7 +362,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
         try {
             // Intentar iniciar sesión
@@ -272,7 +394,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun deleteLugar(ruta: Ruta): Boolean {
+    override suspend fun deleteRuta(ruta: Ruta): Boolean {
         return true
     }
 
