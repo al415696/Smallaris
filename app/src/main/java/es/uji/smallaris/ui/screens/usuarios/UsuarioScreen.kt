@@ -66,12 +66,7 @@ fun UsuarioScreenContent(
     ){
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
     var currentDefaultTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
-    var currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(Vehiculo(
-        "Coche",
-        -1.0,
-        "1234BBB",
-        TipoVehiculo.Gasolina95
-    )) }
+    var currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val errorText: MutableState<String> = remember{ mutableStateOf("")}
     var listVehiculos = remember { mutableStateListOf<Vehiculo>() }
     var initialLoadEnded by remember { mutableStateOf(false) }
@@ -93,10 +88,10 @@ fun UsuarioScreenContent(
             "Tu cuenta junto a todos tus datos"
         )
 
-//    LaunchedEffect(Unit) {
-//        listVehiculos.addAll(funConseguirVehiculos())
-//        initialLoadEnded = true
-//    }
+    LaunchedEffect(Unit) {
+        listVehiculos.addAll(funConseguirVehiculos())
+        initialLoadEnded = true
+    }
     Surface(modifier = Modifier.fillMaxSize(),
         color= MaterialTheme.colorScheme.primary) {
 
