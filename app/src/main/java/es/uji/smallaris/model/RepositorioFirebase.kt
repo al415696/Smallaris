@@ -387,15 +387,15 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
-        return true
+        return false
     }
 
     override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean): Boolean {
-        return true
+        return false
     }
 
     override suspend fun deleteRuta(ruta: Ruta): Boolean {
-        return true
+        return false
     }
 
     override suspend fun enFuncionamiento(): Boolean {

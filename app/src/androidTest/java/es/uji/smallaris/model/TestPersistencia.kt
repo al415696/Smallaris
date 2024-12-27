@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -16,6 +17,8 @@ class TestPersistencia {
     private lateinit var servicioVehiculos: ServicioVehiculos
     private lateinit var servicioLugares: ServicioLugares
     private lateinit var servicioRutas: ServicioRutas
+    private lateinit var calculadorRutas: CalculadorRutasORS
+    private lateinit var servicioAPIs: ServicioAPIs
 
     @Before
     fun setUp() = runBlocking {
@@ -25,9 +28,10 @@ class TestPersistencia {
 
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
-        val servicioAPIs = ServicioAPIs
+        servicioAPIs = ServicioAPIs
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
-        servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
+        calculadorRutas = CalculadorRutasORS(servicioAPIs)
+        servicioRutas = ServicioRutas(calculadorRutas, repositorioFirebase, servicioAPIs)
     }
 
     @After
@@ -40,7 +44,7 @@ class TestPersistencia {
                 try {
                     val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
 
-                    val subcolecciones = listOf("vehículos", "lugares")
+                    val subcolecciones = listOf("vehículos", "lugares", "rutas")
                     for (subcoleccion in subcolecciones) {
                         val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
                         val documentos = subcoleccionRef.get().await()
@@ -55,7 +59,6 @@ class TestPersistencia {
                     user.delete().await()
 
                 } catch (ex: Exception) {
-                    // Manejo de excepciones si es necesario
                     println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
                 } finally {
                     auth.signOut()
@@ -139,5 +142,50 @@ class TestPersistencia {
 
         val lugaresRecuperadosPostEliminacion = servicioLugares.getLugares()
         assertFalse(lugaresRecuperadosPostEliminacion.contains(lugarCreado))
+    }
+
+    @Test
+    fun testPersistenciaRuta() = runBlocking {
+        val origen = LugarInteres(-0.12345, 39.98765, "OrigenTest", "MunicipioOrigen")
+        val destino = LugarInteres(-0.54321, 39.56789, "DestinoTest", "MunicipioDestino")
+        val vehiculo = Vehiculo("Coche", 5.0, "ABC123", TipoVehiculo.Gasolina95)
+        val tipoRuta = TipoRuta.Corta
+
+        val builderWrapper = RutaBuilderWrapper(calculadorRutas, servicioAPIs, servicioRutas)
+        builderWrapper
+            .setInicio(origen)
+            .setFin(destino)
+            .setVehiculo(vehiculo)
+            .setTipo(tipoRuta)
+            .setNombre("RutaTest")
+
+        val rutaCreada = builderWrapper.build()
+
+        servicioRutas.addRuta(rutaCreada)
+        assertTrue(servicioRutas.contains(rutaCreada))
+
+        servicioUsuarios.cerrarSesion()
+
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioVehiculos = ServicioVehiculos(repositorioFirebase)
+        servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
+        calculadorRutas = CalculadorRutasORS(servicioAPIs)
+        servicioRutas = ServicioRutas(calculadorRutas, repositorioFirebase, servicioAPIs)
+
+        val rutasRecuperadas = servicioRutas.getRutas()
+        assertTrue(rutasRecuperadas.contains(rutaCreada))
+
+        val rutaFavorita = servicioRutas.setFavorito(rutaCreada, true)
+        assertTrue(rutaFavorita)
+        assertTrue(rutaCreada.isFavorito())
+
+        servicioRutas.setFavorito(rutaCreada, false)
+
+        val rutaEliminada = servicioRutas.deleteRuta(rutaCreada)
+        assertTrue(rutaEliminada)
+
+        assertFalse(servicioRutas.contains(rutaCreada))
     }
 }
