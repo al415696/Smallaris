@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -67,14 +66,13 @@ class TestPersistencia {
 
     @Test
     fun testPersistenciaVehiculo() = runBlocking {
-        // Dado
         val nombreVehiculo = "VehiculoTestNuevo"
         val consumo = 12.0
         val matricula = "TEST9876"
         val tipo = TipoVehiculo.Gasolina95
 
-        // Cuando
         val vehiculoCreado = servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
+
         servicioUsuarios.cerrarSesion()
 
         repositorioFirebase = RepositorioFirebase()
@@ -85,9 +83,28 @@ class TestPersistencia {
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
         servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
-        // Entonces
         val vehiculosRecuperados = servicioVehiculos.getVehiculos()
         assertTrue(vehiculosRecuperados.contains(vehiculoCreado))
+
+        val vehiculoFavorito = vehiculoCreado?.let { servicioVehiculos.setVehiculoFavorito(it, true) }
+        if (vehiculoFavorito != null) {
+            assertTrue(vehiculoFavorito)
+        }
+        if (vehiculoCreado != null) {
+            assertTrue(vehiculoCreado.isFavorito())
+        }
+
+        if (vehiculoCreado != null) {
+            servicioVehiculos.setVehiculoFavorito(vehiculoCreado, false)
+        }
+
+        val vehiculoEliminado = vehiculoCreado?.let { servicioVehiculos.deleteVehiculo(it) }
+        if (vehiculoEliminado != null) {
+            assertTrue(vehiculoEliminado)
+        }
+
+        val vehiculosRecuperadosPostEliminacion = servicioVehiculos.getVehiculos()
+        assertFalse(vehiculosRecuperadosPostEliminacion.contains(vehiculoCreado))
     }
 
     @Test
