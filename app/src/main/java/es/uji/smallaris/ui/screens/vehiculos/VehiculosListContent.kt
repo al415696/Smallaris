@@ -56,7 +56,7 @@ fun VehiculosListContent(
         mutableStateOf(
             Vehiculo(
                 "Coche",
-                7.1,
+                -1.0,
                 "1234BBB",
                 TipoVehiculo.Gasolina95
             )
@@ -76,7 +76,7 @@ fun VehiculosListContent(
                 modifier = modifier.fillMaxHeight(),
             ) {
 
-                if (items.isEmpty()) {
+                if (items.size <= 2) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
