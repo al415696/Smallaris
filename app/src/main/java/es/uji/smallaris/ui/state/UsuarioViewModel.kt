@@ -10,8 +10,10 @@ import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
+import es.uji.smallaris.model.UnloggedUserException
 import es.uji.smallaris.model.UnregisteredUserException
 import es.uji.smallaris.model.UserAlreadyExistsException
+import es.uji.smallaris.model.Vehiculo
 
 //@HiltViewModel
 class UsuarioViewModel() : ViewModel() {
@@ -19,7 +21,13 @@ class UsuarioViewModel() : ViewModel() {
         this.cosaUsuario = cosaUsuario
     }
     var cosaUsuario by mutableStateOf(1)
-    val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
+    private val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
+
+    val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
+
+    suspend fun getVehiculos(): List<Vehiculo> {
+        return servicioVehiculos.getVehiculos()
+    }
 
     var sesionIniciada by mutableStateOf(servicioUsuarios.obtenerUsuarioActual() != null)
 
@@ -51,6 +59,28 @@ class UsuarioViewModel() : ViewModel() {
             return e.message?: "Error inesperado, registro no completado"
         }
         return ""
+    }
+    suspend fun cerrarSesion(): String{
+        try {
+            servicioUsuarios.cerrarSesion()
+            sesionIniciada = false
+        } catch (e: ConnectionErrorException) {
+            return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
+        }catch (e: UnloggedUserException) {
+            return "No hay ninguna sesión iniciada que cerrar"
+        }catch (e: Exception) {
+            return e.message?: "Error inesperado, no se ha cerrado sesión"
+        }
+        return ""
+    }
+    fun getNombreUsuarioActual(): String{
+        try {
+            return servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"
+        } catch (e: ConnectionErrorException) {
+            return "Tu cuenta principal?"
+        }catch (e: Exception) {
+            return "Tu cuenta principal??"
+        }
     }
 
     companion object{

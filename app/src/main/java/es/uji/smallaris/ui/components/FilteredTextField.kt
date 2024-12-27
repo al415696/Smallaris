@@ -47,6 +47,7 @@ fun FilteredTextField(
                     if (it.length <= maxLength)
                         text.value = it
                 },
+                visualTransformation = visualTransformation,
                 label = { Text(label) }
             )
             if (!valid.value) {
