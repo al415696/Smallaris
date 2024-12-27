@@ -22,6 +22,8 @@ class ServicioRutas(
 
     @Throws(ConnectionErrorException::class, RouteException::class)
     suspend fun addRuta(ruta: Ruta): Ruta {
+        if (ruta.isFavorito())
+            throw RouteException("No se puede eliminar una ruta favoria")
         if (!repositorioRutas.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible")
         if (rutas.contains(ruta))
@@ -64,7 +66,7 @@ class ServicioRutas(
             throw ConnectionErrorException("Firebase no está disponible")
 
         if (ruta.isFavorito()) {
-            throw RouteException("Ruta favorita")
+            throw RouteException("Ruta favorita no se puede borrar")
         }
 
         rutas.remove(ruta)

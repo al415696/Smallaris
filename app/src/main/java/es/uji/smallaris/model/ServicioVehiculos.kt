@@ -122,6 +122,8 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
     @Throws(ConnectionErrorException::class, VehicleException::class)
     suspend fun deleteVehiculo(vehiculo: Vehiculo): Boolean{
+        if(vehiculo.isFavorito())
+            throw VehicleException("No se puede eliminar un vehiculo favorito")
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculos.contains(vehiculo)){
