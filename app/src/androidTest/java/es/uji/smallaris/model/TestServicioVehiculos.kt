@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -204,7 +203,7 @@ class TestServicioVehiculos {
         servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
         servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina95)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setFavorito(it) }
+            ?.let { servicioVehiculos.setVehiculoFavorito(it) }
         servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina95)
 
 
@@ -218,7 +217,7 @@ class TestServicioVehiculos {
 
     }
     @Test
-    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoFavorito() = runBlocking{
+    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
         var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
@@ -227,25 +226,25 @@ class TestServicioVehiculos {
 
         //      WHEN
         val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setFavorito(lista[0])
+        val cambiado = servicioVehiculos.setVehiculoFavorito(lista[0])
 
         //      THEN
         assertTrue(cambiado)
         assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
     }
     @Test
-    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoFavorito() = runBlocking{
+    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
         val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
         val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setFavorito(it) }
+            ?.let { servicioVehiculos.setVehiculoFavorito(it) }
         servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
 
 
         //      WHEN
         val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setFavorito(lista[0])
+        val cambiado = servicioVehiculos.setVehiculoFavorito(lista[0])
 
         //      THEN
         assertFalse(cambiado)

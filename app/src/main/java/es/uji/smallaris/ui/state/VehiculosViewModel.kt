@@ -1,12 +1,10 @@
 package es.uji.smallaris.ui.state
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -16,8 +14,6 @@ import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.Vehiculo
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 //@HiltViewModel
 class VehiculosViewModel() : ViewModel() {
@@ -84,7 +80,7 @@ class VehiculosViewModel() : ViewModel() {
     }
     suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean){
         try {
-            if(servicioVehiculos.setFavorito(vehiculo, favorito))
+            if(servicioVehiculos.setVehiculoFavorito(vehiculo, favorito))
                 updateList()
         } catch (e: Exception) {
             e.printStackTrace()
