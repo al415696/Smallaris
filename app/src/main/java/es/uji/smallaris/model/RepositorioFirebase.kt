@@ -1,7 +1,6 @@
 package es.uji.smallaris.model
 
 import android.accounts.NetworkErrorException
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException

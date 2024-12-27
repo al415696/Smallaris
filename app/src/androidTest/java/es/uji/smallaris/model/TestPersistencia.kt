@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -107,7 +106,7 @@ class TestPersistencia {
         val vehiculosRecuperadosPostEliminacion = servicioVehiculos.getVehiculos()
         assertFalse(vehiculosRecuperadosPostEliminacion.contains(vehiculoCreado))
     }
-    
+
     @Test
     fun testPersistenciaLugar() = runBlocking {
         val longitud = -0.12345

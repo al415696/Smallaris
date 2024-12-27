@@ -142,8 +142,8 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculo.isFavorito() == favorito)
             return false
-        vehiculo.setFavorito(favorito)
         if (vehiculos.contains(vehiculo)){
+            vehiculo.setFavorito(favorito)
             repositorio.setVehiculoFavorito(vehiculo, favorito)
             return true
         }
