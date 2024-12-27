@@ -97,6 +97,7 @@ fun ObjetoListable(
             }
             IconButton(
                 onClick = secondActionFuncition,
+                enabled = !favorito,
                 modifier = Modifier.align(Alignment.Top),
             ) {
                 Icon(
