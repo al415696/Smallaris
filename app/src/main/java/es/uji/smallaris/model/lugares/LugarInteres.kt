@@ -14,7 +14,6 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
             "latitud" to latitud,
             "nombre" to nombre,
             "municipio" to municipio
-            // Añadir atributo favorito tanto aquí como arriba
         )
     }
 

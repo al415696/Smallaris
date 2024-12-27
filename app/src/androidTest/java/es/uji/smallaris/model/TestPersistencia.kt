@@ -110,18 +110,16 @@ class TestPersistencia {
 
         val lugaresRecuperados = servicioLugares.getLugares()
         assertTrue(lugaresRecuperados.contains(lugarCreado))
-        Log.i("Lugar SIN FAV: ", lugaresRecuperados.toString())
 
-        /*
-        val lugarFavorito = servicioLugares.setLugarInteresFavorito(lugarCreado, true)
-        assertTrue(lugarFavorito)
-        Log.i("Lugar CON FAV: ", servicioLugares.getLugares().toString())
-        val lugarRecuperadoFavorito = lugaresRecuperados.find { it.nombre == nombreLugar && it.longitud == longitud && it.latitud == latitud }
-        assertTrue(lugarRecuperadoFavorito?.isFavorito() == true)
-        */
+        val lugarHechoFavorito = servicioLugares.setLugarInteresFavorito(lugarCreado, true)
+        assertTrue(lugarHechoFavorito)
+        assertTrue(lugarCreado.isFavorito())
 
+        servicioLugares.setLugarInteresFavorito(lugarCreado, false)
+        
         val lugarEliminado = servicioLugares.deleteLugar(lugarCreado)
         assertTrue(lugarEliminado)
+
         val lugaresRecuperadosPostEliminacion = servicioLugares.getLugares()
         assertFalse(lugaresRecuperadosPostEliminacion.contains(lugarCreado))
     }
