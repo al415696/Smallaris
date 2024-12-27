@@ -146,7 +146,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoFavorito() = runBlocking {
+    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoLugarInteresFavorito() = runBlocking {
         // Given
         val servicioAPIs = ServicioAPIs
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
@@ -159,7 +159,7 @@ class TestServicioLugares {
 
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = servicioLugares.setFavorito(lista[0], true)
+        val cambiado = servicioLugares.setLugarInteresFavorito(lista[0], true)
 
         // Then
         assertTrue(cambiado)
@@ -167,7 +167,7 @@ class TestServicioLugares {
     }
 
     @Test
-    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoFavorito() = runBlocking {
+    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoLugarInteresFavorito() = runBlocking {
 
         // Given
         val servicioAPIs = ServicioAPIs
@@ -177,10 +177,10 @@ class TestServicioLugares {
             -0.0376709,
             39.986,
             "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
-        ).let { servicioLugares.setFavorito(it) }
+        ).let { servicioLugares.setLugarInteresFavorito(it) }
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = servicioLugares.setFavorito(lista[0], true)
+        val cambiado = servicioLugares.setLugarInteresFavorito(lista[0], true)
 
         // Then
         assertTrue(!cambiado)
@@ -201,7 +201,7 @@ class TestServicioLugares {
         )
         servicioLugares.addLugar(
             39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España"
-        ).let { servicioLugares.setFavorito(it) }
+        ).let { servicioLugares.setLugarInteresFavorito(it) }
         servicioLugares.addLugar(
             39.8614095, -0.18500, "Camp de Futbol, Villavieja, Comunidad Valenciana, España"
         )
@@ -293,7 +293,7 @@ class TestServicioLugares {
         val repositorioLugares: RepositorioLugares = RepositorioFirebase()
         val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
-        servicioLugares.setFavorito(lugar, true)
+        servicioLugares.setLugarInteresFavorito(lugar, true)
 
         // When
         try {
