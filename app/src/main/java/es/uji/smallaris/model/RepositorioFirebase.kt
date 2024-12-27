@@ -101,15 +101,93 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["matricula"] == viejo.matricula }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedVehiculo = items[index].toMutableMap()
+
+                    updatedVehiculo["nombre"] = nuevo.nombre
+                    updatedVehiculo["consumo"] = nuevo.consumo
+                    updatedVehiculo["matricula"] = nuevo.matricula
+                    updatedVehiculo["tipo"] = nuevo.tipo.name
+                    updatedVehiculo["favorito"] = nuevo.isFavorito() // Actualizamos el campo favorito
+
+                    updatedItems[index] = updatedVehiculo
+                    userDocRef.update("items", updatedItems).await()
+                    return true
+                }
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al actualizar vehículo: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["matricula"] == vehiculo.matricula }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedVehiculo = items[index].toMutableMap()
+                    updatedVehiculo["favorito"] = favorito
+                    updatedItems[index] = updatedVehiculo
+                    userDocRef.update("items", updatedItems).await()
+                    return true
+                }
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al actualizar vehículo favorito: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("vehículos")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val updatedItems = items.filter { it["matricula"] != vehiculo.matricula }
+                userDocRef.update("items", updatedItems).await()
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al eliminar vehículo: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
