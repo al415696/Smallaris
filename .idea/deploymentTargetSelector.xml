@@ -11,7 +11,7 @@
       <SelectionState runConfigName="TestPersistencia">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testPersistenciaLugar()">
+      <SelectionState runConfigName="testPersistenciaVehiculo()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

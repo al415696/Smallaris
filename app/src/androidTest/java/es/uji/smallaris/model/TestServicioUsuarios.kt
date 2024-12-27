@@ -25,7 +25,6 @@ class TestServicioUsuarios {
         fun setUp() {
             repositorioUsuarios = RepositorioFirebase()
             servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-
             runBlocking {
                 try {
                     servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
@@ -41,15 +40,32 @@ class TestServicioUsuarios {
         fun tearDown() {
             runBlocking {
                 val auth = FirebaseAuth.getInstance()
-
-                // Cierra sesión si hay un usuario activo
-                auth.currentUser?.let {
-                    auth.signOut()
+                val firestore = FirebaseFirestore.getInstance()
+                repositorioUsuarios = RepositorioFirebase()
+                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                auth.currentUser?.let { user ->
+                    try {
+                        val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+                        val subcolecciones = listOf("vehículos", "lugares")
+                        for (subcoleccion in subcolecciones) {
+                            val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                            val documentos = subcoleccionRef.get().await()
+                            for (documento in documentos) {
+                                subcoleccionRef.document(documento.id).delete().await()
+                            }
+                        }
+                        usuarioDocRef.delete().await()
+                        user.delete().await()
+                    } catch (ex: Exception) {
+                        // Manejo de excepciones si es necesario
+                        println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
+                    } finally {
+                        auth.signOut()
+                    }
                 }
             }
         }
-
-
         @Test
         fun registrarUsuario_R1HU01_registrarUsuarioYaExistente() {
             runBlocking {
@@ -146,7 +162,8 @@ class TestServicioUsuarios {
                 servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
 
                 // Cuando
-                val usuario = servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+                val usuario =
+                    servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
 
                 // Entonces
                 assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
@@ -161,10 +178,17 @@ class TestServicioUsuarios {
 
                 auth.currentUser?.let { user ->
                     try {
-                        firestore.collection("usuarios-test").document(user.uid).delete()
-                            .await()
+                        val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+                        val subcolecciones = listOf("vehículos", "lugares")
+                        for (subcoleccion in subcolecciones) {
+                            val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                            val documentos = subcoleccionRef.get().await()
+                            for (documento in documentos) {
+                                subcoleccionRef.document(documento.id).delete().await()
+                            }
+                        }
+                        usuarioDocRef.delete().await()
                         user.delete().await()
-
                     } catch (ex: Exception) {
                         // Manejo de excepciones si es necesario
                         println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
@@ -181,7 +205,7 @@ class TestServicioUsuarios {
         private lateinit var servicioUsuarios: ServicioUsuarios
 
         @Test
-        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking{
+        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking {
             // Dado
             repositorioUsuarios = RepositorioFirebase()
             servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
