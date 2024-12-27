@@ -12,12 +12,11 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import es.uji.smallaris.model.lugares.LugarInteres
 import com.google.firebase.firestore.SetOptions
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlin.jvm.Throws
 
 class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, RepositorioUsuarios,
     RepositorioRutas,
@@ -191,65 +190,166 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
-        return mutableListOf()
+        try {
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val municipio = item["municipio"] as? String
+                    val latitud = item["latitud"] as? Double
+                    val longitud = item["longitud"] as? Double
+                    if (nombre != null && municipio != null && latitud != null && longitud != null) {
+                        LugarInteres(longitud, latitud, nombre, municipio)
+                    } else {
+                        null
+                    }
+                }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            println("Error al obtener lugares: ${e.message}")
+            return emptyList()
+        }
     }
 
     override suspend fun addLugar(lugar: LugarInteres): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                userDocRef.update("items", FieldValue.arrayUnion(lugar.toMap())).await()
+            } else {
+                val initialData = mapOf("items" to listOf(lugar.toMap()))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+            return true
+        } catch (e: Exception) {
+            println("Error al agregar lugar: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            val lugaresActualizados = lugaresExistentes.map {
+                if (it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio) {
+                    mapOf(
+                        "nombre" to lugar.nombre,
+                        "latitud" to lugar.latitud,
+                        "longitud" to lugar.longitud,
+                        "municipio" to lugar.municipio,
+                        "favorito" to favorito
+                    )
+                } else {
+                    it
+                }
+            }
+            userDocRef.update("lugares", lugaresActualizados).await()
+            return true
+        } catch (e: Exception) {
+            println("Error al actualizar lugar: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual()
+                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+            val snapshot = userDocRef.get().await()
+            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+
+            // Filtra los lugares para eliminar el especificado
+            val lugaresActualizados = lugaresExistentes.filterNot {
+                it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio
+            }
+
+            userDocRef.update("lugares", lugaresActualizados).await()
+            return true
+        } catch (e: Exception) {
+            println("Error al eliminar lugar: ${e.message}")
+            return false
+        }
     }
 
     @Throws(UserAlreadyExistsException::class)
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
-        try{
+        try {
+            // Intenta crear un usuario con el correo y contraseña
             val resultadoAutenticacion =
-                obtenerAuth().createUserWithEmailAndPassword(correo, contrasena).await()
+                auth.createUserWithEmailAndPassword(correo, contrasena).await()
             val usuario = resultadoAutenticacion.user
 
-            if (usuario != null) {
-                val usuarioData = mapOf(
-                    "correo" to usuario.email
-                )
+        if (usuario != null) {
+            val usuarioData = mapOf(
+                "correo" to usuario.email,
+            )
 
-                val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
-                usuarioDocRef.set(usuarioData).await()
+            // Crear el documento del usuario en la colección 'usuarios'
+            val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
+            usuarioDocRef.set(usuarioData).await()
 
-                // Datos predeterminados de vehículos
-                val vehiculoPie = mapOf(
-                    "nombre" to "A pie",
-                    "consumo" to 0.0,
-                    "matricula" to "Sin matrícula",
-                    "tipo" to "Pie",
-                    "favorito" to false
-                )
+            // Datos predeterminados de vehículos
+            val vehiculoPie = mapOf(
+                "nombre" to "A pie",
+                "consumo" to 0.0,
+                "matricula" to "Sin matrícula",
+                "tipo" to "Pie",
+                "favorito" to false
+            )
 
-                val vehiculoBici = mapOf(
-                    "nombre" to "Bicicleta",
-                    "consumo" to 0.0,
-                    "matricula" to "Sin matrícula",
-                    "tipo" to "Bici",
-                    "favorito" to false
-                )
+            val vehiculoBici = mapOf(
+                "nombre" to "Bicicleta",
+                "consumo" to 0.0,
+                "matricula" to "Sin matrícula",
+                "tipo" to "Bici",
+                "favorito" to false
+            )
 
-                val vehiculosData = mapOf(
-                    "items" to listOf(vehiculoPie, vehiculoBici)
-                )
+            val vehiculosData = mapOf(
+                "items" to listOf(vehiculoPie, vehiculoBici)
+            )
 
-                // Crear subcolección 'vehículos' con documento 'data' y array 'items'
-                usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
+            // Crear subcolección 'vehículos' con documento 'data' y array 'items'
+            usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
+
+
+            db.collection("usuarios")
+                .document(usuario.uid)
+                .set(usuarioData)
+                .await()
 
                 return Usuario(correo = usuario.email ?: "")
             } else {
                 throw Exception("No se pudo crear el usuario y la colección asociada.")
             }
-
         } catch (e: FirebaseAuthWeakPasswordException) {
             throw Exception("La contraseña es demasiado débil. Por favor, usa una contraseña más segura.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
@@ -261,11 +361,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } catch (e: Exception) {
             throw Exception("Ocurrió un error inesperado: ${e.message}")
         }
-
     }
 
     override suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
         try {
+            // Intentar iniciar sesión
             val resultadoAutenticacion = auth.signInWithEmailAndPassword(correo, contrasena).await()
             val usuario = resultadoAutenticacion.user
 
@@ -295,7 +395,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return true
     }
 
-    override suspend fun deleteLugar(ruta: Ruta): Boolean {
+    override suspend fun deleteRuta(ruta: Ruta): Boolean {
         return true
     }
 

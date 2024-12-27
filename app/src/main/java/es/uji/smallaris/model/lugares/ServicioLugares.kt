@@ -1,5 +1,6 @@
 package es.uji.smallaris.model.lugares
 
+import android.util.Log
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
@@ -104,13 +105,14 @@ class ServicioLugares(
     }
 
     @Throws(UbicationException::class)
-    suspend fun setFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
+    suspend fun setLugarInteresFavorito(lugarInteres: LugarInteres, favorito: Boolean = true): Boolean {
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
-        if (lugarInteres.isFavorito() == favorito)
+        if (lugarInteres.isFavorito() == favorito){
             return false
-        lugarInteres.setFavorito(favorito)
+        }
         if (lugares.contains(lugarInteres)) {
+            lugarInteres.setFavorito(favorito)
             return repositorioLugares.setLugarInteresFavorito(lugarInteres,favorito)
         }
         return false

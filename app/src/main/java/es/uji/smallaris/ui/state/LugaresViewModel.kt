@@ -54,7 +54,7 @@ class LugaresViewModel() : ViewModel() {
     }
     suspend fun setLugarFavorito(lugaresInteres: LugarInteres, favorito: Boolean){
         try {
-            if(servicioLugares.setFavorito(lugaresInteres, favorito))
+            if(servicioLugares.setLugarInteresFavorito(lugaresInteres, favorito))
                 updateList()
         } catch (e: Exception) {
             e.printStackTrace()
