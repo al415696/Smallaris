@@ -31,9 +31,6 @@ class UsuarioViewModel() : ViewModel() {
 
     var sesionIniciada by mutableStateOf(servicioUsuarios.obtenerUsuarioActual() != null)
 
-    fun isSesionIniciada(): Boolean{
-        return sesionIniciada
-    }
     suspend fun iniciarSesion(email:String,passwd: String): String{
         try {
            servicioUsuarios.iniciarSesion(email,passwd)
@@ -70,6 +67,20 @@ class UsuarioViewModel() : ViewModel() {
             return "No hay ninguna sesión iniciada que cerrar"
         }catch (e: Exception) {
             return e.message?: "Error inesperado, no se ha cerrado sesión"
+        }
+        return ""
+    }
+    suspend fun eliminarCuenta(): String{
+        try {
+            servicioUsuarios.borrarUsuario()
+            servicioUsuarios.cerrarSesion()
+            sesionIniciada = false
+        } catch (e: ConnectionErrorException) {
+            return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
+        }catch (e: UnloggedUserException) {
+            return "No hay ninguna sesión iniciada que borrar"
+        }catch (e: Exception) {
+            return e.message?: "Error inesperado, no se ha borrado"
         }
         return ""
     }

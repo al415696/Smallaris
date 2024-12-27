@@ -51,7 +51,7 @@ fun UsuarioScreen(
 ){
     UsuarioScreenContent(
         funCerrarSesion = viewModel::cerrarSesion,
-        funEliminarCuenta =  {""},
+        funEliminarCuenta =  viewModel::eliminarCuenta,
         funGetNombreUsuario = viewModel::getNombreUsuarioActual,
         funConseguirVehiculos = viewModel::getVehiculos,
         )
@@ -77,10 +77,6 @@ fun UsuarioScreenContent(
             iniciadoCerrarSesion,
             cerrarFunction = { funCerrarSesion() }
         )
-//        LaunchedEffect(Unit) {
-//            errorText.value = funCerrarSesion()
-//            iniciadoCerrarSesion = false
-//        }
     if (iniciadoEliminarCuenta.value)
         DeleteAlertDialogue(
             iniciadoEliminarCuenta,

@@ -44,7 +44,7 @@ fun SmallarisNavHost(
     val usuarioViewModel = rememberSaveable(saver = UsuarioViewModel.Saver) { UsuarioViewModel()}
 
     var loadingServiciosObjetos by remember { mutableStateOf(true) }
-    if (!usuarioViewModel.isSesionIniciada()){
+    if (!usuarioViewModel.sesionIniciada){
         LoginScreen(usuarioViewModel)
     }
     else if (loadingServiciosObjetos){
