@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import androidx.collection.emptyLongSet
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -26,8 +27,10 @@ class ServicioRutas(
             throw ConnectionErrorException("Firebase no está disponible")
         if (rutas.contains(ruta))
             throw RouteException("La ruta ya existe")
-        rutas.add(ruta)
-        repositorioRutas.addRuta(ruta)
+        if  (repositorioRutas.addRuta(ruta))
+            rutas.add(ruta)
+        else
+            throw RouteException("No se pudo añadir la ruta por un problema remoto")
         return ruta
     }
 

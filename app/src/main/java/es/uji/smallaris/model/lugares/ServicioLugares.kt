@@ -73,8 +73,10 @@ class ServicioLugares(
 
         val lugar = LugarInteres(longitud, latitud, identificador, municipio)
 
-        lugares.add(lugar)
-        repositorioLugares.addLugar(lugar)
+        if (repositorioLugares.addLugar(lugar))
+            lugares.add(lugar)
+        else
+            throw UbicationException("No se pudo añadir el lugar por un problema remoto")
         // Devolvemos el lugar creado como indicador de que se ha guardado correctamente
         return lugar
     }

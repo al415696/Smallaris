@@ -5,13 +5,16 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Tests in 'es.uji.smallaris.model'">
+      <SelectionState runConfigName="TestServicioLugares">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestPersistencia">
+      <SelectionState runConfigName="TestServicioVehiculos">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testPersistenciaVehiculo()">
+      <SelectionState runConfigName="deleteVehiculo_R3HU3V1_eliminarVehiculoOk()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="TestServicioRutas">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

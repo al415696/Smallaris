@@ -48,9 +48,9 @@ class VehiculosViewModel() : ViewModel() {
             e.printStackTrace()
             return "Error al conectarse con el servidor"
         }
-        catch (e: VehicleException){
+        catch (e: VehicleException) {
 
-            return e.message ?: ""
+            return e.message ?: "Fallo con el vehículo, no se ha añadido"
         }
         return ""
     }
