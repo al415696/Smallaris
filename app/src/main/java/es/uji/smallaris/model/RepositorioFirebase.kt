@@ -620,13 +620,22 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             val usuario = Usuario(correo = currentUser.email ?: "")
 
-            userDocRef.delete().await()
+            val subcolecciones = listOf("vehículos", "lugares", "rutas")
+            for (subcoleccion in subcolecciones) {
+                val subcoleccionRef = userDocRef.collection(subcoleccion)
+                val documentos = subcoleccionRef.get().await()
 
+                for (documento in documentos) {
+                    subcoleccionRef.document(documento.id).delete().await()
+                }
+            }
+
+            userDocRef.delete().await()
             currentUser.delete().await()
 
             return usuario
         } catch (e: Exception) {
-            throw UserException("No se pudo eliminar el usuario.")
+            throw UserException("No se pudo eliminar el usuario o sus datos.")
         }
     }
 
