@@ -355,7 +355,7 @@ class TestServicioLugares {
         //Then
         assertNotNull(excepcion)
         assertTrue(excepcion is UbicationException)
-        assertTrue(excepcion!!.message.equals("Ubicación favorita"))
+        assertTrue(excepcion!!.message.equals("Ubicación favorita no se puede borrar"))
         assertEquals(1, servicioLugares.getLugares().size)
     }
 
