@@ -682,8 +682,7 @@ class TestServicioRutas {
         //Then
         assertNotNull(excepcion)
         assertTrue(excepcion is RouteException)
-        assertTrue(excepcion!!.message.equals("Ruta favorita"))
+        assertTrue(excepcion!!.message.equals("Ruta favorita no se puede borrar"))
         assertEquals(1, servicioRutas.getRutas().size)
     }
-
 }
