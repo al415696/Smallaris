@@ -25,7 +25,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     @Throws(VehicleException::class, ConnectionErrorException::class)
-    suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo? {
+    suspend fun addVehiculo (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Vehiculo {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         val vehiculo: Vehiculo
@@ -39,11 +39,14 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             // Se ejecuta el método add del repositorio
             if (repositorio.addVehiculos(vehiculo)){
                 vehiculos.add(vehiculo)
-                Log.i("SE HA GUARDADO EN LOCAL", ":)")
-                return vehiculo
+            }else{
+                throw VehicleException("No se pudo añadir el vehiculo por un problema remoto")
             }
+            return vehiculo
+        }else{
+            throw VehicleException("Datos no válidos para un vehiculo")
         }
-        return null
+//        return null
     }
     private fun checkValidezVehiculo(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): Boolean{
         // Hay un nombre, una matriculo, y el consumo no es negativo

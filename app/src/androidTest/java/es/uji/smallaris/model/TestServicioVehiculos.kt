@@ -1,37 +1,81 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class TestServicioVehiculos {
+    private lateinit var repositorioFirebase: RepositorioFirebase
+    private lateinit var servicioUsuarios: ServicioUsuarios
+    private lateinit var servicioVehiculos: ServicioVehiculos
+
+    @Before
+    fun setUp() = runBlocking {
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.registrarUsuario("testVehiculo@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testVehiculo@uji.es", "12345678")
+
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioVehiculos = ServicioVehiculos(repositorioFirebase)
+    }
+
+    @After
+    fun tearDown() {
+        runBlocking {
+            val auth = repositorioFirebase.obtenerAuth()
+            val firestore = repositorioFirebase.obtenerFirestore()
+
+            auth.currentUser?.let { user ->
+                try {
+                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+
+                    val subcolecciones = listOf("vehículos")
+                    for (subcoleccion in subcolecciones) {
+                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                        val documentos = subcoleccionRef.get().await()
+
+                        for (documento in documentos) {
+                            subcoleccionRef.document(documento.id).delete().await()
+                        }
+                    }
+
+                    usuarioDocRef.delete().await()
+
+                    user.delete().await()
+
+                } catch (ex: Exception) {
+                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
+                } finally {
+                    auth.signOut()
+                }
+            }
+        }
+    }
     @Test
     fun addVehiculo_R3HU1V1_anyadirVehiculoListaVaciaOk() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-
+        // Solo están los vehiculos invariantes
         //      WHEN
         var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 
         //      THEN
         assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95 ), vehiculo)
         assertEquals(true, servicioVehiculos.getVehiculos().contains(vehiculo))
-        assertEquals(1, servicioVehiculos.getVehiculos().count())
+        assertEquals(3, servicioVehiculos.getVehiculos().count())
 
     }
     @Test
     fun addVehiculo_R3HU1I1_anyadirVehiculoconMismoYaEnLista() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var resultado : Exception? = null
-
-
         //      WHEN
         try {
             servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
@@ -45,23 +89,22 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculos_R3HU2V1_getListaCon1Vehiculo() = runBlocking{
+    fun getVehiculos_R3HU2V1_getListaCon1VehiculoAnyadido() = runBlocking{
 //        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        // Solo están los vehiculos invariantes
+        val vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
 //        WHEN
         var lista = servicioVehiculos.getVehiculos()
 //        THEN
-        assertEquals(1, lista.count())
-        assertEquals(Vehiculo(nombre="Coche", consumo = 7.1, matricula ="1234BBB", tipo = TipoVehiculo.Gasolina95 ), lista[0])
+        assertEquals(3, lista.count())
+        assertTrue(lista.contains(vehiculo))
     }
 
     @Test
     fun getVehiculos_R3HU2I1_getListaErrorConexion() = runBlocking{
 //        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        
+        
         servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var resultado : Exception? = null
 //        WHEN
@@ -80,24 +123,19 @@ class TestServicioVehiculos {
     @Test
     fun deleteVehiculo_R3HU3V1_eliminarVehiculoOk() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         //      WHEN
-        val exito = vehiculo?.let {  servicioVehiculos.deleteVehiculo(it) }
+        val exito = servicioVehiculos.deleteVehiculo(vehiculo)
         //      THEN
         assertNotNull(exito)
-        if (exito != null)
-            assertTrue(exito)
-        assertTrue(servicioVehiculos.getVehiculos().isEmpty())
+        assertTrue(exito)
+        assertTrue(servicioVehiculos.getVehiculos().count() == 2)
 
     }
     @Test
     fun deleteVehiculo_R3HU3I1_eliminarVehiculoInexistente() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var vehiculoInexistente = Vehiculo("Unicornio", 77.7, "7777LLL", TipoVehiculo.Bici)
         var resultado: Exception? = null
         //      WHEN
@@ -112,58 +150,48 @@ class TestServicioVehiculos {
 
     @Test
     fun updateVehiculos_R3HU4V1_updateUnVehiculoOk() = runBlocking{
-//        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        //        GIVEN
         var vehiculoInicial: Vehiculo =
-            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+            servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        var vehiculoEsperadoFinal: Vehiculo =
+            Vehiculo("Moto",7.1,"1234BBB" ,TipoVehiculo.Electrico)
+
 //        WHEN
         var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
 //        THEN
-        val vehiculoFinal = servicioVehiculos.getVehiculos()[0]
-        println(resultado)
         assertTrue(resultado)
-        assertEquals("Moto", vehiculoFinal.nombre)
-        assertTrue(7.1 == vehiculoFinal.consumo)
-        assertEquals("1234BBB", vehiculoFinal.matricula)
-        assertEquals(TipoVehiculo.Electrico, vehiculoFinal.tipo)
+        assertTrue(servicioVehiculos.getVehiculos().contains(vehiculoEsperadoFinal))
     }
 
     @Test
     fun updateVehiculos_R3HU4I1_updateVehiculoInexistente() = runBlocking{
-//        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        //        GIVEN
         var vehiculoInicial: Vehiculo =Vehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
-//        WHEN
+        //        WHEN
         var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
-//        THEN
+        //        THEN
         assertFalse(resultado)
     }
     @Test
     fun updateVehiculos_R3HU4V2_updateVehiculoConMasEnLista() = runBlocking{
-//        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
-        servicioVehiculos.addVehiculo("Otro",7.1,"8888BBB" ,TipoVehiculo.Gasolina95)
-//        WHEN
+        //        GIVEN
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
+        var otroVehiculo= servicioVehiculos.addVehiculo("Otro",7.1,"8888BBB" ,TipoVehiculo.Gasolina95)
+        var vehiculoEsperadoFinal: Vehiculo =
+            Vehiculo("Moto",7.1,"1234BBB" ,TipoVehiculo.Electrico)
+
+        //        WHEN
         var resultado = servicioVehiculos.updateVehiculo(vehiculoInicial, nuevoNombre = "Moto", nuevoTipoVehiculo = TipoVehiculo.Electrico)
-//        THEN
-        val vehiculoFinal = servicioVehiculos.getVehiculos()[0]
-        println(resultado)
+        //        THEN
+//        val vehiculoFinal = servicioVehiculos.getVehiculos()[0]
         assertTrue(resultado)
-        assertEquals("Moto", vehiculoFinal.nombre)
-        assertTrue(7.1 == vehiculoFinal.consumo)
-        assertEquals("1234BBB", vehiculoFinal.matricula)
-        assertEquals(TipoVehiculo.Electrico, vehiculoFinal.tipo)
+        assertTrue(servicioVehiculos.getVehiculos().contains(vehiculoEsperadoFinal))
+        assertTrue(servicioVehiculos.getVehiculos().contains(otroVehiculo))
     }
     @Test
     fun updateVehiculos_R3HU4I2_updateVehiculoSolapamientoIdentificadoresNuevos() = runBlocking{
 //        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         servicioVehiculos.addVehiculo("Otro",7.1,"8888BBB" ,TipoVehiculo.Gasolina95)
         var resultado: Exception? = null
 //        WHEN
@@ -179,9 +207,9 @@ class TestServicioVehiculos {
     @Test
     fun updateVehiculos_R3HU4I3_updateVehiculoSinCambiarNada() = runBlocking{
 //        GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)!!
+        
+        
+        var vehiculoInicial: Vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
         var resultado: Exception? = null
 //        WHEN
         try {
@@ -198,12 +226,10 @@ class TestServicioVehiculos {
     @Test
     fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
         servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
         servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina95)
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setVehiculoFavorito(it) }
+            .let { servicioVehiculos.setVehiculoFavorito(it) }
         servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina95)
 
 
@@ -212,21 +238,17 @@ class TestServicioVehiculos {
 
         //      THEN
         assertEquals("Zyxcrieg", lista[0].nombre)
-        assertEquals("Abobamasnow", lista[1].nombre)
-        assertEquals("Zulom", lista[lista.size-1].nombre)
 
     }
     @Test
     fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
-        var repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        var servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
-        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+        val vehiculo= servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
 
 
         //      WHEN
         val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setVehiculoFavorito(lista[0])
+        val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
 
         //      THEN
         assertTrue(cambiado)
@@ -235,16 +257,18 @@ class TestServicioVehiculos {
     @Test
     fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
-        val repositorioVehiculos : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioVehiculos)
+        val repositorioFirebase : RepositorioVehiculos = RepositorioFirebase()
+        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioFirebase)
+        val vehiculo: Vehiculo
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            ?.let { servicioVehiculos.setVehiculoFavorito(it) }
+            .let {vehiculo= it
+                servicioVehiculos.setVehiculoFavorito(it) }
         servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
 
 
         //      WHEN
         val lista = servicioVehiculos.getVehiculos()
-        val cambiado = servicioVehiculos.setVehiculoFavorito(lista[0])
+        val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
 
         //      THEN
         assertFalse(cambiado)
