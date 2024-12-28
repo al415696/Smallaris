@@ -1,19 +1,49 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 abstract class CalculadorRutas {
 
-    fun terminarRuta(builder: RutaBuilder) {
-        val (trayecto, distancia, duracion) = calcularTrayecto(builder)
+    private lateinit var strategy: Strategy
+
+    fun setStrategy(strategy: Strategy) {
+        this.strategy = strategy
+    }
+
+    @Throws(RouteException::class)
+    suspend fun terminarRuta(builder: RutaBuilder) {
+        // 1º paso: calcular trayecto, distancia y duración --> ORS
+        val (trayecto, distancia, duracion) = calcularTrayecto(
+            builder.getInicio(),
+            builder.getFin(),
+            builder.getTipo(),
+            builder.getVehiculo().tipo
+        )
         builder.setTrayecto(trayecto)
-        builder.setDistancia(distancia/1000) // Para que sea en KM
+        builder.setDistancia(distancia)
         builder.setDuracion(duracion)
-        val coste: Float = calcularCoste()
+
+        // 2º paso: calcular coste --> API de precios
+        val vehiculo = builder.getVehiculo()
+        val lugar = builder.getInicio()
+        val coste: Double = calcularCoste(lugar, distancia, vehiculo)
         builder.setCoste(coste)
     }
 
-    abstract fun calcularTrayecto(builder: RutaBuilder): Triple<LineString, Float, Float>
+    @Throws(RouteException::class)
+    abstract suspend fun calcularTrayecto(
+        inicio: LugarInteres,
+        fin: LugarInteres,
+        tipoRuta: TipoRuta,
+        tipoVehiculo: TipoVehiculo
+    ): Triple<LineString, Float, Float>
 
-    abstract fun calcularCoste(): Float
+    private suspend fun calcularCoste(
+        lugar: LugarInteres,
+        distancia: Float,
+        vehiculo: Vehiculo
+    ): Double {
+        return strategy.calculaCoste(lugar, vehiculo, distancia)
+    }
 }
