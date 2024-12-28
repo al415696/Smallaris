@@ -3,7 +3,6 @@ package es.uji.smallaris.model
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -37,32 +36,10 @@ class TestPersistencia {
     @After
     fun tearDown() {
         runBlocking {
-            val auth = repositorioFirebase.obtenerAuth()
-            val firestore = repositorioFirebase.obtenerFirestore()
-
-            auth.currentUser?.let { user ->
-                try {
-                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
-
-                    val subcolecciones = listOf("vehículos", "lugares", "rutas")
-                    for (subcoleccion in subcolecciones) {
-                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
-                        val documentos = subcoleccionRef.get().await()
-
-                        for (documento in documentos) {
-                            subcoleccionRef.document(documento.id).delete().await()
-                        }
-                    }
-
-                    usuarioDocRef.delete().await()
-
-                    user.delete().await()
-
-                } catch (ex: Exception) {
-                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
-                } finally {
-                    auth.signOut()
-                }
+            try {
+                servicioUsuarios.borrarUsuario()
+            } catch (e: Exception) {
+                println("Error al borrar el usuario: ${e.message}")
             }
         }
     }
@@ -82,29 +59,20 @@ class TestPersistencia {
         repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
-        val servicioAPIs = ServicioAPIs
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
         servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
         val vehiculosRecuperados = servicioVehiculos.getVehiculos()
         assertTrue(vehiculosRecuperados.contains(vehiculoCreado))
 
-        val vehiculoFavorito = vehiculoCreado?.let { servicioVehiculos.setVehiculoFavorito(it, true) }
-        if (vehiculoFavorito != null) {
-            assertTrue(vehiculoFavorito)
-        }
-        if (vehiculoCreado != null) {
-            assertTrue(vehiculoCreado.isFavorito())
-        }
+        val vehiculoFavorito = vehiculoCreado.let { servicioVehiculos.setVehiculoFavorito(it, true) }
+        assertTrue(vehiculoFavorito)
+        assertTrue(vehiculoCreado.isFavorito())
 
-        if (vehiculoCreado != null) {
-            servicioVehiculos.setVehiculoFavorito(vehiculoCreado, false)
-        }
+        servicioVehiculos.setVehiculoFavorito(vehiculoCreado, false)
 
-        val vehiculoEliminado = vehiculoCreado?.let { servicioVehiculos.deleteVehiculo(it) }
-        if (vehiculoEliminado != null) {
-            assertTrue(vehiculoEliminado)
-        }
+        val vehiculoEliminado = vehiculoCreado.let { servicioVehiculos.deleteVehiculo(it) }
+        assertTrue(vehiculoEliminado)
 
         val vehiculosRecuperadosPostEliminacion = servicioVehiculos.getVehiculos()
         assertFalse(vehiculosRecuperadosPostEliminacion.contains(vehiculoCreado))
@@ -124,7 +92,6 @@ class TestPersistencia {
         repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
-        val servicioAPIs = ServicioAPIs
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
         servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
@@ -136,7 +103,7 @@ class TestPersistencia {
         assertTrue(lugarCreado.isFavorito())
 
         servicioLugares.setLugarInteresFavorito(lugarCreado, false)
-        
+
         val lugarEliminado = servicioLugares.deleteLugar(lugarCreado)
         assertTrue(lugarEliminado)
 
