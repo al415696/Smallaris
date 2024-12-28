@@ -2,9 +2,12 @@ package es.uji.smallaris.model
 
 import android.util.Log
 import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -13,13 +16,64 @@ import org.junit.Test
 
 class TestServicioRutas {
 
-    private var repositorioRutas: RepositorioRutas = RepositorioFirebase()
-    private val servicioAPIs = ServicioAPIs
+//    private var repositorioFirebase: RepositorioRutas = RepositorioFirebase()
+//    private val servicioAPIs = ServicioAPIs
+
+//    @Before
+//    fun setUp() {
+//        repositorioFirebase = RepositorioFirebase()
+//        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+//    }
+
+    private lateinit var repositorioFirebase: RepositorioFirebase
+    private lateinit var servicioUsuarios: ServicioUsuarios
+    private lateinit var servicioRutas: ServicioRutas
+    private lateinit var calculadorRutas: CalculadorRutasORS
+    private lateinit var servicioAPIs: ServicioAPIs
 
     @Before
-    fun setUp() {
-        repositorioRutas = RepositorioFirebase()
-        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+    fun setUp() = runBlocking {
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.registrarUsuario("testRuta@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testRuta@uji.es", "12345678")
+
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioAPIs = ServicioAPIs
+        calculadorRutas = CalculadorRutasORS(servicioAPIs)
+        servicioRutas = ServicioRutas(calculadorRutas, repositorioFirebase, servicioAPIs)
+    }
+
+    @After
+    fun tearDown() {
+        runBlocking {
+            val auth = repositorioFirebase.obtenerAuth()
+            val firestore = repositorioFirebase.obtenerFirestore()
+
+            auth.currentUser?.let { user ->
+                try {
+                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+
+                    val subcolecciones = listOf("rutas")
+                    for (subcoleccion in subcolecciones) {
+                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                        val documentos = subcoleccionRef.get().await()
+
+                        for (documento in documentos) {
+                            subcoleccionRef.document(documento.id).delete().await()
+                        }
+                    }
+
+                    usuarioDocRef.delete().await()
+
+                    user.delete().await()
+
+                } catch (ex: Exception) {
+                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
+                } finally {
+                    auth.signOut()
+                }
+            }
+        }
     }
 
     @Test
@@ -39,9 +93,6 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
-
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
             .setFin(destino).setVehiculo(coche)
@@ -74,8 +125,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
             .setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).build()
@@ -115,8 +165,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -145,8 +194,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -177,8 +225,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         try {
@@ -208,8 +255,7 @@ class TestServicioRutas {
                 "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
                 "Castellón de la Plana"
             )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         try {
@@ -245,8 +291,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -279,8 +324,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         try {
@@ -316,8 +360,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -348,8 +391,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -377,8 +419,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         try {
@@ -410,8 +451,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
 
         // When
         try {
@@ -444,8 +484,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -483,8 +522,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón1").setInicio(origen)
                 .setFin(destino1).setVehiculo(pie)
@@ -522,8 +560,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -557,8 +594,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -593,8 +629,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)
@@ -629,8 +664,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+        
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)

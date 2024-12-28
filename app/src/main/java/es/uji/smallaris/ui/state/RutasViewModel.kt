@@ -83,7 +83,11 @@ class RutasViewModel() : ViewModel() {
         }
         catch (e: UbicationException){
 
-            return e.message ?: ""
+            return e.message ?: "Fallo con los lugares de intérs, no se ha añadido"
+        }
+        catch (e: RouteException){
+
+            return e.message ?: "Fallo con la ruta, no se ha añadido"
         }
         return ""
     }

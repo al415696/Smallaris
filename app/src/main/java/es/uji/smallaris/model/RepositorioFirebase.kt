@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
+import com.mapbox.geojson.LineString
 import es.uji.smallaris.model.lugares.LugarInteres
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -383,19 +384,183 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getRutas(): List<Ruta> {
-        return listOf()
+        try {
+            val currentUser = obtenerUsuarioActual() ?: return emptyList()
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("rutas")
+                .document("data")
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return emptyList()
+                return items.mapNotNull { item ->
+                    val nombre = item["nombre"] as? String
+                    val inicioMap = item["inicio"] as? Map<String, Any>
+                    val finMap = item["fin"] as? Map<String, Any>
+                    val vehiculoMap = item["vehiculo"] as? Map<String, Any>
+                    val tipo = item["tipo"]?.let { TipoRuta.valueOf(it.toString()) } ?: TipoRuta.Desconocida
+                    val trayecto = item["trayecto"] as? String
+                    val distancia = (item["distancia"] as? Number)?.toFloat()
+                    val duracion = (item["duracion"] as? Number)?.toFloat()
+                    val coste = (item["coste"] as? Number)?.toDouble()
+
+                    if (nombre != null && inicioMap != null && finMap != null && vehiculoMap != null && trayecto != null && distancia != null && duracion != null && coste != null) {
+                        val inicio = LugarInteres(
+                            longitud = inicioMap["longitud"] as? Double ?: return@mapNotNull null,
+                            latitud = inicioMap["latitud"] as? Double ?: return@mapNotNull null,
+                            nombre = inicioMap["nombre"] as? String ?: return@mapNotNull null,
+                            municipio = inicioMap["municipio"] as? String ?: return@mapNotNull null
+                        )
+
+                        val fin = LugarInteres(
+                            longitud = finMap["longitud"] as? Double ?: return@mapNotNull null,
+                            latitud = finMap["latitud"] as? Double ?: return@mapNotNull null,
+                            nombre = finMap["nombre"] as? String ?: return@mapNotNull null,
+                            municipio = finMap["municipio"] as? String ?: return@mapNotNull null
+                        )
+
+                        Ruta(
+                            inicio = inicio,
+                            fin = fin,
+                            vehiculo = Vehiculo(
+                                nombre = vehiculoMap["nombre"] as? String ?: "",
+                                consumo = vehiculoMap["consumo"] as? Double ?: 0.0,
+                                matricula = vehiculoMap["matricula"] as? String ?: "",
+                                tipo = vehiculoMap["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido,
+                                favorito = vehiculoMap["favorito"] as? Boolean ?: false
+                            ),
+                            tipo = tipo,
+                            trayecto = LineString.fromJson(trayecto),
+                            distancia = distancia,
+                            duracion = duracion,
+                            coste = coste,
+                            nombre = nombre
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            println("Error al obtener rutas: ${e.message}")
+            return emptyList()
+        }
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
-        return true
+        return try {
+            val currentUser = obtenerUsuarioActual() ?: return false
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("rutas")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val rutaMap = mapOf(
+                    "nombre" to ruta.getNombre(),
+                    "inicio" to ruta.getInicio().toMap(),
+                    "fin" to ruta.getFin().toMap(),
+                    "vehiculo" to mapOf(
+                        "nombre" to ruta.getVehiculo().nombre,
+                        "consumo" to ruta.getVehiculo().consumo,
+                        "matricula" to ruta.getVehiculo().matricula,
+                        "tipo" to ruta.getVehiculo().tipo.name
+                    ),
+                    "tipo" to ruta.getTipo().name,
+                    "trayecto" to ruta.getTrayecto().toJson(),
+                    "distancia" to ruta.getDistancia(),
+                    "duracion" to ruta.getDuracion(),
+                    "coste" to ruta.getCoste(),
+                    "favorito" to ruta.isFavorito()
+                )
+                userDocRef.update("items", FieldValue.arrayUnion(rutaMap)).await()
+            } else {
+                val rutaMap = mapOf(
+                    "nombre" to ruta.getNombre(),
+                    "inicio" to ruta.getInicio().toMap(),
+                    "fin" to ruta.getFin().toMap(),
+                    "vehiculo" to mapOf(
+                        "nombre" to ruta.getVehiculo().nombre,
+                        "consumo" to ruta.getVehiculo().consumo,
+                        "matricula" to ruta.getVehiculo().matricula,
+                        "tipo" to ruta.getVehiculo().tipo.name
+                    ),
+                    "tipo" to ruta.getTipo().name,
+                    "trayecto" to ruta.getTrayecto().toJson(),
+                    "distancia" to ruta.getDistancia(),
+                    "duracion" to ruta.getDuracion(),
+                    "coste" to ruta.getCoste(),
+                    "favorito" to ruta.isFavorito()
+                )
+                val initialData = mapOf("items" to listOf(rutaMap))
+                userDocRef.set(initialData, SetOptions.merge()).await()
+            }
+
+            true
+        } catch (e: Exception) {
+            println("Error al agregar ruta: ${e.message}")
+            false
+        }
     }
 
     override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("rutas")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["nombre"] == ruta.getNombre() }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedRuta = items[index].toMutableMap()
+                    updatedRuta["favorito"] = favorito
+                    updatedItems[index] = updatedRuta
+                    userDocRef.update("items", updatedItems).await()
+                    return true
+                }
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al actualizar ruta favorita: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun deleteRuta(ruta: Ruta): Boolean {
-        return true
+        try {
+            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("rutas")
+                .document("data")
+
+            val document = userDocRef.get().await()
+
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val updatedItems = items.filterNot { it["nombre"] == ruta.getNombre() }
+                userDocRef.update("items", updatedItems).await()
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            println("Error al eliminar ruta: ${e.message}")
+            return false
+        }
     }
 
     override suspend fun enFuncionamiento(): Boolean {
