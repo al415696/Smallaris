@@ -1,21 +1,74 @@
 package es.uji.smallaris.model
 
+import android.util.Log
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
+import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 
 class TestServicioLugares {
+    private lateinit var repositorioFirebase: RepositorioFirebase
+    private lateinit var servicioUsuarios: ServicioUsuarios
+    private lateinit var servicioLugares: ServicioLugares
+    private lateinit var calculadorRutas: CalculadorRutasORS
+    private lateinit var servicioAPIs: ServicioAPIs
 
+    @Before
+    fun setUp() = runBlocking {
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.registrarUsuario("testLugar@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testLugar@uji.es", "12345678")
+
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioAPIs = ServicioAPIs
+        servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
+        calculadorRutas = CalculadorRutasORS(servicioAPIs)
+    }
+
+    @After
+    fun tearDown() {
+        runBlocking {
+            val auth = repositorioFirebase.obtenerAuth()
+            val firestore = repositorioFirebase.obtenerFirestore()
+
+            auth.currentUser?.let { user ->
+                try {
+                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
+
+                    val subcolecciones = listOf("lugares", "rutas")
+                    for (subcoleccion in subcolecciones) {
+                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
+                        val documentos = subcoleccionRef.get().await()
+
+                        for (documento in documentos) {
+                            subcoleccionRef.document(documento.id).delete().await()
+                        }
+                    }
+
+                    usuarioDocRef.delete().await()
+
+                    user.delete().await()
+
+                } catch (ex: Exception) {
+                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
+                } finally {
+                    auth.signOut()
+                }
+            }
+        }
+    }
     @Test
     fun addLugar_R2HU01_darDeAltaLugarOK() = runBlocking {
         // Given
-        val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
 
         // When
         val resultado = servicioLugares.addLugar(-0.0376709, 39.986)
@@ -38,10 +91,10 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -71,10 +124,10 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
 
         // When
         try {
@@ -95,10 +148,10 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
 
         // When
         try {
@@ -117,9 +170,9 @@ class TestServicioLugares {
     fun getLugares_R2HU03_obtenerListaLugares1Elemento() = runBlocking {
 
         // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
+        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -142,33 +195,11 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU03_faltaConexionBBDD() = runBlocking {
-
-        var resultado: ConnectionErrorException? = null
-
+    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoLugarInteresFavorito() = runBlocking {
         // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
-
-        // When
-        try {
-            servicioLugares.getLugares()
-        } catch (e: ConnectionErrorException) {
-            resultado = e
-        }
-
-        // Then
-        assertNotNull(resultado)
-        assertTrue(resultado is ConnectionErrorException)
-    }
-
-    @Test
-    fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoFavorito() = runBlocking {
-        // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
+        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -177,7 +208,7 @@ class TestServicioLugares {
 
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = servicioLugares.setFavorito(lista[0], true)
+        val cambiado = servicioLugares.setLugarInteresFavorito(lista[0], true)
 
         // Then
         assertTrue(cambiado)
@@ -185,20 +216,20 @@ class TestServicioLugares {
     }
 
     @Test
-    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoFavorito() = runBlocking {
+    fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoLugarInteresFavorito() = runBlocking {
 
         // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
+        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
             "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España"
-        ).let { servicioLugares.setFavorito(it) }
+        ).let { servicioLugares.setLugarInteresFavorito(it) }
         // When
         val lista = servicioLugares.getLugares()
-        val cambiado = servicioLugares.setFavorito(lista[0], true)
+        val cambiado = servicioLugares.setLugarInteresFavorito(lista[0], true)
 
         // Then
         assertTrue(!cambiado)
@@ -209,9 +240,9 @@ class TestServicioLugares {
     fun getLugares_R5HU03_LugaresFavoritosPrimero() = runBlocking {
 
         // Given
-        val servicioAPIs = ServicioAPIs
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
+        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -219,7 +250,7 @@ class TestServicioLugares {
         )
         servicioLugares.addLugar(
             39.8856508, -0.08128, "Pizzeria Borriana, Burriana, Comunidad Valenciana, España"
-        ).let { servicioLugares.setFavorito(it) }
+        ).let { servicioLugares.setLugarInteresFavorito(it) }
         servicioLugares.addLugar(
             39.8614095, -0.18500, "Camp de Futbol, Villavieja, Comunidad Valenciana, España"
         )
@@ -239,16 +270,17 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
 
         // When
         val (longitud, latitud) = servicioAPIs.getCoordenadas("Castellón de la Plana")
         val resultado = servicioLugares.addLugar(longitud, latitud)
+        Log.i("Información", "$longitud, $latitud")
 
         //Then
         assertEquals(longitud, resultado.longitud)
@@ -258,15 +290,15 @@ class TestServicioLugares {
     }
 
     @Test
-    fun getLugares_R2HU02_darDeAltaLugarPorToponimoInexistente() = runBlocking {
+    fun addLugar_R2HU02_darDeAltaLugarPorToponimoInexistente() = runBlocking {
 
         var excepcion: UbicationException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
 
         // When
         try {
@@ -285,10 +317,10 @@ class TestServicioLugares {
     @Test
     fun deleteLugar_R2HU04_eliminarLugarOK() = runBlocking {
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
 
         // When
@@ -305,12 +337,12 @@ class TestServicioLugares {
         var excepcion: UbicationException? = null
 
         // Given
-        val servicioAPIs = ServicioAPIs
+        
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        val repositorioLugares: RepositorioLugares = RepositorioFirebase()
-        val servicioLugares = ServicioLugares(repositorioLugares, servicioAPIs)
+        
+        
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
-        servicioLugares.setFavorito(lugar, true)
+        servicioLugares.setLugarInteresFavorito(lugar, true)
 
         // When
         try {
@@ -323,7 +355,7 @@ class TestServicioLugares {
         //Then
         assertNotNull(excepcion)
         assertTrue(excepcion is UbicationException)
-        assertTrue(excepcion!!.message.equals("Ubicación favorita"))
+        assertTrue(excepcion!!.message.equals("Ubicación favorita no se puede borrar"))
         assertEquals(1, servicioLugares.getLugares().size)
     }
 

@@ -1,10 +1,10 @@
 package es.uji.smallaris.model
 
 class Vehiculo : Favoritable {
-    lateinit var nombre: String
+    var nombre: String
     var consumo: Double = 0.0
-    lateinit var matricula: String
-    lateinit var tipo: TipoVehiculo
+    var matricula: String
+    var tipo: TipoVehiculo
 
     constructor(
         nombre: String,
@@ -32,6 +32,16 @@ class Vehiculo : Favoritable {
         this.setFavorito(favorito)
     }
 
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "nombre" to nombre,
+            "consumo" to consumo,
+            "matricula" to matricula,
+            "tipo" to tipo.name,
+            "favorito" to isFavorito()
+        )
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -54,5 +64,31 @@ class Vehiculo : Favoritable {
         return result
     }
 
+    override fun toString(): String {
+        return "Vehiculo(nombre='$nombre', consumo=$consumo, matricula='$matricula', tipo=$tipo)"
+    }
 
+    // Método companion que convierte un String a un objeto Vehiculo
+    companion object {
+        fun fromString(vehicleString: String): Vehiculo {
+            // Expresión regular para extraer los valores del String
+            val regex = """Vehiculo\(nombre='(.*?)', consumo=(.*?), matricula='(.*?)', tipo=(.*?)\)""".toRegex()
+
+            val matchResult = regex.find(vehicleString)
+
+            if (matchResult != null) {
+                val (nombre, consumo, matricula, tipo) = matchResult.destructured
+
+                // Crear un objeto Vehiculo con los valores extraídos
+                return Vehiculo(
+                    nombre = nombre,
+                    consumo = consumo.toDouble(),
+                    matricula = matricula,
+                    tipo = TipoVehiculo.valueOf(tipo) // Convertir el String del tipo a un valor del Enum
+                )
+            } else {
+                throw IllegalArgumentException("El formato del String no es válido.")
+            }
+        }
+    }
 }

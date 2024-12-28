@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import com.mapbox.geojson.LineString
+import es.uji.smallaris.model.lugares.LugarInteres
 
 class Ruta(
     private val inicio: LugarInteres,
@@ -12,7 +13,17 @@ class Ruta(
     private val duracion: Float,
     private val coste: Double,
     private val nombre: String
+
 ) : Favoritable() {
+
+    fun getInicio(): LugarInteres {
+        return inicio
+    }
+
+    fun getFin(): LugarInteres {
+        return fin
+    }
+
     fun getTrayecto(): LineString {
         return trayecto
     }
@@ -28,9 +39,19 @@ class Ruta(
     fun getCoste(): Double {
         return coste
     }
+
     fun getNombre(): String {
         return nombre
     }
+
+    fun getVehiculo(): Vehiculo {
+        return vehiculo
+    }
+
+    fun getTipo(): TipoRuta {
+        return tipo
+    }
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,5 +70,13 @@ class Ruta(
         if (nombre != other.nombre) return false
 
         return true
+    }
+
+    override fun hashCode(): Int {
+        var result = inicio.hashCode()
+        result = 31 * result + fin.hashCode()
+        result = 31 * result + vehiculo.hashCode()
+        result = 31 * result + tipo.hashCode()
+        return result
     }
 }
