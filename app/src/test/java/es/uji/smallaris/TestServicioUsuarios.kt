@@ -53,7 +53,7 @@ class TestServicioUsuarios {
                     any()
                 )
             } throws UnregisteredUserException("El usuario no está registrado")
-            coEvery { mockRepositorioUsuarios.cerrarSesion() } returns true
+            coEvery { mockRepositorioUsuarios.cerrarSesion() } returns Usuario(correo = "al415647@uji.es")
         }
     }
 
@@ -150,7 +150,7 @@ class TestServicioUsuarios {
             val resultado = servicioUsuarios.cerrarSesion()
 
             // Entonces
-            assertTrue("Devuelve true solo en caso de cerrar sesión con éxito.", resultado)
+            assertEquals("al415647@uji.es", resultado.correo)
             coVerify { mockRepositorioUsuarios.enFuncionamiento() }
             coVerify { mockRepositorioUsuarios.cerrarSesion() }
         }
