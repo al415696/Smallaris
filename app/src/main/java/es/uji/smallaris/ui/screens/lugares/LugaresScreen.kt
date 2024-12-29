@@ -55,11 +55,8 @@ fun LugaresScreen(
                         currentViewedLugar = lugar
                         currentContent.value = LugarScreenContent.Map
                     },
-                    deleteFuncition = { lugarInteres: LugarInteres ->
-                        viewModel.deleteLugar(
-                            lugarInteres
-                        )
-                    }
+                    deleteFuncition =viewModel::deleteLugar
+
                 )
 
             LugarScreenContent.Add ->

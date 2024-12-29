@@ -53,7 +53,7 @@ fun RutasListContent(
     addFunction: () -> Unit = {},
     viewFunction: (ruta: Ruta) -> Unit = {},
     sortFunction: () -> String = {""},
-    deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
+    deleteFuncition: suspend (ruta: Ruta) -> String = {""},
     favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ ->},
     state: LazyListState = rememberLazyListState()
 
@@ -126,14 +126,14 @@ fun LazyListRuta(
     onSelect: (rut: Ruta) -> Unit,
     checkSelected: (otro: Ruta)-> Boolean,
     viewFunction: (ruta: Ruta) -> Unit = {},
-    deleteFuncition: suspend (ruta: Ruta) -> Unit = {},
+    deleteFuncition: suspend (ruta: Ruta) -> String = {""},
     favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val rutaABorrar = remember { mutableStateOf<Ruta?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { rutaABorrar.value?.let { deleteFuncition(it) } },
+            deleteFuncition = { rutaABorrar.value?.let { deleteFuncition(it) }?: "" },
             nombreObjetoBorrado = "El ruta elegido"
 
         )

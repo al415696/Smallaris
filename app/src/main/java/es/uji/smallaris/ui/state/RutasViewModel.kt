@@ -19,6 +19,7 @@ import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
+import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.lugares.UbicationException
 import es.uji.smallaris.model.Vehiculo
 
@@ -127,12 +128,19 @@ class RutasViewModel() : ViewModel() {
             e.printStackTrace()
         }
     }
-    suspend fun deleteRuta(ruta: Ruta){
+    suspend fun deleteRuta(ruta: Ruta): String{
         try {
             if(servicioRutas.deleteRuta(ruta))
                 updateList()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            return ""
+        }catch (e: ConnectionErrorException) {
+            return "Error al conectarse con el servidor"
+        }
+        catch (e: RouteException) {
+            return e.message?: "Error con la ruta"
+        }
+        catch (e: Exception) {
+            return e.message?: "Fallo inesperado, prueba con otro momento"
         }
     }
     suspend fun debugFillList() {

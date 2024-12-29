@@ -23,35 +23,45 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DeleteAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
-    deleteFuncition:suspend () -> Unit,
+    deleteFuncition:suspend () -> String,
     nombreObjetoBorrado: String = "El objeto seleccionado"
 ) {
     var confirmadoBorrado by remember{ mutableStateOf(false) }
+    var errorText = remember { mutableStateOf("") }
     if(confirmadoBorrado)
         LaunchedEffect(Unit) {
-            deleteFuncition()
-            shouldShowDialog.value = false
+            errorText.value = deleteFuncition()
+            if (errorText.value.isEmpty())
+                shouldShowDialog.value = false
         }
     if (shouldShowDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                shouldShowDialog.value = false
+                if (!confirmadoBorrado)
+                    shouldShowDialog.value = false
             },
 
             title = { Text(text = "¿Seguro que quieres borrar?") },
             text = {
+                Column {
                 if (confirmadoBorrado) {
-                    Column {
+
                         Text(text = "Borrando...")
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
-                    }
                 }
-                else
+
+                else {
                     Text(text = "$nombreObjetoBorrado se borrará permantentemente")
+                }
+
+                    ErrorBubble(errorText)
+                }
             },
             confirmButton = {
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(60.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
                     onClick = {
                         confirmadoBorrado = true
                     }
@@ -71,7 +81,7 @@ fun DeleteAlertDialogue(
 fun previewAlertDialogue(){
     DeleteAlertDialogue(
         shouldShowDialog =  mutableStateOf(true),
-        deleteFuncition =  {}
+        deleteFuncition =  {""}
 
     )
 }

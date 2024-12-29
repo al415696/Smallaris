@@ -12,6 +12,7 @@ import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.ServicioAPIs
+import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.lugares.UbicationException
 
 //@HiltViewModel
@@ -60,12 +61,20 @@ class LugaresViewModel() : ViewModel() {
             e.printStackTrace()
         }
     }
-    suspend fun deleteLugar(lugaresInteres: LugarInteres){
+    suspend fun deleteLugar(lugaresInteres: LugarInteres): String{
         try {
-            if(servicioLugares.deleteLugar(lugaresInteres))
+            if(servicioLugares.deleteLugar(lugaresInteres)) {
                 updateList()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            }
+            return ""
+        } catch (e: ConnectionErrorException) {
+            return "Error al conectarse con el servidor"
+        }
+        catch (e: VehicleException) {
+            return e.message?: "Error con el vehiculo"
+        }
+        catch (e: Exception) {
+            return e.message?:"Fallo inesperado, prueba con otro momento"
         }
     }
     suspend fun debugFillList(){

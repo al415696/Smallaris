@@ -49,7 +49,7 @@ fun RutasScreen(
                         currentViewedRuta = ruta
                         currentContent.value = RutaScreenContent.Map
                      },
-                    deleteFuncition = {ruta: Ruta ->  viewModel.deleteRuta(ruta) }
+                    deleteFuncition =viewModel::deleteRuta
                 )
             RutaScreenContent.Add ->
                 RutasAddContent(
