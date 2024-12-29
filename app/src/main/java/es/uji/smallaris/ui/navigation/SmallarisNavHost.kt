@@ -45,21 +45,22 @@ fun SmallarisNavHost(
 
     var loadingServiciosObjetos by remember { mutableStateOf(true) }
     if (!usuarioViewModel.sesionIniciada){
-        LoginScreen(usuarioViewModel)
+        LoginScreen(usuarioViewModel
+        ) { loadingServiciosObjetos = true }
     }
     else if (loadingServiciosObjetos){
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
 //                vehiculosViewModel.debugFillList()
-                vehiculosViewModel.updateList()
+                vehiculosViewModel.initializeList()
                 //Lugares
 //                lugaresViewModel.debugFillList()
-                lugaresViewModel.updateList()
+                lugaresViewModel.initializeList()
 
                 //Rutas
 //                rutasViewModel.debugFillList()
-                rutasViewModel.updateList()
+                rutasViewModel.initializeList()
 
                 navigationEnabled.value = true
             },

@@ -1,6 +1,5 @@
 package es.uji.smallaris.model.lugares
 
-import android.util.Log
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
@@ -14,16 +13,16 @@ class ServicioLugares(
     private val apiObtenerNombres: ServicioAPIs
 ) {
 
-    private val lugares = mutableListOf<LugarInteres>()
+    private var lugares = mutableListOf<LugarInteres>()
 
     init {
         runBlocking {
-            inicializarLugares()
+            updateLugares()
         }
     }
 
-    private suspend fun inicializarLugares() {
-        this.lugares.addAll(repositorioLugares.getLugares())
+    suspend fun updateLugares() {
+        this.lugares = repositorioLugares.getLugares().toMutableList()
     }
 
     @Throws(ConnectionErrorException::class, UbicationException::class)

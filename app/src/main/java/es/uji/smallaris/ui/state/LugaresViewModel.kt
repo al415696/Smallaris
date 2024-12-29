@@ -99,9 +99,13 @@ class LugaresViewModel() : ViewModel() {
                 addLugar(lugar.longitud, lugar.latitud, lugar.nombre)
             }
     }
+    suspend fun initializeList(){
+        servicioLugares.updateLugares()
+        updateList()
+    }
     suspend fun updateList(){
 //        items.value = servicioLugares.getLugares()
-        // Step 1: Add missing elements to the items list
+        // Step 1: Add missing elements
         val nueva = servicioLugares.getLugares()
         nueva.forEach { element ->
             if (!items.contains(element)) {
@@ -109,7 +113,7 @@ class LugaresViewModel() : ViewModel() {
             }
         }
 
-        // Step 2: Remove extra elements from the items list
+        // Step 2: Remove extra elements
         val iterator = items.iterator()
         while (iterator.hasNext()) {
             val element = iterator.next()
@@ -118,10 +122,8 @@ class LugaresViewModel() : ViewModel() {
             }
         }
 
-        // Step 3: Rearrange elements in the items list to match the nueva list
+        // Step 3: Rearrange elements
         sortItems()
-//        val orderMap = nueva.withIndex().associate { it.value to it.index }
-//        items.sortBy { orderMap[it] }
     }
 
     suspend fun getToponimo(longitud: Double, latitud: Double):Pair<ErrorCategory,String>{
