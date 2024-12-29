@@ -50,7 +50,7 @@ fun VehiculosScreen(
                     viewModel.sortItems(OrdenVehiculo.entries[currentOrderIndex])
                     OrdenVehiculo.entries[currentOrderIndex].getNombre()
                                },
-                deleteFuncition = {vehiculo: Vehiculo ->  viewModel.deleteVehiculo(vehiculo) }
+                deleteFuncition = viewModel::deleteVehiculo
                 )
             VehiculoScreenContent.Add ->
                 VehiculosAddContent(

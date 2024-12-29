@@ -49,7 +49,7 @@ fun LugaresListContent(
     addFunction: () -> Unit = {},
     viewFunction: (lugar: LugarInteres) -> Unit = {},
     sortFunction: () -> String = {""},
-    deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
+    deleteFuncition: suspend (lugarInteres: LugarInteres) -> String = {""},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { _, _ ->},
     state: LazyListState = rememberLazyListState()
 
@@ -124,14 +124,14 @@ fun LazyListLugarInteres(
     onSelect: (lug: LugarInteres) -> Unit,
     checkSelected: (otro: LugarInteres)-> Boolean,// = {otro: LugarInteres -> false}
     viewFunction: (lugar: LugarInteres) -> Unit = {},
-    deleteFuncition: suspend (lugarInteres: LugarInteres) -> Unit = {},
+    deleteFuncition: suspend (lugarInteres: LugarInteres) -> String = {""},
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { lugarInteres, favorito ->},
 ) {
     val shouldShowDialog = remember { mutableStateOf(false )}
     val lugarInteresABorrar = remember { mutableStateOf<LugarInteres?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { lugarInteresABorrar.value?.let { deleteFuncition(it) } },
+            deleteFuncition = { lugarInteresABorrar.value?.let { deleteFuncition(it) }?: "" },
             nombreObjetoBorrado = "El lugar elegido"
 
         )

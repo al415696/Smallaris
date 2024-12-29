@@ -47,7 +47,7 @@ fun VehiculosListContent(
     items: List<Vehiculo> = listOf(),
     addFunction: () -> Unit = {},
     sortFunction: () -> String = {""},
-    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = {""},
     favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
     updateFunction:(viejo: Vehiculo) -> Unit = {}
 
@@ -126,7 +126,7 @@ fun LazyListVehiculos(
     items: List<Vehiculo> = vehiculoTestData,
     onSelect: (veh: Vehiculo) -> Unit,
     checkSelected: (otro: Vehiculo)-> Boolean,// = {otro: Vehiculo -> false}
-    deleteFuncition: suspend (vehiculo: Vehiculo) -> Unit = {},
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = {""},
     favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
     updateFunction:(viejo:Vehiculo) -> Unit = {}
 ) {
@@ -134,7 +134,7 @@ fun LazyListVehiculos(
     val vehiculoABorrar = remember { mutableStateOf<Vehiculo?>(null )}
     if (shouldShowDialog.value) {
         DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) } },
+            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) }?: "" },
             nombreObjetoBorrado = "El vehículo elegido"
 
         )

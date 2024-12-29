@@ -86,12 +86,20 @@ class VehiculosViewModel() : ViewModel() {
             e.printStackTrace()
         }
     }
-    suspend fun deleteVehiculo(vehiculo: Vehiculo){
+    suspend fun deleteVehiculo(vehiculo: Vehiculo): String{
         try {
             if(servicioVehiculos.deleteVehiculo(vehiculo))
                 updateList()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            return ""
+        }
+        catch (e: ConnectionErrorException) {
+            return "Error al conectarse con el servidor"
+        }
+        catch (e: VehicleException) {
+            return e.message?: "Error con el vehiculo"
+        }
+        catch (e: Exception) {
+            return e.message?:"Fallo inesperado, prueba con otro momento"
         }
     }
     suspend fun debugFillList(){
