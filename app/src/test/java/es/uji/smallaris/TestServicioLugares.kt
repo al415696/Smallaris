@@ -13,9 +13,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
@@ -49,9 +49,10 @@ class TestServicioLugares {
         }
     }
 
-    @Before
+    @After
     fun setup() {
         clearMocks(mockRepositorioLugares, mockServicioORS, recordedCalls = true, answers = false)
+        coEvery { mockRepositorioLugares.enFuncionamiento() } returns true
     }
 
     @Test
@@ -195,11 +196,10 @@ class TestServicioLugares {
 
         var resultado: ConnectionErrorException? = null
 
-        coEvery { mockRepositorioLugares.enFuncionamiento() } returns false
-
         // Given
         val servicioAPIs = ServicioAPIs
         val servicioLugares = ServicioLugares(mockRepositorioLugares, servicioAPIs)
+        coEvery { mockRepositorioLugares.enFuncionamiento() } returns false
 
         // When
         try {
@@ -216,6 +216,7 @@ class TestServicioLugares {
 
     @Test
     fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoLugarInteresFavorito() = runBlocking {
+
         // Given
         val servicioLugares = ServicioLugares(mockRepositorioLugares, servicioAPIs)
         servicioLugares.addLugar(
@@ -368,7 +369,7 @@ class TestServicioLugares {
         //Then
         assertNotNull(excepcion)
         assertTrue(excepcion is UbicationException)
-        assertTrue(excepcion!!.message.equals("Ubicación favorita"))
+        assertTrue(excepcion!!.message.equals("Ubicación favorita no se puede borrar"))
         assertEquals(1, servicioLugares.getLugares().size)
         coVerify(exactly = 0) { mockRepositorioLugares.deleteLugar(any()) }
     }

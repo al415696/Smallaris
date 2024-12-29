@@ -218,9 +218,6 @@ class TestServicioLugares {
     fun getLugares_R5HU03_LugaresFavoritosPrimero() = runBlocking {
 
         // Given
-        
-        
-        
         servicioLugares.addLugar(
             -0.0376709,
             39.986,

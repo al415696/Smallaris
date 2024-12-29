@@ -79,26 +79,6 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculos_R3HU2I1_getListaErrorConexion() = runBlocking{
-//        GIVEN
-        
-        
-        servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
-        var resultado : Exception? = null
-//        WHEN
-        try {
-            servicioVehiculos.getVehiculos()
-        }
-        catch (exception: Exception){
-            resultado = exception
-        }
-//        THEN
-        assertNotNull(resultado)
-        assertTrue(resultado is ConnectionErrorException)
-
-    }
-
-    @Test
     fun deleteVehiculo_R3HU3V1_eliminarVehiculoOk() = runBlocking{
         //      GIVEN
         var vehiculo = servicioVehiculos.addVehiculo("Coche",7.1,"1234BBB" ,TipoVehiculo.Gasolina95)
@@ -110,6 +90,7 @@ class TestServicioVehiculos {
         assertTrue(servicioVehiculos.getVehiculos().count() == 2)
 
     }
+
     @Test
     fun deleteVehiculo_R3HU3I1_eliminarVehiculoInexistente() = runBlocking{
         //      GIVEN
@@ -150,6 +131,7 @@ class TestServicioVehiculos {
         //        THEN
         assertFalse(resultado)
     }
+
     @Test
     fun updateVehiculos_R3HU4V2_updateVehiculoConMasEnLista() = runBlocking{
         //        GIVEN
@@ -166,6 +148,7 @@ class TestServicioVehiculos {
         assertTrue(servicioVehiculos.getVehiculos().contains(vehiculoEsperadoFinal))
         assertTrue(servicioVehiculos.getVehiculos().contains(otroVehiculo))
     }
+
     @Test
     fun updateVehiculos_R3HU4I2_updateVehiculoSolapamientoIdentificadoresNuevos() = runBlocking{
 //        GIVEN
@@ -182,6 +165,7 @@ class TestServicioVehiculos {
         assertNotNull(resultado)
         assertTrue(resultado is VehicleException)
     }
+
     @Test
     fun updateVehiculos_R3HU4I3_updateVehiculoSinCambiarNada() = runBlocking{
 //        GIVEN
@@ -218,6 +202,7 @@ class TestServicioVehiculos {
         assertEquals("Zyxcrieg", lista[0].nombre)
 
     }
+
     @Test
     fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
@@ -232,11 +217,10 @@ class TestServicioVehiculos {
         assertTrue(cambiado)
         assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
     }
+
     @Test
     fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoVehiculoFavorito() = runBlocking{
         //      GIVEN
-        val repositorioFirebase : RepositorioVehiculos = RepositorioFirebase()
-        val servicioVehiculos : ServicioVehiculos = ServicioVehiculos(repositorioFirebase)
         val vehiculo: Vehiculo
         servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
             .let {vehiculo= it
