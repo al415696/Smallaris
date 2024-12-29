@@ -38,7 +38,7 @@ class UsuarioViewModel() : ViewModel() {
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         }catch (e: UnregisteredUserException) {
-            return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
+            return "Usuario no registrado o contraseña errónea"
         }catch (e: Exception) {
             return e.message?: "Error inesperado, inicio de sesión cancelado"
         }
@@ -73,7 +73,6 @@ class UsuarioViewModel() : ViewModel() {
     suspend fun eliminarCuenta(): String{
         try {
             servicioUsuarios.borrarUsuario()
-            servicioUsuarios.cerrarSesion()
             sesionIniciada = false
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
