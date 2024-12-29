@@ -29,32 +29,10 @@ class TestServicioVehiculos {
     @After
     fun tearDown() {
         runBlocking {
-            val auth = repositorioFirebase.obtenerAuth()
-            val firestore = repositorioFirebase.obtenerFirestore()
-
-            auth.currentUser?.let { user ->
-                try {
-                    val usuarioDocRef = firestore.collection("usuarios").document(user.uid)
-
-                    val subcolecciones = listOf("vehículos")
-                    for (subcoleccion in subcolecciones) {
-                        val subcoleccionRef = usuarioDocRef.collection(subcoleccion)
-                        val documentos = subcoleccionRef.get().await()
-
-                        for (documento in documentos) {
-                            subcoleccionRef.document(documento.id).delete().await()
-                        }
-                    }
-
-                    usuarioDocRef.delete().await()
-
-                    user.delete().await()
-
-                } catch (ex: Exception) {
-                    println("Error al eliminar el usuario o sus subcolecciones: ${ex.message}")
-                } finally {
-                    auth.signOut()
-                }
+            try {
+                servicioUsuarios.borrarUsuario()
+            } catch (e: Exception) {
+                println("Error al borrar el usuario: ${e.message}")
             }
         }
     }
