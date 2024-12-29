@@ -32,8 +32,10 @@ import java.lang.Error
 
 @Composable
 fun LoginScreen(
-    viewModel: UsuarioViewModel = viewModel<UsuarioViewModel>()
+    viewModel: UsuarioViewModel = viewModel<UsuarioViewModel>(),
+    reloadFun: ()-> Unit= {}
 ) {
+    reloadFun()
     LoginScreenContent(
         funIniciarSesion = viewModel::iniciarSesion,
         funRegistrar = viewModel::registrar

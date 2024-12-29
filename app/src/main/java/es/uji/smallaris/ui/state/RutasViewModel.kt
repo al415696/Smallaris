@@ -174,11 +174,13 @@ class RutasViewModel() : ViewModel() {
     }
 
 
-
+    suspend fun initializeList(){
+        servicioRutas.updateRutas()
+        updateList()
+    }
 
     suspend fun updateList(){
-//        items.value = servicioLugares.getLugares()
-        // Step 1: Add missing elements to the items list
+        // Step 1: Add missing elements
         val nueva = servicioRutas.getRutas()
         nueva.forEach { element ->
             if (!listRutas.contains(element)) {
@@ -186,7 +188,7 @@ class RutasViewModel() : ViewModel() {
             }
         }
 
-        // Step 2: Remove extra elements from the items list
+        // Step 2: Remove extra elements
         val iterator = listRutas.iterator()
         while (iterator.hasNext()) {
             val element = iterator.next()
@@ -195,10 +197,8 @@ class RutasViewModel() : ViewModel() {
             }
         }
 
-        // Step 3: Rearrange elements in the items list to match the nueva list
+        // Step 3: Rearrange elements
         sortItems()
-//        val orderMap = nueva.withIndex().associate { it.value to it.index }
-//        items.sortBy { orderMap[it] }
     }
 
 

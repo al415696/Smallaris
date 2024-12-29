@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import androidx.collection.emptyLongSet
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -9,16 +8,16 @@ class ServicioRutas(
     private val repositorioRutas: RepositorioRutas = RepositorioFirebase(),
     private val servicioRutasYCoste: ServicioAPIs = ServicioAPIs
 ) {
-    private val rutas = mutableListOf<Ruta>()
+    private var rutas = mutableListOf<Ruta>()
 
     init {
         runBlocking {
-            inicializarRutas()
+            updateRutas()
         }
     }
 
-    private suspend fun inicializarRutas() {
-        this.rutas.addAll(repositorioRutas.getRutas())
+    suspend fun updateRutas() {
+        this.rutas = repositorioRutas.getRutas().toMutableList()
     }
 
     @Throws(ConnectionErrorException::class, RouteException::class)

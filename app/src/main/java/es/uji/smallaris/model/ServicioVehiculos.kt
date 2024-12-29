@@ -1,18 +1,16 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
 class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
-    private val vehiculos = mutableListOf<Vehiculo>()
+    private var vehiculos = mutableListOf<Vehiculo>()
 
     // Función suspendida para initializer los vehículos
-    private suspend fun cargarVehiculos() {
+    suspend fun updateVehiculos() {
         if (repositorio.enFuncionamiento()) {
-            vehiculos.addAll(repositorio.getVehiculos())
-            Log.i("CARGADOS VEHICULOS: ", vehiculos.toString())
+            vehiculos = repositorio.getVehiculos().toMutableList()
         } else {
             throw ConnectionErrorException("Firebase no está disponible")
         }
@@ -20,7 +18,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
 
     init {
         runBlocking {
-            cargarVehiculos()
+            updateVehiculos()
         }
     }
 
