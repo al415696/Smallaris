@@ -2,11 +2,9 @@ package es.uji.smallaris.model
 
 import android.util.Log
 import es.uji.smallaris.model.lugares.LugarInteres
-import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -15,15 +13,6 @@ import org.junit.Before
 import org.junit.Test
 
 class TestServicioRutas {
-
-//    private var repositorioFirebase: RepositorioRutas = RepositorioFirebase()
-//    private val servicioAPIs = ServicioAPIs
-
-//    @Before
-//    fun setUp() {
-//        repositorioFirebase = RepositorioFirebase()
-//        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
-//    }
 
     private lateinit var repositorioFirebase: RepositorioFirebase
     private lateinit var servicioUsuarios: ServicioUsuarios
@@ -355,7 +344,7 @@ class TestServicioRutas {
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
 
-        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
         val origen =
             LugarInteres(
                 -0.067893,
@@ -373,12 +362,11 @@ class TestServicioRutas {
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
-            .setFin(destino).setVehiculo(pie)
+            .setFin(destino).setVehiculo(bici)
             .setTipo(TipoRuta.Corta).build()
 
         // Then
         assert(ruta.getCoste() > 0)
-        Log.d("Coste", "Resultado del test: ${ruta.getCoste()}")
     }
 
     @Test
