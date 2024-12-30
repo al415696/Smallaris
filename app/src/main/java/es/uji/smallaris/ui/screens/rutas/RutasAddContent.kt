@@ -505,7 +505,7 @@ fun RutaAddAlertDialogue(
                     Text(
                         modifier = Modifier.align(Alignment.Start),
                         text =
-                            "Coste: ${ruta.getCoste().toCleanCost()}\n" +
+                            "Coste: ${ruta.getCoste().toCleanCost(ruta.getVehiculo().tipo.getArquetipo())}\n" +
                             "Duración: ${ruta.getDuracion().toTimeFormat()}\n" +
                             "Distancia: ${ruta.getDistancia().toCleanDistance()}"
 
