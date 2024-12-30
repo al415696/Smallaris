@@ -1,5 +1,6 @@
 package es.uji.smallaris.ui.screens
 
+import es.uji.smallaris.model.ArquetipoVehiculo
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util.Locale
@@ -38,8 +39,14 @@ fun Double.toCleanString(numOfDecimals: Int = 0): String {
 }
 
 //Metodos para mostrar información al usuario
-fun Double.toCleanCost(): String {
-    return String.format(Locale.getDefault(),"%.2f", this) + "€"
+fun Double.toCleanCost(arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Combustible): String {
+    var unidad: String = ""
+    if (arquetipoVehiculo == ArquetipoVehiculo.Otro)
+        unidad = "cal"
+    else
+        unidad = "€"
+
+    return String.format(Locale.getDefault(),"%.2f", this) +" $unidad"
 }
 fun Float.toCleanDistance(): String {
     return if (this < 1)
