@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
+import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
@@ -190,7 +191,7 @@ fun rutaListable(
             primaryInfo = ruta.getNombre(),
             secondaryInfo =  (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
                     "\n\n"+
-            ruta.getCoste().toCleanCost(),
+                    ruta.getCoste().toCleanCost(ruta.getVehiculo().tipo.getArquetipo()),
             terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n\n"+ruta.getDuracion().toTimeFormat(),
             onGeneralClick = { onSelect(ruta) },
             favoriteFuncion = { cambiandoFavorito = true },
