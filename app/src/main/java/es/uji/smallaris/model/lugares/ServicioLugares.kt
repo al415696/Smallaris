@@ -92,7 +92,7 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
-    suspend fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+    suspend fun deleteLugar(lugarInteres: LugarInteres, servicioRutas: ServicioRutas = ServicioRutas.getInstance()): Boolean {
 
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -100,7 +100,8 @@ class ServicioLugares(
         if (lugarInteres.isFavorito()) {
             throw UbicationException("Ubicación favorita no se puede borrar")
         }
-        val rutasConElLugar = ServicioRutas.getInstance().contains(lugarInteres)
+
+        val rutasConElLugar = servicioRutas.contains(lugarInteres)
         if (rutasConElLugar.isNotEmpty()){
             val mensajeError = StringBuilder("No se puede borrar porque se usa en ")
             mensajeError.append("la ruta ${rutasConElLugar[0].getNombre().take(50)}")
