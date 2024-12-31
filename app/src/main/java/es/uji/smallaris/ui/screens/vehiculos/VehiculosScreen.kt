@@ -13,8 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import es.uji.smallaris.model.OrdenVehiculo
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun VehiculosScreen(
@@ -22,61 +20,76 @@ fun VehiculosScreen(
 ) {
     val modifier: Modifier = Modifier
     val items = viewModel.items
-    val currentContent = rememberSaveable { mutableStateOf(VehiculoScreenContent.Lista)}
-    val currentUpdatedVehiculo: MutableState<Vehiculo> = remember { mutableStateOf(
-        if (items.isEmpty())    Vehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
+    val currentContent = rememberSaveable { mutableStateOf(VehiculoScreenContent.Lista) }
+    val currentUpdatedVehiculo: MutableState<Vehiculo> = remember {
+        mutableStateOf(
+            if (items.isEmpty()) Vehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
+            else items[0]
 
-        else items[0]
-
-        )}
+        )
+    }
     var currentOrderIndex = 0
 
 
     Surface(color = MaterialTheme.colorScheme.primary) {
 
-        when(currentContent.value){
+        when (currentContent.value) {
             VehiculoScreenContent.Lista ->
                 VehiculosListContent(
-                modifier = modifier,
-                items = items,
-                updateFunction = { vehiculo ->
-                    currentContent.value = VehiculoScreenContent.Update
-                    currentUpdatedVehiculo.value = vehiculo
-                },
-                favoriteFuncion = {vehiculo: Vehiculo, favorito: Boolean ->  viewModel.setVehiculoFavorito(vehiculo, favorito) },
-                addFunction = {currentContent.value = VehiculoScreenContent.Add},
-                sortFunction = {
-                    currentOrderIndex = (currentOrderIndex+1) %OrdenVehiculo.entries.size
-                    viewModel.sortItems(OrdenVehiculo.entries[currentOrderIndex])
-                    OrdenVehiculo.entries[currentOrderIndex].getNombre()
-                               },
-                deleteFuncition = viewModel::deleteVehiculo
+                    modifier = modifier,
+                    items = items,
+                    updateFunction = { vehiculo ->
+                        currentContent.value = VehiculoScreenContent.Update
+                        currentUpdatedVehiculo.value = vehiculo
+                    },
+                    favoriteFuncion = { vehiculo: Vehiculo, favorito: Boolean ->
+                        viewModel.setVehiculoFavorito(
+                            vehiculo,
+                            favorito
+                        )
+                    },
+                    addFunction = { currentContent.value = VehiculoScreenContent.Add },
+                    sortFunction = {
+                        currentOrderIndex = (currentOrderIndex + 1) % OrdenVehiculo.entries.size
+                        viewModel.sortItems(OrdenVehiculo.entries[currentOrderIndex])
+                        OrdenVehiculo.entries[currentOrderIndex].getNombre()
+                    },
+                    deleteFuncition = viewModel::deleteVehiculo
                 )
+
             VehiculoScreenContent.Add ->
                 VehiculosAddContent(
-                funAddVehiculo = {
-                    nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->
-                    viewModel.addVehiculo(nombre, consumo, matricula, tipo)
-                                 },
-                onBack = {currentContent.value = VehiculoScreenContent.Lista }
-            )
+                    funAddVehiculo = { nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo ->
+                        viewModel.addVehiculo(nombre, consumo, matricula, tipo)
+                    },
+                    onBack = { currentContent.value = VehiculoScreenContent.Lista }
+                )
+
             VehiculoScreenContent.Update ->
                 VehiculosUpdateContent(
-                viejoVehiculo = currentUpdatedVehiculo.value,
-                funUpdateVehiculo = {viejo: Vehiculo, nuevoNombre: String,
-                                     nuevoConsumo: Double,
-                                     nuevaMatricula: String,
-                                     nuevoTipoVehiculo: TipoVehiculo -> viewModel.updateVehiculo(viejo, nuevoNombre, nuevoConsumo, nuevaMatricula, nuevoTipoVehiculo)},
-                onBack = {currentContent.value = VehiculoScreenContent.Lista }
+                    viejoVehiculo = currentUpdatedVehiculo.value,
+                    funUpdateVehiculo = { viejo: Vehiculo, nuevoNombre: String,
+                                          nuevoConsumo: Double,
+                                          nuevaMatricula: String,
+                                          nuevoTipoVehiculo: TipoVehiculo ->
+                        viewModel.updateVehiculo(
+                            viejo,
+                            nuevoNombre,
+                            nuevoConsumo,
+                            nuevaMatricula,
+                            nuevoTipoVehiculo
+                        )
+                    },
+                    onBack = { currentContent.value = VehiculoScreenContent.Lista }
 
-            )
+                )
         }
     }
 
 
 }
 
-private enum class VehiculoScreenContent(){
+private enum class VehiculoScreenContent {
     Lista,
     Add,
     Update

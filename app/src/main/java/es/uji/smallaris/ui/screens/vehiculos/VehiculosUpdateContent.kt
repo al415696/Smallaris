@@ -35,15 +35,16 @@ import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
 import es.uji.smallaris.ui.screens.safeToDouble
 import es.uji.smallaris.ui.screens.toCleanString
-import java.lang.Error
 
 @Composable
 fun VehiculosUpdateContent(
     viejoVehiculo: Vehiculo,
-    funUpdateVehiculo: suspend (viejo: Vehiculo, nuevoNombre: String,
-                        nuevoConsumo: Double,
-                        nuevaMatricula: String,
-                        nuevoTipoVehiculo: TipoVehiculo) -> String = {_,_,_,_,_-> ""},
+    funUpdateVehiculo: suspend (
+        viejo: Vehiculo, nuevoNombre: String,
+        nuevoConsumo: Double,
+        nuevaMatricula: String,
+        nuevoTipoVehiculo: TipoVehiculo
+    ) -> String = { _, _, _, _, _ -> "" },
     onBack: () -> Unit = {}
 ) {
     val nombre = rememberSaveable { mutableStateOf(viejoVehiculo.nombre) }
@@ -68,11 +69,11 @@ fun VehiculosUpdateContent(
             errorText.value =
                 funUpdateVehiculo(
                     viejoVehiculo,
-                nombre.value,
-                consumo.value.safeToDouble(),
-                matricula.value,
-                tipoVehiculo.value
-            )
+                    nombre.value,
+                    consumo.value.safeToDouble(),
+                    matricula.value,
+                    tipoVehiculo.value
+                )
 
 
             confirmadoAdd = false
@@ -120,7 +121,13 @@ fun VehiculosUpdateContent(
                 )
 
                 // Elegir arquetipo de vehiculo
-                ArquetipoDependantFields(arquetipo, tipoVehiculo, matricula, matriculaValid, consumo)
+                ArquetipoDependantFields(
+                    arquetipo,
+                    tipoVehiculo,
+                    matricula,
+                    matriculaValid,
+                    consumo
+                )
                 if (confirmadoAdd) {
                     Column {
                         Text(
@@ -132,19 +139,8 @@ fun VehiculosUpdateContent(
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
+
                 ErrorBubble(errorText = errorText)
-//                if (errorConAdd)
-//                    Surface(
-//
-//                        color = MaterialTheme.colorScheme.errorContainer,
-//                        contentColor = MaterialTheme.colorScheme.error
-//                    ) {
-//                        Text(
-//                            modifier = Modifier.padding(horizontal = 5.dp),
-//                            text = errorText,
-//                            style = MaterialTheme.typography.titleLarge,
-//                        )
-//                    }
 
             }
 
@@ -168,8 +164,10 @@ fun VehiculosUpdateContent(
                         // Handle form submission
                         confirmadoAdd = true
                     }) {
-                    Text(text="Modificar",
-                        style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = "Modificar",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 }
             }
         }
@@ -180,5 +178,5 @@ fun VehiculosUpdateContent(
 @Preview
 @Composable
 private fun PreviewVehiculosUpdateContent() {
-    VehiculosUpdateContent(Vehiculo("Test", 12.587,"1234YYY", TipoVehiculo.Gasolina98))
+    VehiculosUpdateContent(Vehiculo("Test", 12.587, "1234YYY", TipoVehiculo.Gasolina98))
 }
