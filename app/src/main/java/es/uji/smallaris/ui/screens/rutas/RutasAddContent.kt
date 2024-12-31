@@ -191,21 +191,21 @@ fun RutasAddContent(
         if (inicio.value != null && destino.value != null && vehiculo.value != null) {
             val defaultNombre = StringBuilder("De ")
             if (inicio.value!!.nombre.length > 50)
-                defaultNombre.append(inicio.value!!.nombre.substring(0, 49) + "...")
+                defaultNombre.append(inicio.value!!.nombre.substring(0, 47) + "...")
             else
                 defaultNombre.append(inicio.value!!.nombre)
             defaultNombre.append(" a ")
             if (destino.value!!.nombre.length > 50)
-                defaultNombre.append(destino.value!!.nombre.substring(0, 49) + "...")
+                defaultNombre.append(destino.value!!.nombre.substring(0, 47) + "...")
             else
                 defaultNombre.append(destino.value!!.nombre)
 
             if (vehiculo.value!!.tipo == TipoVehiculo.Pie)
-                defaultNombre.append( "a pie")
+                defaultNombre.append( " a pie")
             else {
                 defaultNombre.append(" con ")
                 if (vehiculo.value!!.nombre.length > 50)
-                    defaultNombre.append(vehiculo.value!!.nombre.substring(0, 49) + "...")
+                    defaultNombre.append(vehiculo.value!!.nombre.substring(0, 47) + "...")
                 else
                     defaultNombre.append(vehiculo.value!!.nombre)
             }

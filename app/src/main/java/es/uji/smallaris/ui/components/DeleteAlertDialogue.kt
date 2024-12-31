@@ -33,6 +33,7 @@ fun DeleteAlertDialogue(
             errorText.value = deleteFuncition()
             if (errorText.value.isEmpty())
                 shouldShowDialog.value = false
+            confirmadoBorrado = false
         }
     if (shouldShowDialog.value) {
         AlertDialog(
