@@ -299,7 +299,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    @Throws(UserAlreadyExistsException::class)
+    @Throws(UserAlreadyExistsException::class, UserException::class,Exception::class)
     override suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
         try {
             // Intenta crear un usuario con el correo y contraseña
@@ -348,16 +348,16 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
                 return Usuario(correo = usuario.email ?: "")
             } else {
-                throw Exception("No se pudo crear el usuario y la colección asociada.")
+                throw Exception("No se pudo crear el usuario y la colección asociada por un motivo inesperado.")
             }
         } catch (e: FirebaseAuthWeakPasswordException) {
-            throw Exception("La contraseña es demasiado débil. Por favor, usa una contraseña más segura.")
+            throw UserException("La contraseña es demasiado débil. Por favor, usa una contraseña más segura.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            throw Exception("El correo electrónico está mal formado o es inválido.")
+            throw UserException("El correo electrónico está mal formado o es inválido.")
         } catch (e: FirebaseAuthUserCollisionException) {
             throw UserAlreadyExistsException("El correo electrónico ya está registrado.")
         } catch (e: FirebaseFirestoreException) {
-            throw Exception("Error al guardar los datos del usuario en Firestore: ${e.message}")
+            throw Exception("Error al guardar los datos del usuario en el servidor: ${e.message}")
         } catch (e: Exception) {
             throw Exception("Ocurrió un error inesperado: ${e.message}")
         }
@@ -375,10 +375,12 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 throw Exception("No se pudo iniciar sesión correctamente. Usuario no encontrado.")
             }
         } catch (e: FirebaseAuthInvalidUserException) {
+            e.printStackTrace()
             throw UnregisteredUserException("El usuario no está registrado.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            throw UnregisteredUserException("Credenciales inválidas. ${e.errorCode}")
+            throw WrongPasswordException("Credenciales inválidas. ${e.errorCode}")
         } catch (e: Exception) {
+            e.printStackTrace()
             throw Exception("Ocurrió un error inesperado al iniciar sesión: ${e.message}")
         }
     }
@@ -656,7 +658,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             return usuario
         } catch (e: Exception) {
-            throw UserException("No se pudo eliminar el usuario o sus datos.")
+            val message =if (e.message != null) ": " + e.message else ""
+            throw UserException("No se pudo eliminar el usuario o sus datos$message")
         }
     }
 

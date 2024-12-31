@@ -3,7 +3,6 @@ package es.uji.smallaris.ui.screens.usuarios
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,9 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
 import es.uji.smallaris.model.TipoRuta
-import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
-import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ErrorBubble
@@ -67,13 +64,13 @@ fun UsuarioScreenContent(
     funConseguirVehiculos: suspend () -> List<Vehiculo> = { emptyList() },
     ){
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
-    var currentDefaultTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
-    var currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
+    val currentDefaultTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
+    val currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val errorText: MutableState<String> = remember{ mutableStateOf("")}
-    var listVehiculos = remember { mutableStateListOf<Vehiculo>() }
+    val listVehiculos = remember { mutableStateListOf<Vehiculo>() }
     var initialLoadEnded by remember { mutableStateOf(false) }
-    var iniciadoCerrarSesion = remember { mutableStateOf(false) }
-    var iniciadoEliminarCuenta = remember { mutableStateOf(false) }
+    val iniciadoCerrarSesion = remember { mutableStateOf(false) }
+    val iniciadoEliminarCuenta = remember { mutableStateOf(false) }
     if (iniciadoCerrarSesion.value)
         CerrarSesionAlertDialogue(
             iniciadoCerrarSesion,

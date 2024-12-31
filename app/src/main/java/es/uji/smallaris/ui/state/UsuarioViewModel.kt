@@ -7,20 +7,17 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.UnloggedUserException
 import es.uji.smallaris.model.UnregisteredUserException
 import es.uji.smallaris.model.UserAlreadyExistsException
+import es.uji.smallaris.model.UserException
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.model.WrongPasswordException
 
 //@HiltViewModel
 class UsuarioViewModel() : ViewModel() {
-    constructor(cosaUsuario : Int) : this() {
-        this.cosaUsuario = cosaUsuario
-    }
-    var cosaUsuario by mutableStateOf(1)
     private val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
 
     val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
@@ -31,15 +28,23 @@ class UsuarioViewModel() : ViewModel() {
 
     var sesionIniciada by mutableStateOf(servicioUsuarios.obtenerUsuarioActual() != null)
 
+    private fun updateSesion(){
+        sesionIniciada = servicioUsuarios.obtenerUsuarioActual() != null
+    }
+
     suspend fun iniciarSesion(email:String,passwd: String): String{
         try {
            servicioUsuarios.iniciarSesion(email,passwd)
-            sesionIniciada = true
+            updateSesion()
+//            sesionIniciada = true
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         }catch (e: UnregisteredUserException) {
-            return "Usuario no registrado o contraseña errónea"
-        }catch (e: Exception) {
+            return e.message?: "Usuario no registrado"
+        }catch (e: WrongPasswordException) {
+            return e.message?: "Usuario no registrado o contraseña errónea"
+        } catch (e: Exception) {
+            updateSesion()
             return e.message?: "Error inesperado, inicio de sesión cancelado"
         }
         return ""
@@ -47,12 +52,16 @@ class UsuarioViewModel() : ViewModel() {
     suspend fun registrar(email:String,passwd: String): String{
         try {
             servicioUsuarios.registrarUsuario(email,passwd)
-            sesionIniciada = true
+//            sesionIniciada = true
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         }catch (e: UserAlreadyExistsException) {
             return "El correo que has introducido ya está en uso, introduce otro"
+        }catch (e: UserException) {
+            return e.message?: "Credenciales inválidos"
         }catch (e: Exception) {
+            updateSesion()
             return e.message?: "Error inesperado, registro no completado"
         }
         return ""
@@ -60,12 +69,15 @@ class UsuarioViewModel() : ViewModel() {
     suspend fun cerrarSesion(): String{
         try {
             servicioUsuarios.cerrarSesion()
-            sesionIniciada = false
+//            sesionIniciada = false
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         }catch (e: UnloggedUserException) {
+            updateSesion()
             return "No hay ninguna sesión iniciada que cerrar"
         }catch (e: Exception) {
+            updateSesion()
             return e.message?: "Error inesperado, no se ha cerrado sesión"
         }
         return ""
@@ -73,32 +85,34 @@ class UsuarioViewModel() : ViewModel() {
     suspend fun eliminarCuenta(): String{
         try {
             servicioUsuarios.borrarUsuario()
-            sesionIniciada = false
+//            sesionIniciada = false
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         }catch (e: UnloggedUserException) {
+            updateSesion()
             return "No hay ninguna sesión iniciada que borrar"
         }catch (e: Exception) {
+            updateSesion()
             return e.message?: "Error inesperado, no se ha borrado"
         }
         return ""
     }
     fun getNombreUsuarioActual(): String{
-        try {
-            return servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"
+        return try {
+            servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"
         } catch (e: ConnectionErrorException) {
-            return "Tu cuenta principal?"
+            "Tu cuenta principal?"
         }catch (e: Exception) {
-            return "Tu cuenta principal??"
+            "Tu cuenta principal??"
         }
     }
 
     companion object{
         val Saver: Saver<UsuarioViewModel, *> = listSaver(
-            save = { listOf(it.cosaUsuario)},
+            save = { listOf<Any>()},
             restore = {
                 UsuarioViewModel(
-                    cosaUsuario = it[0]
                 )
             }
         )
