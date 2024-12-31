@@ -3,21 +3,17 @@ package es.uji.smallaris.ui.screens.lugares
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.mapbox.geojson.Point
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.ui.state.LugaresViewModel
-import java.util.Locale
 
 @Composable
 fun LugaresScreen(
-    viewModel: LugaresViewModel,
-    onGoToLugar: (Double, Double) -> Unit = { _, _ -> }
+    viewModel: LugaresViewModel
 ) {
     val modifier: Modifier = Modifier
     val items = viewModel.items
@@ -28,7 +24,7 @@ fun LugaresScreen(
             else items[0]
 
         }
-    var currentOrderIndex: Int = 0
+    var currentOrderIndex = 0
 
 
     Surface(color = MaterialTheme.colorScheme.primary) {
@@ -55,7 +51,7 @@ fun LugaresScreen(
                         currentViewedLugar = lugar
                         currentContent.value = LugarScreenContent.Map
                     },
-                    deleteFuncition =viewModel::deleteLugar
+                    deleteFuncition = viewModel::deleteLugar
 
                 )
 
@@ -85,7 +81,7 @@ fun LugaresScreen(
     }
 }
 
-private enum class LugarScreenContent() {
+private enum class LugarScreenContent {
     Lista,
     Add,
     Map
