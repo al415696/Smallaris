@@ -38,8 +38,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getVehiculos(): List<Vehiculo> {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         try {
-            val currentUser = obtenerUsuarioActual() ?: return emptyList()
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -72,7 +74,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override suspend fun addVehiculos(nuevo: Vehiculo): Boolean {
         try {
             val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
@@ -101,7 +103,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -137,7 +139,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -167,7 +169,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -190,8 +192,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun getLugares(): List<LugarInteres> {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         try {
-            val currentUser = obtenerUsuarioActual() ?: return emptyList()
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -223,7 +227,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override suspend fun addLugar(lugar: LugarInteres): Boolean {
         try {
             val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
@@ -250,7 +254,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
         try {
             val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
@@ -280,7 +284,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     override suspend fun deleteLugar(lugar: LugarInteres): Boolean {
         try {
             val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual")
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
@@ -374,18 +378,20 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             } else {
                 throw Exception("No se pudo iniciar sesión correctamente. Usuario no encontrado.")
             }
-        } catch (e: FirebaseAuthInvalidUserException) {
+        } catch (e: FirebaseAuthException) {
             throw UnregisteredUserException("El usuario no está registrado.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            throw UnregisteredUserException("Credenciales inválidas. ${e.errorCode}")
+            throw InvalidPasswordException("Contraseña incorrecta. ${e.errorCode}")
         } catch (e: Exception) {
             throw Exception("Ocurrió un error inesperado al iniciar sesión: ${e.message}")
         }
     }
 
     override suspend fun getRutas(): List<Ruta> {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         try {
-            val currentUser = obtenerUsuarioActual() ?: return emptyList()
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -451,8 +457,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun addRuta(ruta: Ruta): Boolean {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         return try {
-            val currentUser = obtenerUsuarioActual() ?: return false
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -510,8 +518,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean): Boolean {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -540,8 +550,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun deleteRuta(ruta: Ruta): Boolean {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -582,9 +594,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     @Throws(UnloggedUserException::class)
     override suspend fun cerrarSesion(): Usuario {
 
-        if (auth.currentUser == null) {
-            throw UnloggedUserException("No se había iniciado sesión.")  // Error si no hay sesión activa
-        }
+        auth.currentUser ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
         return try {
             val correo = auth.currentUser!!.email ?: "correoDesconocido"
@@ -631,10 +641,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun borrarUsuario(): Usuario {
-        try {
-            val currentUser = obtenerUsuarioActual()
-                ?: throw ConnectionErrorException("No se pudo obtener el usuario actual.")
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
+        try {
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -659,8 +669,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw UserException("No se pudo eliminar el usuario o sus datos.")
         }
     }
-
-
 
     companion object{
         private lateinit var repositorioFirebase: RepositorioFirebase
