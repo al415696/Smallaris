@@ -150,7 +150,7 @@ fun LazyListVehiculos(
         }
         items(items) { item: Vehiculo ->
             if (item.tipo.getArquetipo() != ArquetipoVehiculo.Otro)
-                vehiculoListable(
+                VehiculoListable(
                     vehiculo = item,
                     onSelect = onSelect,
                     selected = checkSelected(item),
@@ -169,7 +169,7 @@ fun LazyListVehiculos(
 
 }
 @Composable
-fun vehiculoListable(
+fun VehiculoListable(
     vehiculo: Vehiculo,
     onSelect: (veh: Vehiculo) -> Unit,
     selected: Boolean,
