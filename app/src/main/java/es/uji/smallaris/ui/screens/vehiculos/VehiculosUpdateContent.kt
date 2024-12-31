@@ -28,13 +28,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
 import es.uji.smallaris.ui.screens.safeToDouble
 import es.uji.smallaris.ui.screens.toCleanString
-import java.util.Locale
+import java.lang.Error
 
 @Composable
 fun VehiculosUpdateContent(
@@ -55,8 +56,7 @@ fun VehiculosUpdateContent(
     var confirmadoAdd by rememberSaveable { mutableStateOf(false) }
 
 
-    var mensajeError by rememberSaveable { mutableStateOf("") }
-    var errorConAdd by rememberSaveable { mutableStateOf(false) }
+    val errorText = rememberSaveable { mutableStateOf("") }
     val arquetipo = rememberSaveable { mutableStateOf(viejoVehiculo.tipo.getArquetipo()) }
 
 
@@ -65,7 +65,7 @@ fun VehiculosUpdateContent(
     }
     if (confirmadoAdd) {
         LaunchedEffect(Unit) {
-            mensajeError =
+            errorText.value =
                 funUpdateVehiculo(
                     viejoVehiculo,
                 nombre.value,
@@ -76,8 +76,7 @@ fun VehiculosUpdateContent(
 
 
             confirmadoAdd = false
-            errorConAdd = mensajeError.isNotEmpty()
-            if (!errorConAdd)
+            if (errorText.value.isNotEmpty())
                 onBack()
         }
     }
@@ -133,18 +132,19 @@ fun VehiculosUpdateContent(
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
-                if (errorConAdd)
-                    Surface(
-
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 5.dp),
-                            text = mensajeError,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    }
+                ErrorBubble(errorText = errorText)
+//                if (errorConAdd)
+//                    Surface(
+//
+//                        color = MaterialTheme.colorScheme.errorContainer,
+//                        contentColor = MaterialTheme.colorScheme.error
+//                    ) {
+//                        Text(
+//                            modifier = Modifier.padding(horizontal = 5.dp),
+//                            text = errorText,
+//                            style = MaterialTheme.typography.titleLarge,
+//                        )
+//                    }
 
             }
 
