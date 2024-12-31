@@ -4,7 +4,9 @@ import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.RepositorioLugares
+import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.ServicioAPIs
+import es.uji.smallaris.model.ServicioRutas
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -90,13 +92,23 @@ class ServicioLugares(
     }
 
     @Throws(ConnectionErrorException::class, UbicationException::class)
-    suspend fun deleteLugar(lugarInteres: LugarInteres): Boolean {
+    suspend fun deleteLugar(lugarInteres: LugarInteres, servicioRutas: ServicioRutas = ServicioRutas.getInstance()): Boolean {
 
         if ( !repositorioLugares.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
 
         if (lugarInteres.isFavorito()) {
             throw UbicationException("Ubicación favorita no se puede borrar")
+        }
+
+        val rutasConElLugar = servicioRutas.contains(lugarInteres)
+        if (rutasConElLugar.isNotEmpty()){
+            val mensajeError = StringBuilder("No se puede borrar porque se usa en ")
+            mensajeError.append("la ruta ${rutasConElLugar[0].getNombre().take(50)}")
+            if (rutasConElLugar.size != 1) {
+                mensajeError.append(" y en ${if (rutasConElLugar.size == 2) "una más" else "${rutasConElLugar.size-1} otras"}")
+            }
+            throw RouteException(mensajeError.toString())
         }
 
         if (repositorioLugares.deleteLugar(lugarInteres)) {

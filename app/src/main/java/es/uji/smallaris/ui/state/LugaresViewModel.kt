@@ -9,11 +9,13 @@ import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.ErrorCategory
 import es.uji.smallaris.model.OrdenLugarInteres
+import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.lugares.UbicationException
+import okhttp3.Route
 
 //@HiltViewModel
 class LugaresViewModel() : ViewModel() {
@@ -71,7 +73,10 @@ class LugaresViewModel() : ViewModel() {
             return "Error al conectarse con el servidor"
         }
         catch (e: VehicleException) {
-            return e.message?: "Error con el vehiculo"
+            return e.message?: "Error con el lugar"
+        }
+        catch (e: RouteException) {
+            return e.message?: "El lugar está en alguna ruta, no se puede borrar"
         }
         catch (e: Exception) {
             return e.message?:"Fallo inesperado, prueba con otro momento"
