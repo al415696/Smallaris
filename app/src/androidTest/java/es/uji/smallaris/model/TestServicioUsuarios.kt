@@ -114,6 +114,7 @@ class TestServicioUsuarios {
 
             servicioUsuarios.cerrarSesion()
             val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", contrasenaNueva)
+            servicioUsuarios.cambiarContrasena(contrasenaNueva, "12345678") // Vuelvo a dejar la contraseña previa para que funcione el After
             assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
         }
 

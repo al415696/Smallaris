@@ -609,11 +609,25 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    override suspend fun cambiarContrasena(
-        contrasenaVieja: String,
-        contrasenaNueva: String
-    ): Boolean {
-        return false
+    override suspend fun cambiarContrasena(contrasenaVieja: String, contrasenaNueva: String): Boolean {
+        val usuarioActual = auth.currentUser
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
+        if (contrasenaNueva.length < 8 || contrasenaVieja == contrasenaNueva) {
+            throw InvalidPasswordException("La nueva contraseña debe tener al menos 8 caracteres y ser distinta a la anterior.")
+        }
+
+        try {
+            auth.signInWithEmailAndPassword(usuarioActual.email!!, contrasenaVieja).await().user
+                ?: throw InvalidPasswordException("La contraseña actual es incorrecta.")
+
+            usuarioActual.updatePassword(contrasenaNueva).await()
+            return true
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw InvalidPasswordException("La contraseña actual es incorrecta.")
+        } catch (e: Exception) {
+            throw e
+        }
     }
 
     override suspend fun borrarUsuario(): Usuario {
