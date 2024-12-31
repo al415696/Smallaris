@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,16 +43,10 @@ fun LugaresMapContent(
                 bearing(0.0)
             }
         }
-    val opcionesAddLugar = rememberSaveable { mutableStateOf(OpcionesAddLugar.Toponimo) }
     BackHandler {
         onBack()
     }
 
-    val markerImage =
-        rememberIconImage(
-            key = "default_marker",
-            painter = painterResource(R.drawable.add_location_alt_24px) // Cambia esto por el icono que prefieras
-        )
 
     val savedMarker = rememberSaveable { mutableStateOf(marker) }
 
@@ -84,18 +77,18 @@ fun LugaresMapContent(
                 attribution = {},
 
                 content = {
-                    savedMarker.value.let { point ->
-                        PointAnnotation(point = point) {
-                            iconColor = Color.Red
-                            iconImage = markerImage
-                            iconSize = 3.5
-                            iconOffset = listOf(0.0, -10.0)
-                            textColor = Color.Black
-                            textSize = 10.0
-                            textOffset =
-                                listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
-                        }
+
+                    PointAnnotation(point = savedMarker.value) {
+                        iconColor = Color.Red
+                        iconImage = markerImage
+                        iconSize = 3.5
+                        iconOffset = listOf(0.0, -10.0)
+                        textColor = Color.Black
+                        textSize = 10.0
+                        textOffset =
+                            listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
                     }
+
 
                     // Aplicar estilo con idioma en español
                     MapEffect(Unit) { mapView ->
@@ -114,7 +107,7 @@ fun LugaresMapContent(
 
 @Preview
 @Composable
-private fun previewLugaresInteresMapContent() {
+private fun PreviewLugaresInteresMapContent() {
     LugaresMapContent()
 }
 

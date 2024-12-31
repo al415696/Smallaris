@@ -49,7 +49,7 @@ class LugaresViewModel() : ViewModel() {
         }
         catch (e: UbicationException){
 
-            return e.message ?: "Fallo con la ruta, no se ha añadido"
+            return e.message ?: "Fallo con el lugar, no se ha añadido"
         }
         return ""
     }
