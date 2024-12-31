@@ -10,6 +10,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.OrdenVehiculo
+import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.VehicleException
@@ -97,6 +98,9 @@ class VehiculosViewModel() : ViewModel() {
         }
         catch (e: VehicleException) {
             return e.message?: "Error con el vehiculo"
+        }
+        catch (e: RouteException) {
+            return e.message?: "Se usa en alguna ruta, no se puede borrar"
         }
         catch (e: Exception) {
             return e.message?:"Fallo inesperado, prueba con otro momento"

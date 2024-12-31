@@ -129,6 +129,15 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculos.contains(vehiculo)){
+            val rutasConElVehiculo = ServicioRutas.getInstance().contains(vehiculo)
+            if (rutasConElVehiculo.isNotEmpty()){
+                val mensajeError = StringBuilder("No se puede borrar porque se usa en ")
+                mensajeError.append("la ruta ${rutasConElVehiculo[0].getNombre().take(50)}")
+                if (rutasConElVehiculo.size != 1) {
+                    mensajeError.append(" y en ${if (rutasConElVehiculo.size == 2) "una más" else "${rutasConElVehiculo.size-1} otras"}")
+                }
+                throw RouteException(mensajeError.toString())
+            }
             return if(repositorio.removeVehiculo(vehiculo)){
                 vehiculos.remove(vehiculo)
             }else{
