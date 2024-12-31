@@ -88,6 +88,15 @@ class ServicioRutas(
         return lista
     }
 
+    fun contains(vehiculo: Vehiculo): List<Ruta> {
+        val lista = mutableListOf<Ruta>()
+        for (ruta in rutas){
+            if (ruta.getVehiculo() == vehiculo)
+                lista.add(ruta)
+        }
+        return lista
+    }
+
     companion object{
         private lateinit var servicio: ServicioRutas
         fun getInstance(): ServicioRutas{
