@@ -37,7 +37,7 @@ import es.uji.smallaris.ui.screens.safeToDouble
 
 @Composable
 fun VehiculosAddContent(
-    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> ""},
+    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> "" },
     onBack: () -> Unit = {}
 ) {
     val nombre = rememberSaveable { mutableStateOf("") }
@@ -109,7 +109,13 @@ fun VehiculosAddContent(
                 )
 
                 // Elegir arquetipo de vehiculo
-                ArquetipoDependantFields(arquetipo, tipoVehiculo, matricula, matriculaValid, consumo)
+                ArquetipoDependantFields(
+                    arquetipo,
+                    tipoVehiculo,
+                    matricula,
+                    matriculaValid,
+                    consumo
+                )
                 if (confirmadoAdd) {
                     Column {
                         Text(
@@ -123,17 +129,6 @@ fun VehiculosAddContent(
                 }
 
                 ErrorBubble(errorText = errorText)
-//                if (errorConAdd)
-//                    Surface(
-//                        color = MaterialTheme.colorScheme.errorContainer,
-//                        contentColor = MaterialTheme.colorScheme.error
-//                    ) {
-//                        Text(
-//                            modifier = Modifier.padding(horizontal = 5.dp),
-//                            text = errorText,
-//                            style = MaterialTheme.typography.titleLarge,
-//                        )
-//                    }
 
             }
 
@@ -157,14 +152,15 @@ fun VehiculosAddContent(
                         // Handle form submission
                         confirmadoAdd = true
                     }) {
-                    Text(text="Añadir",
-                        style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = "Añadir",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 }
             }
         }
     }
 }
-
 
 
 @Preview
