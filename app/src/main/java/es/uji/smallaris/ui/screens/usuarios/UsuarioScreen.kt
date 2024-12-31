@@ -42,6 +42,7 @@ import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.SmallarisTitle
 import es.uji.smallaris.ui.state.UsuarioViewModel
 
 @Composable
@@ -74,7 +75,7 @@ fun UsuarioScreenContent(
     if (iniciadoCerrarSesion.value)
         CerrarSesionAlertDialogue(
             iniciadoCerrarSesion,
-            cerrarFunction = { funCerrarSesion() }
+            cerrarFunction = funCerrarSesion
         )
     if (iniciadoEliminarCuenta.value)
         DeleteAlertDialogue(
@@ -113,6 +114,7 @@ fun UsuarioScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)
                     ) {
+                        SmallarisTitle()
                         Surface(
                             modifier = Modifier,
                             color = MaterialTheme.colorScheme.surface,
@@ -230,18 +232,23 @@ fun UsuarioScreenContent(
 @Composable
 fun CerrarSesionAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
-    cerrarFunction:suspend () -> Unit
+    cerrarFunction:suspend () -> String
 ) {
     var confirmadoSalir by remember{ mutableStateOf(false) }
+    val errorText = remember { mutableStateOf("") }
+
     if(confirmadoSalir)
         LaunchedEffect(Unit) {
-            cerrarFunction()
-            shouldShowDialog.value = false
+            errorText.value = cerrarFunction()
+            if (errorText.value.isEmpty())
+                shouldShowDialog.value = false
+            confirmadoSalir = false
         }
     if (shouldShowDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                shouldShowDialog.value = false
+                if (!confirmadoSalir)
+                    shouldShowDialog.value = false
             },
 
             title = { Text(text = "¿Cerrar la sesión?") },
