@@ -47,6 +47,15 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.borrarUsuario()
     }
 
+    suspend fun cambiarContrasena(contrasenaVieja: String, contrasenaNueva: String): Boolean {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.cambiarContrasena(contrasenaVieja, contrasenaNueva)
+    }
+
     companion object{
         private lateinit var servicioUsuarios: ServicioUsuarios
         fun getInstance(): ServicioUsuarios{

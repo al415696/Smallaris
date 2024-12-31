@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 @RunWith(Enclosed::class)
 class TestServicioUsuarios {
 
-    class PruebasSinAfterPropioTest {
+    class PruebasConBeforeTest {
         private lateinit var repositorioUsuarios: RepositorioUsuarios
         private lateinit var servicioUsuarios: ServicioUsuarios
 
@@ -103,6 +103,33 @@ class TestServicioUsuarios {
 
             assertNotNull(resultado)
             assertTrue(resultado is UnloggedUserException)
+        }
+
+        @Test
+        fun cambiarContrasena_R1HU05_cambiarContrasenaExito() = runBlocking {
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val contrasenaNueva = "87654321"
+            val resultado = servicioUsuarios.cambiarContrasena("12345678", contrasenaNueva)
+            assertTrue(resultado)
+
+            servicioUsuarios.cerrarSesion()
+            val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", contrasenaNueva)
+            assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
+        }
+
+        @Test
+        fun cambiarContrasena_R1HU05_cambiarContrasenaNuevaContrasenaInvalida() = runBlocking {
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            var resultado: InvalidPasswordException? = null
+
+            try {
+                servicioUsuarios.cambiarContrasena("12345678", "123")
+            } catch (excepcion: InvalidPasswordException) {
+                resultado = excepcion
+            }
+
+            assertNotNull(resultado)
+            assertTrue(resultado is InvalidPasswordException)
         }
     }
 

@@ -609,6 +609,13 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
+    override suspend fun cambiarContrasena(
+        contrasenaVieja: String,
+        contrasenaNueva: String
+    ): Boolean {
+        return false
+    }
+
     override suspend fun borrarUsuario(): Usuario {
         try {
             val currentUser = obtenerUsuarioActual()
@@ -638,6 +645,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             throw UserException("No se pudo eliminar el usuario o sus datos.")
         }
     }
+
+
 
     companion object{
         private lateinit var repositorioFirebase: RepositorioFirebase
