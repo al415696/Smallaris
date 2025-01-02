@@ -97,15 +97,6 @@ class VehiculosViewModel : ViewModel() {
             return e.message?:"Fallo inesperado, prueba con otro momento"
         }
     }
-    suspend fun debugFillList(){
-
-        var c = 'A'
-        while (c <= 'E') {
-            servicioVehiculos.addVehiculo(c.toString(), 45.458,  "1234$c$c$c", TipoVehiculo.Gasolina95)
-            ++c
-        }
-
-    }
     suspend fun initializeList(){
         try {
             servicioVehiculos.updateVehiculos()
