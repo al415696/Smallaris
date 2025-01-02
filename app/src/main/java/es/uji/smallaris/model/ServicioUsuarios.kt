@@ -56,6 +56,24 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.cambiarContrasena(contrasenaVieja, contrasenaNueva)
     }
 
+    suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.establecerVehiculoPorDefecto(vehiculo)
+    }
+
+    suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.obtenerVehiculoPorDefecto()
+    }
+
     companion object{
         private lateinit var servicioUsuarios: ServicioUsuarios
         fun getInstance(): ServicioUsuarios{

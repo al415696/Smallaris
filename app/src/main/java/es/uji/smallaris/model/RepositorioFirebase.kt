@@ -24,6 +24,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private var vehiculoPorDefecto: Vehiculo? = null
 
     override fun obtenerFirestore(): FirebaseFirestore {
         return db
@@ -638,6 +639,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    override suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean {
+        return false
+    }
+
+    override suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
+        return vehiculoPorDefecto
     }
 
     override suspend fun borrarUsuario(): Usuario {

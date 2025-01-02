@@ -15,13 +15,14 @@ import org.junit.runner.RunWith
 class TestServicioUsuarios {
 
     class PruebasConBeforeTest {
-        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var repositorioFirebase: RepositorioFirebase
         private lateinit var servicioUsuarios: ServicioUsuarios
 
         @Before
         fun setUp() {
-            repositorioUsuarios = RepositorioFirebase()
-            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            repositorioFirebase = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+
             runBlocking {
                 try {
                     servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
@@ -131,6 +132,48 @@ class TestServicioUsuarios {
 
             assertNotNull(resultado)
             assertTrue(resultado is InvalidPasswordException)
+        }
+
+        @Test
+        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoExito() = runBlocking {
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+
+            val vehiculoCreado = Vehiculo(
+                nombre = "VehiculoTest",
+                consumo = 10.0,
+                matricula = "TEST1234",
+                tipo = TipoVehiculo.Diesel
+            )
+
+            val resultado = servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+
+            assertTrue(resultado)
+            val vehiculoPorDefecto = servicioUsuarios.obtenerVehiculoPorDefecto()
+            assertEquals(vehiculoCreado, vehiculoPorDefecto)
+        }
+
+        @Test
+        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoYaEstablecido() = runBlocking {
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+
+            val vehiculoCreado = Vehiculo(
+                nombre = "VehiculoTest",
+                consumo = 10.0,
+                matricula = "TEST1234",
+                tipo = TipoVehiculo.Diesel
+            )
+
+            servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+
+            var resultado: VehicleException? = null
+            try {
+                servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+            } catch (excepcion: VehicleException) {
+                resultado = excepcion
+            }
+
+            assertNotNull(resultado)
+            assertTrue(resultado is VehicleException)
         }
     }
 
