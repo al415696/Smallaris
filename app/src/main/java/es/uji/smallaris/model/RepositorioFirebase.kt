@@ -66,20 +66,82 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
+        if (vehiculoPorDefecto == null) {
+            val currentUser = obtenerUsuarioActual()
+                ?: return null
+
+            try {
+                val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+                val document = userDocRef.get().await()
+
+                val vehiculoActual = document["vehiculoPorDefecto"] as? Map<String, Any>
+                if (vehiculoActual != null) {
+                    val nombre = vehiculoActual["nombre"] as? String
+                    val consumo = vehiculoActual["consumo"] as? Double
+                    val matricula = vehiculoActual["matricula"] as? String
+                    val tipo = vehiculoActual["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido
+                    val favorito = vehiculoActual["favorito"] as? Boolean ?: false
+
+                    if (nombre != null && matricula != null && consumo != null) {
+                        vehiculoPorDefecto = Vehiculo(nombre, consumo, matricula, tipo, favorito)
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error al obtener vehículo por defecto: ${e.message}")
+            }
+        }
         return vehiculoPorDefecto
     }
 
+    @Throws(RouteException::class)
     override suspend fun establecerTipoRutaPorDefecto(tipoRuta: TipoRuta): Boolean {
-        return false
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
+        try {
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+
+            val document = userDocRef.get().await()
+            val tipoRutaActual = document["tipoRutaPorDefecto"] as? String
+
+            if (tipoRutaActual != null && TipoRuta.valueOf(tipoRutaActual) == tipoRuta) {
+                throw RouteException("El tipo de ruta ya está establecido como por defecto.")
+            }
+
+            userDocRef.update("tipoRutaPorDefecto", tipoRuta.name).await()
+            tipoRutaPorDefecto = tipoRuta
+
+            return true
+        } catch (e: RouteException) {
+            throw e
+        } catch (e: Exception) {
+            throw Exception("No se pudo establecer el tipo de ruta por defecto.")
+        }
     }
 
     override suspend fun obtenerTipoRutaPorDefecto(): TipoRuta? {
+        if (tipoRutaPorDefecto == null) {
+            val currentUser = obtenerUsuarioActual()
+                ?: return null
+
+            try {
+                val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+                val document = userDocRef.get().await()
+
+                val tipoRutaActual = document["tipoRutaPorDefecto"] as? String
+                if (tipoRutaActual != null) {
+                    tipoRutaPorDefecto = TipoRuta.valueOf(tipoRutaActual)
+                }
+            } catch (e: Exception) {
+                println("Error al obtener tipo de ruta por defecto: ${e.message}")
+            }
+        }
         return tipoRutaPorDefecto
     }
 
     override suspend fun getVehiculos(): List<Vehiculo> {
         val currentUser = obtenerUsuarioActual()
-            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            ?: return emptyList()
 
         try {
             val userDocRef = obtenerFirestore()
@@ -233,7 +295,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun getLugares(): List<LugarInteres> {
         val currentUser = obtenerUsuarioActual()
-            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            ?: return emptyList()
 
         try {
             val userDocRef = obtenerFirestore()
@@ -429,7 +491,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun getRutas(): List<Ruta> {
         val currentUser = obtenerUsuarioActual()
-            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            ?: return emptyList()
 
         try {
             val userDocRef = obtenerFirestore()
@@ -639,22 +701,21 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return try {
             val correo = auth.currentUser!!.email ?: "correoDesconocido"
 
-            auth.signOut()  // Intentar cerrar sesión
+            auth.signOut()
 
-            // Verificar que no haya ningún usuario autenticado
             if (auth.currentUser != null) {
                 throw Exception("No se pudo cerrar sesión correctamente.")
             }
 
-            Usuario(correo) // La sesión se cerró correctamente
+            vehiculoPorDefecto = null
+            tipoRutaPorDefecto = null
+
+            Usuario(correo)
         } catch (e: FirebaseAuthException) {
-            // Manejar las excepciones específicas de Firebase
             throw Exception("Error de autenticación al cerrar sesión: ${e.localizedMessage}", e)
         } catch (e: NetworkErrorException) {
-            // Manejar errores relacionados con la red, si fuera necesario
             throw Exception("Error de red al intentar cerrar sesión: ${e.localizedMessage}", e)
         } catch (e: Exception) {
-            // Manejar cualquier otra excepción inesperada
             throw Exception("Error inesperado al cerrar sesión: ${e.localizedMessage}", e)
         }
     }

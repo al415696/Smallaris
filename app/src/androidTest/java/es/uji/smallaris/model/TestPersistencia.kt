@@ -5,7 +5,6 @@ import es.uji.smallaris.model.lugares.ServicioLugares
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -80,28 +79,6 @@ class TestPersistencia {
     }
 
     @Test
-    fun testPersistenciaVehiculoInvalido() = runBlocking {
-        val nombreVehiculo = "VehiculoTestNuevo"
-        val consumo = 12.0
-        val matricula = "TEST9876"
-        val tipo = TipoVehiculo.Gasolina95
-
-        servicioVehiculos.addVehiculo(nombreVehiculo, consumo, matricula, tipo)
-
-        servicioUsuarios.borrarUsuario()
-
-        var resultado: Exception? = null
-        try {
-            servicioVehiculos.updateVehiculos()
-        } catch (excepcion: UnloggedUserException) {
-            resultado = excepcion
-        }
-
-        assertNotNull(resultado)
-        assertTrue(resultado is UnloggedUserException)
-    }
-
-    @Test
     fun testPersistenciaLugar() = runBlocking {
         val longitud = -0.12345
         val latitud = 39.98765
@@ -132,27 +109,6 @@ class TestPersistencia {
 
         val lugaresRecuperadosPostEliminacion = servicioLugares.getLugares()
         assertFalse(lugaresRecuperadosPostEliminacion.contains(lugarCreado))
-    }
-
-    @Test
-    fun testPersistenciaLugarInvalido() = runBlocking {
-        val longitud = -0.12345
-        val latitud = 39.98765
-        val nombreLugar = "LugarTestNuevo"
-
-        servicioLugares.addLugar(longitud, latitud, nombreLugar)
-
-        servicioUsuarios.borrarUsuario()
-
-        var resultado: Exception? = null
-        try {
-            servicioLugares.updateLugares()
-        } catch (excepcion: UnloggedUserException) {
-            resultado = excepcion
-        }
-
-        assertNotNull(resultado)
-        assertTrue(resultado is UnloggedUserException)
     }
 
     @Test
@@ -198,38 +154,5 @@ class TestPersistencia {
         assertTrue(rutaEliminada)
 
         assertFalse(servicioRutas.contains(rutaCreada))
-    }
-
-    @Test
-    fun testPersistenciaRutaInvalida() = runBlocking {
-        val origen = LugarInteres(-0.12345, 39.98765, "OrigenTest", "MunicipioOrigen")
-        val destino = LugarInteres(-0.54321, 39.56789, "DestinoTest", "MunicipioDestino")
-        val vehiculo = Vehiculo("Coche", 5.0, "ABC123", TipoVehiculo.Gasolina95)
-        val tipoRuta = TipoRuta.Corta
-
-        val builderWrapper = RutaBuilderWrapper(calculadorRutas, servicioAPIs, servicioRutas)
-        builderWrapper
-            .setInicio(origen)
-            .setFin(destino)
-            .setVehiculo(vehiculo)
-            .setTipo(tipoRuta)
-            .setNombre("RutaTest")
-
-        val rutaCreada = builderWrapper.build()
-
-        servicioRutas.addRuta(rutaCreada)
-        assertTrue(servicioRutas.contains(rutaCreada))
-
-        servicioUsuarios.borrarUsuario()
-
-        var resultado: Exception? = null
-        try {
-            servicioRutas.updateRutas()
-        } catch (excepcion: UnloggedUserException) {
-            resultado = excepcion
-        }
-
-        assertNotNull(resultado)
-        assertTrue(resultado is UnloggedUserException)
     }
 }

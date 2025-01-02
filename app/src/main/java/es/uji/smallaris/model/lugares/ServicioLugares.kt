@@ -7,6 +7,7 @@ import es.uji.smallaris.model.RepositorioLugares
 import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.ServicioRutas
+import es.uji.smallaris.model.UnloggedUserException
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
