@@ -59,7 +59,9 @@ fun RutasScreen(
                     onBack = {currentContent.value = RutaScreenContent.Lista },
                     funConseguirVehiculos = viewModel::getVehiculos,
                     funConseguirLugares = viewModel::getLugares,
-                    funCalcRuta = viewModel::calcRuta
+                    funCalcRuta = viewModel::calcRuta,
+                    funGetVehiculoPorDefecto = viewModel::getDefaultVehiculo,
+                    funGetTipoRutaPorDefecto = viewModel::getDefaultTipoRuta,
 
                 )
 

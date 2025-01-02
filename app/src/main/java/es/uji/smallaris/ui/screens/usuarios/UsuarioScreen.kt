@@ -41,9 +41,11 @@ import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.DeleteAlertDialogue
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ErrorBubble
+import es.uji.smallaris.ui.components.ExternalEnumDropDown
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.SmallarisTitle
+import es.uji.smallaris.ui.screens.vehiculos.saverVehiculo
 import es.uji.smallaris.ui.state.UsuarioViewModel
 
 @Composable
@@ -76,11 +78,11 @@ fun UsuarioScreenContent(
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
     val currentDefaultTipoRuta = rememberSaveable() { mutableStateOf(TipoRuta.Rapida) }
     val realDefaultTipoRuta: MutableState<TipoRuta?> = remember { mutableStateOf(null) }
-    val currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
+    val currentDefaultVehiculo: MutableState<Vehiculo?> = rememberSaveable(stateSaver = saverVehiculo) { mutableStateOf(null) }
     val realDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val errorText: MutableState<String> = remember{ mutableStateOf("")}
     val listVehiculos = remember { mutableStateListOf<Vehiculo>() }
-    var initialLoadEnded by remember { mutableStateOf(false) }
+    var initialLoadEnded by rememberSaveable { mutableStateOf(false) }
     val iniciadoCerrarSesion = remember { mutableStateOf(false) }
     val iniciadoEliminarCuenta = remember { mutableStateOf(false) }
     if (iniciadoCerrarSesion.value)
@@ -99,6 +101,7 @@ fun UsuarioScreenContent(
         listVehiculos.addAll(funConseguirVehiculos())
         realDefaultVehiculo.value = funGetVehiculoPorDefecto()
         currentDefaultVehiculo.value = funGetVehiculoPorDefecto()
+        println("Antes viewmodel " + funGetTipoRutaPorDefecto())
         realDefaultTipoRuta.value = funGetTipoRutaPorDefecto()
         currentDefaultTipoRuta.value = funGetTipoRutaPorDefecto()?: TipoRuta.Rapida
         initialLoadEnded = true
@@ -115,7 +118,10 @@ fun UsuarioScreenContent(
     }
     if (currentDefaultTipoRuta.value != realDefaultTipoRuta.value && initialLoadEnded){
         LaunchedEffect(Unit) {
+            println("Llama viewModel: " + currentDefaultTipoRuta.value.name)
             if (funSetTipoRutaPorDefecto(currentDefaultTipoRuta.value)){
+                println("Sale viewModel: " + currentDefaultTipoRuta.value.name)
+
                 realDefaultTipoRuta.value = currentDefaultTipoRuta.value
             }
 
@@ -226,9 +232,10 @@ fun UsuarioScreenContent(
                                     modifier = Modifier.fillMaxWidth(0.4f),
                                     tonalElevation = 75.dp
                                 ) {
-                                    EnumDropDown(
+                                    ExternalEnumDropDown(
                                         opciones = listaTipoRuta,
-                                        elegida = currentDefaultTipoRuta
+                                        elegida = currentDefaultTipoRuta,
+                                        cargadoEnded = initialLoadEnded
                                     )
                                 }
                             }

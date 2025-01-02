@@ -1,5 +1,6 @@
 package es.uji.smallaris.model
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.runBlocking
 import kotlin.jvm.Throws
 
@@ -98,7 +99,8 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
                                nuevoNombre: String = viejo.nombre,
                                nuevoConsumo: Double = viejo.consumo,
                                nuevaMatricula: String = viejo.matricula,
-                               nuevoTipoVehiculo: TipoVehiculo = viejo.tipo
+                               nuevoTipoVehiculo: TipoVehiculo = viejo.tipo,
+                               servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
                                ) : Boolean{
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
@@ -114,6 +116,10 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
             nuevoVehiculo.setFavorito(viejo.isFavorito())
 
             if ( repositorio.updateVehiculos(viejo, nuevoVehiculo)){
+                //Si vehiculo es el de por defecto actualizalo también allí
+                if (servicioUsuarios.obtenerVehiculoPorDefecto() == viejo)
+                    servicioUsuarios.establecerVehiculoPorDefecto(nuevoVehiculo)
+
                 vehiculos[indexViejo] = nuevoVehiculo
                 return true
             }

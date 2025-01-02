@@ -61,6 +61,7 @@ import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.Vehiculo
 import es.uji.smallaris.ui.components.EnumDropDown
 import es.uji.smallaris.ui.components.ErrorBubble
+import es.uji.smallaris.ui.components.ExternalEnumDropDown
 import es.uji.smallaris.ui.components.ListDropDown
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
@@ -99,6 +100,8 @@ fun RutasAddContent(
     ) -> Pair<String, Ruta> = { _, _, _, _, _ -> Pair("", rutaDebug) },
     funConseguirLugares: suspend () -> List<LugarInteres> = { emptyList() },
     funConseguirVehiculos: suspend () -> List<Vehiculo> = { emptyList() },
+    funGetVehiculoPorDefecto: suspend () -> Vehiculo? = {null},
+    funGetTipoRutaPorDefecto: suspend () -> TipoRuta? = {null},
 
     onBack: () -> Unit = {}
 ) {
@@ -161,13 +164,12 @@ fun RutasAddContent(
     BackHandler {
         onBack()
     }
-    if (showAddDialogue.value) {
-
-    }
 
     LaunchedEffect(Unit) {
         listLugares.addAll(funConseguirLugares())
         listVehiculos.addAll(funConseguirVehiculos())
+        vehiculo.value = funGetVehiculoPorDefecto()
+        currentTipoRuta.value = funGetTipoRutaPorDefecto()?: TipoRuta.Rapida
         initialLoadEnded = true
     }
 
@@ -361,9 +363,10 @@ fun RutasAddContent(
                                 text = "Tipo de ruta"
                             )
                             Surface(modifier = Modifier.fillMaxWidth(0.4f)) {
-                                EnumDropDown(
+                                ExternalEnumDropDown(
                                     opciones = listaTipoRuta,
-                                    elegida = currentTipoRuta
+                                    elegida = currentTipoRuta,
+                                    cargadoEnded = initialLoadEnded
                                 )
                             }
                         }

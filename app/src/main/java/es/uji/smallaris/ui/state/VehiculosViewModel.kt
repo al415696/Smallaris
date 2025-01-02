@@ -1,11 +1,8 @@
 package es.uji.smallaris.ui.state
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
@@ -17,11 +14,9 @@ import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.Vehiculo
 
 //@HiltViewModel
-class VehiculosViewModel() : ViewModel() {
-    constructor(cosaVehiculo : Int) : this() {
-        this.cosaVehiculos = cosaVehiculo
-    }
-    val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
+class VehiculosViewModel : ViewModel() {
+
+    private val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
 
     // Lista observable
 //    var items: MutableState<List<Vehiculo>> = mutableStateOf(emptyList())
@@ -32,14 +27,11 @@ class VehiculosViewModel() : ViewModel() {
        currentSorting = ordenVehiculo
         sortItems()
     }
-    fun sortItems(){
+    private fun sortItems(){
         items.sortWith(currentSorting.comparator())
     }
 
-    var cosaVehiculos by mutableStateOf(1)
-    fun hacerCosa(){
-        cosaVehiculos += 1
-    }
+
     suspend fun addVehiculo(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): String{
         try {
             servicioVehiculos.addVehiculo(nombre, consumo, matricula, tipo)
@@ -77,7 +69,6 @@ class VehiculosViewModel() : ViewModel() {
 
             return e.message ?: ""
         }
-        return ""
     }
     suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean){
         try {
@@ -108,7 +99,7 @@ class VehiculosViewModel() : ViewModel() {
     }
     suspend fun debugFillList(){
 
-        var c: Char = 'A'
+        var c = 'A'
         while (c <= 'E') {
             servicioVehiculos.addVehiculo(c.toString(), 45.458,  "1234$c$c$c", TipoVehiculo.Gasolina95)
             ++c
@@ -116,37 +107,44 @@ class VehiculosViewModel() : ViewModel() {
 
     }
     suspend fun initializeList(){
-        servicioVehiculos.updateVehiculos()
-        updateList()
+        try {
+            servicioVehiculos.updateVehiculos()
+            updateList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    suspend fun updateList(){
+    private suspend fun updateList(){
         // Step 1: Add missing elements
-        val nueva = servicioVehiculos.getVehiculos()
-        nueva.forEach { element ->
-            if (!items.contains(element)) {
-                items.add(element)
+        try {
+            val nueva = servicioVehiculos.getVehiculos()
+            nueva.forEach { element ->
+                if (!items.contains(element)) {
+                    items.add(element)
+                }
             }
-        }
 
-        // Step 2: Remove extra elements
-        val iterator = items.iterator()
-        while (iterator.hasNext()) {
-            val element = iterator.next()
-            if (!nueva.contains(element)) {
-                iterator.remove()
+            // Step 2: Remove extra elements
+            val iterator = items.iterator()
+            while (iterator.hasNext()) {
+                val element = iterator.next()
+                if (!nueva.contains(element)) {
+                    iterator.remove()
+                }
             }
-        }
 
-        // Step 3: Rearrange elements
-        sortItems()
+            // Step 3: Rearrange elements
+            sortItems()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     companion object{
         val Saver: Saver<VehiculosViewModel, *> = listSaver(
-            save = { listOf(it.cosaVehiculos)},
+            save = { listOf<Any>()},
             restore = {
                 VehiculosViewModel(
-                    cosaVehiculo = it[0]
                 )
             }
         )

@@ -74,6 +74,7 @@ inline fun <E>ListDropDown(
     }
     else {
         itemPosition.intValue = opciones.indexOf(elegida.value)
+        if (itemPosition.intValue == -1) itemPosition.intValue = 0
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,

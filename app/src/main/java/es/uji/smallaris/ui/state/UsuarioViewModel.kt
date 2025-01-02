@@ -128,6 +128,7 @@ class UsuarioViewModel() : ViewModel() {
         return try {
 
             if (tipoRuta != null) {
+                println("En viewModel: " + tipoRuta.name)
                 servicioUsuarios.establecerTipoRutaPorDefecto(tipoRuta)
             }
             else false

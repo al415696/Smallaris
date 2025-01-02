@@ -51,9 +51,9 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             val document = userDocRef.get().await()
             val vehiculoActual = document["vehiculoPorDefecto"] as? Map<String, Any>
 
-            if (vehiculoActual != null && vehiculoActual["matricula"] == vehiculo.matricula) {
-                throw VehicleException("El vehículo ya está establecido como por defecto.")
-            }
+//            if (vehiculoActual != null && vehiculoActual["matricula"] == vehiculo.matricula) {
+//                throw VehicleException("El vehículo ya está establecido como por defecto.")
+//            }
 
             userDocRef.update("vehiculoPorDefecto", vehiculo.toMap()).await()
             vehiculoPorDefecto = vehiculo
