@@ -56,6 +56,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.cambiarContrasena(contrasenaVieja, contrasenaNueva)
     }
 
+    @Throws(VehicleException::class, ConnectionErrorException::class)
     suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean {
         // Comprobación de conexión a Firebase
         if (!repositorioUsuarios.enFuncionamiento()) {

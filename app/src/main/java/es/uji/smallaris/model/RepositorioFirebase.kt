@@ -38,6 +38,36 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         return auth.currentUser
     }
 
+    @Throws(VehicleException::class)
+    override suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean {
+        val currentUser = obtenerUsuarioActual()
+            ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+
+        try {
+            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
+
+            val document = userDocRef.get().await()
+            val vehiculoActual = document["vehiculoPorDefecto"] as? Map<String, Any>
+
+            if (vehiculoActual != null && vehiculoActual["matricula"] == vehiculo.matricula) {
+                throw VehicleException("El vehículo ya está establecido como por defecto.")
+            }
+
+            userDocRef.update("vehiculoPorDefecto", vehiculo.toMap()).await()
+            vehiculoPorDefecto = vehiculo
+
+            return true
+        } catch (e: VehicleException) {
+            throw e
+        } catch (e: Exception) {
+            throw Exception("No se pudo establecer el vehículo por defecto.")
+        }
+    }
+
+    override suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
+        return vehiculoPorDefecto
+    }
+
     override suspend fun getVehiculos(): List<Vehiculo> {
         val currentUser = obtenerUsuarioActual()
             ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
@@ -639,14 +669,6 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         } catch (e: Exception) {
             throw e
         }
-    }
-
-    override suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean {
-        return false
-    }
-
-    override suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
-        return vehiculoPorDefecto
     }
 
     override suspend fun borrarUsuario(): Usuario {
