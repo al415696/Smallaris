@@ -15,7 +15,7 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.registrarUsuario(correo, contrasena)
     }
 
-    @Throws(UnregisteredUserException::class, ConnectionErrorException::class)
+    @Throws(UnregisteredUserException::class, InvalidPasswordException::class, ConnectionErrorException::class)
     suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Comprobación de conexión a Firebase
