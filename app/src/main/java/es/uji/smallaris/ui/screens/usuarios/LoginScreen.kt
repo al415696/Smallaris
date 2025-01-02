@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -154,6 +155,12 @@ private fun EmailPasswordForm(
             )
             Button(
                 enabled = loginUserValid.value && loginPassValid.value,
+                colors = ButtonColors(
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                    MaterialTheme.colorScheme.onTertiaryContainer,
+                    MaterialTheme.colorScheme.surfaceDim,
+                    MaterialTheme.colorScheme.onSurface,
+                ),
                 onClick = {confirmado = true}
             ) {
                 Text(text = confirmText)

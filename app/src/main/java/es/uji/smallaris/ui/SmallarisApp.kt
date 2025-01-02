@@ -9,13 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import es.uji.smallaris.ui.theme.SmallarisTheme
 import es.uji.smallaris.ui.components.SmallarisNavBar
 import es.uji.smallaris.ui.components.TOP_LEVEL_DESTINATIONS
 import es.uji.smallaris.ui.navigation.SmallarisDestination
 import es.uji.smallaris.ui.navigation.SmallarisNavHost
 import es.uji.smallaris.ui.navigation.UsuarioDestination
 import es.uji.smallaris.ui.navigation.navigateSingleTopTo
-import es.uji.smallaris.ui.theme.SmallarisTheme
 
 @Composable
 fun SmallarisApp(){

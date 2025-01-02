@@ -51,7 +51,7 @@ fun ObjetoListable(
 
     Surface(
         modifier = if (selected) modifier else  modifier.height(closedHeight),
-        color =if (selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primaryContainer,
+        color =if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
         onClick = {
             onGeneralClick()
             println("prueba")
