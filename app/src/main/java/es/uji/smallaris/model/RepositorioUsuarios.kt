@@ -15,4 +15,6 @@ interface RepositorioUsuarios: Repositorio {
     suspend fun cambiarContrasena(contrasenaVieja: String, contrasenaNueva: String): Boolean
     suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean
     suspend fun obtenerVehiculoPorDefecto(): Vehiculo?
+    suspend fun establecerTipoRutaPorDefecto(tipoRuta: TipoRuta): Boolean
+    suspend fun obtenerTipoRutaPorDefecto(): TipoRuta?
 }

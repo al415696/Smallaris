@@ -75,6 +75,25 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.obtenerVehiculoPorDefecto()
     }
 
+    @Throws(RouteException::class, ConnectionErrorException::class)
+    suspend fun establecerTipoRutaPorDefecto(tipoRuta: TipoRuta): Boolean {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.establecerTipoRutaPorDefecto(tipoRuta)
+    }
+
+    suspend fun obtenerTipoRutaPorDefecto(): TipoRuta? {
+        // Comprobación de conexión a Firebase
+        if (!repositorioUsuarios.enFuncionamiento()) {
+            throw ConnectionErrorException("Firebase no está disponible.")
+        }
+
+        return repositorioUsuarios.obtenerTipoRutaPorDefecto()
+    }
+
     companion object{
         private lateinit var servicioUsuarios: ServicioUsuarios
         fun getInstance(): ServicioUsuarios{
