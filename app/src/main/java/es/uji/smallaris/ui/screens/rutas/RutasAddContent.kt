@@ -395,9 +395,9 @@ fun RutasAddContent(
                             .fillMaxSize()
                             .align(Alignment.End),
                         colors = ButtonColors(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            MaterialTheme.colorScheme.onPrimaryContainer,
                             MaterialTheme.colorScheme.tertiaryContainer,
+                            MaterialTheme.colorScheme.onTertiaryContainer,
+                            MaterialTheme.colorScheme.surfaceDim,
                             MaterialTheme.colorScheme.onSurface,
                         ),
                         enabled = inicio.value != null && destino.value != null && vehiculo.value != null,
@@ -582,7 +582,13 @@ fun RutaAddAlertDialogue(
                         .height(60.dp),
                     onClick = {
                         confirmadoAdd = true
-                    }
+                    },
+                    colors = ButtonColors(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
+                        MaterialTheme.colorScheme.onSurface,
+                    ),
                 ) {
                     Text(
                         text = "Confirmar",

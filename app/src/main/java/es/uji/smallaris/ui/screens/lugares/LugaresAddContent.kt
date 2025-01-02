@@ -297,9 +297,9 @@ fun LugaresAddContent(
                                 .align(Alignment.End),
                             enabled = finalCoordinatesValid.value,
                             colors = ButtonColors(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                MaterialTheme.colorScheme.onPrimaryContainer,
                                 MaterialTheme.colorScheme.tertiaryContainer,
+                                MaterialTheme.colorScheme.onTertiaryContainer,
+                                MaterialTheme.colorScheme.surfaceDim,
                                 MaterialTheme.colorScheme.onSurface,
                             ),
                             onClick = {
@@ -766,7 +766,13 @@ fun AddAlertDialogue(
                         .height(60.dp),
                     onClick = {
                         confirmadoAdd = true
-                    }
+                    },
+                    colors = ButtonColors(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
+                        MaterialTheme.colorScheme.onSurface,
+                    ),
                 ) {
                     Text(
                         text = "Confirmar",

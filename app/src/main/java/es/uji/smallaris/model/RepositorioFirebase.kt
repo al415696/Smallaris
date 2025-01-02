@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
@@ -766,7 +767,13 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             currentUser.delete().await()
 
             return usuario
-        } catch (e: Exception) {
+        }
+        catch (e: FirebaseAuthRecentLoginRequiredException) {
+            e.printStackTrace()
+            throw UserException("Esta operación es delicada y require un login reciente, cierra sesión y vuelve a iniciarla para confirmar tu identidad")
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
             throw UserException("No se pudo eliminar el usuario o sus datos.")
         }
     }

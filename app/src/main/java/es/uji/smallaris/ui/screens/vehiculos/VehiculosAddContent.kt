@@ -73,7 +73,7 @@ fun VehiculosAddContent(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary
+//        color = MaterialTheme.colorScheme.primary
 
     ) {
         Column(
@@ -143,9 +143,9 @@ fun VehiculosAddContent(
                     modifier = Modifier.fillMaxSize(),
                     enabled = nombreValid.value && matriculaValid.value,
                     colors = ButtonColors(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.onPrimaryContainer,
                         MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
                         MaterialTheme.colorScheme.onSurface,
                     ),
                     onClick = {
