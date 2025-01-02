@@ -1,11 +1,12 @@
 package es.uji.smallaris
 
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.RepositorioLugares
 import es.uji.smallaris.model.ServicioAPIs
-import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.ServicioORS
+import es.uji.smallaris.model.ServicioRutas
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -24,6 +25,7 @@ class TestServicioLugares {
 
         private var mockServicioORS = mockk<ServicioORS>(relaxed = true)
         private var mockRepositorioLugares = mockk<RepositorioLugares>(relaxed = true)
+        private var mockServicioRutas = mockk<ServicioRutas>(relaxed = true)
         private val servicioAPIs = ServicioAPIs
 
         @JvmStatic
@@ -46,6 +48,7 @@ class TestServicioLugares {
             coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.037787, 39.987142)
             coEvery { mockServicioORS.getToponimoCercano(-0.037787, 39.987142) } returns
                     "Buzón de Correos, Castellón de la Plana, Comunidad Valenciana, España"
+            coEvery { mockServicioRutas.contains(ofType(LugarInteres::class)) } returns listOf()
         }
     }
 
@@ -339,7 +342,7 @@ class TestServicioLugares {
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
 
         // When
-        val resultado = servicioLugares.deleteLugar(lugar)
+        val resultado = servicioLugares.deleteLugar(lugar, mockServicioRutas)
 
         //Then
         assertEquals(true, resultado)
@@ -360,7 +363,7 @@ class TestServicioLugares {
 
         // When
         try {
-            val resultado = servicioLugares.deleteLugar(lugar)
+            val resultado = servicioLugares.deleteLugar(lugar, mockServicioRutas)
 
         } catch (e: UbicationException) {
             excepcion = e
