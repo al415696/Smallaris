@@ -73,7 +73,7 @@ fun VehiculosAddContent(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(),
-//        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.primary
 
     ) {
         Column(

@@ -98,6 +98,25 @@ class UsuarioViewModel() : ViewModel() {
         }
         return ""
     }
+    suspend fun getDefaultVehiculo(): Vehiculo?{
+        return try {
+            servicioUsuarios.obtenerVehiculoPorDefecto()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    suspend fun setDefaultVehiculo(vehiculo: Vehiculo?): Boolean{
+        return try {
+
+            if (vehiculo != null) {
+                servicioUsuarios.establecerVehiculoPorDefecto(vehiculo)
+            }
+            else false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun getNombreUsuarioActual(): String{
         return try {
             servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"

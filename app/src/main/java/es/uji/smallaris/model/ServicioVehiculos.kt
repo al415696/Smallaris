@@ -123,7 +123,7 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     @Throws(ConnectionErrorException::class, VehicleException::class)
-    suspend fun deleteVehiculo(vehiculo: Vehiculo, servicioRutas: ServicioRutas = ServicioRutas.getInstance()): Boolean{
+    suspend fun deleteVehiculo(vehiculo: Vehiculo, servicioRutas: ServicioRutas = ServicioRutas.getInstance(), servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()): Boolean{
         if(vehiculo.isFavorito())
             throw VehicleException("No se puede eliminar un vehiculo favorito")
         if ( !repositorio.enFuncionamiento() )
@@ -138,6 +138,9 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
                 }
                 throw RouteException(mensajeError.toString())
             }
+            if (servicioUsuarios.obtenerVehiculoPorDefecto() == vehiculo)
+                throw VehicleException("No se pude borrar el vehiculo por defecto")
+
             return if(repositorio.removeVehiculo(vehiculo)){
                 vehiculos.remove(vehiculo)
             }else{
