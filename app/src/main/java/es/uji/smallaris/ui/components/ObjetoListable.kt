@@ -54,7 +54,6 @@ fun ObjetoListable(
         color =if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
         onClick = {
             onGeneralClick()
-            println("prueba")
         }
     ) {
 

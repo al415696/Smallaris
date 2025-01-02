@@ -135,7 +135,6 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            println("Nada obtenido")
             return@withContext null  // En caso de error o fallo en la solicitud
         }
     }

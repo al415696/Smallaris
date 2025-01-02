@@ -116,7 +116,6 @@ class CoordinateDecimalFormatter : IDecimalFormatter() {
     private val decimalSeparator = symbols.decimalSeparator
 
     override fun cleanup(input: String): String {
-        println(input)
         if (input.startsWith('-')) {
             if (input.length > 1 && input.substring(1).matches("\\D".toRegex()))
                 return ""

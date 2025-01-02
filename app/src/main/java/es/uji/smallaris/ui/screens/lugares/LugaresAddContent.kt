@@ -228,7 +228,6 @@ fun LugaresAddContent(
                         scope.launch {
                             val functionalLongitud = "%.5f".format(point.longitude()).safeToDouble()
                             val functionalLatitud = "%.5f".format(point.latitude()).safeToDouble()
-                            println("Epic1: $functionalLongitud")
                             tempLongitud.value = functionalLongitud.toCleanString()
                             tempLatitud.value = functionalLatitud.toCleanString()
                             val result =

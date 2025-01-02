@@ -101,7 +101,6 @@ fun UsuarioScreenContent(
         listVehiculos.addAll(funConseguirVehiculos())
         realDefaultVehiculo.value = funGetVehiculoPorDefecto()
         currentDefaultVehiculo.value = funGetVehiculoPorDefecto()
-        println("Antes viewmodel " + funGetTipoRutaPorDefecto())
         realDefaultTipoRuta.value = funGetTipoRutaPorDefecto()
         currentDefaultTipoRuta.value = funGetTipoRutaPorDefecto()?: TipoRuta.Rapida
         initialLoadEnded = true
@@ -118,10 +117,7 @@ fun UsuarioScreenContent(
     }
     if (currentDefaultTipoRuta.value != realDefaultTipoRuta.value && initialLoadEnded){
         LaunchedEffect(Unit) {
-            println("Llama viewModel: " + currentDefaultTipoRuta.value.name)
             if (funSetTipoRutaPorDefecto(currentDefaultTipoRuta.value)){
-                println("Sale viewModel: " + currentDefaultTipoRuta.value.name)
-
                 realDefaultTipoRuta.value = currentDefaultTipoRuta.value
             }
 

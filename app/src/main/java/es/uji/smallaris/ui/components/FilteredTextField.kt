@@ -42,7 +42,6 @@ fun FilteredTextField(
                 value = text.value,
                 onValueChange = {
                     errorMessage = filter(it)
-                    println(errorMessage)
                     valid.value = errorMessage.isEmpty()
                     if (it.length <= maxLength)
                         text.value = it
