@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,9 @@ fun UsuarioScreen(
         funGetNombreUsuario = viewModel::getNombreUsuarioActual,
         funConseguirVehiculos = viewModel::getVehiculos,
         funGetVehiculoPorDefecto = viewModel::getDefaultVehiculo,
-        funSetVehiculoPorDefecto = viewModel::setDefaultVehiculo
+        funSetVehiculoPorDefecto = viewModel::setDefaultVehiculo,
+        funGetTipoRutaPorDefecto = viewModel::getDefaultTipoRuta,
+        funSetTipoRutaPorDefecto = viewModel::setDefaultTipoRuta
         )
 }
 
@@ -66,10 +69,13 @@ fun UsuarioScreenContent(
     funGetNombreUsuario: () -> String = { "test@gmail.es" },
     funConseguirVehiculos: suspend () -> List<Vehiculo> = { emptyList() },
     funGetVehiculoPorDefecto: suspend () -> Vehiculo? = {null},
-    funSetVehiculoPorDefecto: suspend (Vehiculo) -> Boolean = {false}
+    funSetVehiculoPorDefecto: suspend (Vehiculo) -> Boolean = {false},
+    funGetTipoRutaPorDefecto: suspend () -> TipoRuta? = {null},
+    funSetTipoRutaPorDefecto: suspend (TipoRuta) -> Boolean = {false}
     ){
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
-    val currentDefaultTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
+    val currentDefaultTipoRuta = rememberSaveable() { mutableStateOf(TipoRuta.Rapida) }
+    val realDefaultTipoRuta: MutableState<TipoRuta?> = remember { mutableStateOf(null) }
     val currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val realDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val errorText: MutableState<String> = remember{ mutableStateOf("")}
@@ -93,6 +99,8 @@ fun UsuarioScreenContent(
         listVehiculos.addAll(funConseguirVehiculos())
         realDefaultVehiculo.value = funGetVehiculoPorDefecto()
         currentDefaultVehiculo.value = funGetVehiculoPorDefecto()
+        realDefaultTipoRuta.value = funGetTipoRutaPorDefecto()
+        currentDefaultTipoRuta.value = funGetTipoRutaPorDefecto()?: TipoRuta.Rapida
         initialLoadEnded = true
     }
     if (currentDefaultVehiculo.value != realDefaultVehiculo.value){
@@ -101,8 +109,16 @@ fun UsuarioScreenContent(
                if (funSetVehiculoPorDefecto(it)){
                    realDefaultVehiculo.value = currentDefaultVehiculo.value
                }
-
            }
+        }
+
+    }
+    if (currentDefaultTipoRuta.value != realDefaultTipoRuta.value && initialLoadEnded){
+        LaunchedEffect(Unit) {
+            if (funSetTipoRutaPorDefecto(currentDefaultTipoRuta.value)){
+                realDefaultTipoRuta.value = currentDefaultTipoRuta.value
+            }
+
         }
 
     }
