@@ -1,8 +1,8 @@
 package es.uji.smallaris
 
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.RepositorioFirebase
 import es.uji.smallaris.model.RepositorioVehiculos
+import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.VehicleException
@@ -25,6 +25,7 @@ class TestServicioVehiculos {
     companion object {
 
         private var mockRepositorioVehiculos = mockk<RepositorioVehiculos>(relaxed = true)
+        private var mockServicioRutas = mockk<ServicioRutas>(relaxed = true)
 
         @JvmStatic
         @BeforeClass
@@ -35,6 +36,7 @@ class TestServicioVehiculos {
             coEvery { mockRepositorioVehiculos.removeVehiculo(any()) } returns true
             coEvery { mockRepositorioVehiculos.updateVehiculos(any(), any()) } returns true
             coEvery { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) } returns true
+            coEvery { mockServicioRutas.contains(ofType(Vehiculo::class)) } returns emptyList()
         }
     }
 
@@ -142,7 +144,7 @@ class TestServicioVehiculos {
             servicioVehiculos.addVehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
 
         //      WHEN
-        val exito = servicioVehiculos.deleteVehiculo(vehiculo)
+        val exito = servicioVehiculos.deleteVehiculo(vehiculo, mockServicioRutas)
 
         //      THEN
         assertNotNull(exito)
@@ -163,7 +165,7 @@ class TestServicioVehiculos {
 
         //      WHEN
         try {
-            servicioVehiculos.deleteVehiculo(vehiculoInexistente)
+            servicioVehiculos.deleteVehiculo(vehiculoInexistente, mockServicioRutas)
         } catch (e: Exception) {
             resultado = e
         }
@@ -227,7 +229,7 @@ class TestServicioVehiculos {
             servicioVehiculos.addVehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
         val otroVehiculo =
             servicioVehiculos.addVehiculo("Otro", 7.1, "8888BBB", TipoVehiculo.Gasolina95)
-        val vehiculoEsperadoFinal: Vehiculo =
+        val vehiculoEsperadoFinal =
             Vehiculo("Moto", 7.1, "1234BBB", TipoVehiculo.Electrico)
 
         //        WHEN

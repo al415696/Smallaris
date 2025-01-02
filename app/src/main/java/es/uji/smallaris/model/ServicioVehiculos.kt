@@ -123,12 +123,21 @@ class ServicioVehiculos(private val repositorio: RepositorioVehiculos) {
     }
 
     @Throws(ConnectionErrorException::class, VehicleException::class)
-    suspend fun deleteVehiculo(vehiculo: Vehiculo): Boolean{
+    suspend fun deleteVehiculo(vehiculo: Vehiculo, servicioRutas: ServicioRutas = ServicioRutas.getInstance()): Boolean{
         if(vehiculo.isFavorito())
             throw VehicleException("No se puede eliminar un vehiculo favorito")
         if ( !repositorio.enFuncionamiento() )
             throw ConnectionErrorException("Firebase no está disponible")
         if (vehiculos.contains(vehiculo)){
+            val rutasConElVehiculo = servicioRutas.contains(vehiculo)
+            if (rutasConElVehiculo.isNotEmpty()){
+                val mensajeError = StringBuilder("No se puede borrar porque se usa en ")
+                mensajeError.append("la ruta ${rutasConElVehiculo[0].getNombre().take(50)}")
+                if (rutasConElVehiculo.size != 1) {
+                    mensajeError.append(" y en ${if (rutasConElVehiculo.size == 2) "una más" else "${rutasConElVehiculo.size-1} otras"}")
+                }
+                throw RouteException(mensajeError.toString())
+            }
             return if(repositorio.removeVehiculo(vehiculo)){
                 vehiculos.remove(vehiculo)
             }else{
