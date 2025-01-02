@@ -13,4 +13,6 @@ interface RepositorioUsuarios: Repositorio {
     suspend fun borrarUsuario(): Usuario
     suspend fun cerrarSesion(): Usuario
     suspend fun cambiarContrasena(contrasenaVieja: String, contrasenaNueva: String): Boolean
+    suspend fun establecerVehiculoPorDefecto(vehiculo: Vehiculo): Boolean
+    suspend fun obtenerVehiculoPorDefecto(): Vehiculo?
 }
