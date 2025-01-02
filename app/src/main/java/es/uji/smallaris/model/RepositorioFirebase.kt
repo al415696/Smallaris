@@ -25,6 +25,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private var vehiculoPorDefecto: Vehiculo? = null
+    private var tipoRutaPorDefecto: TipoRuta? = null
 
     override fun obtenerFirestore(): FirebaseFirestore {
         return db
@@ -66,6 +67,14 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun obtenerVehiculoPorDefecto(): Vehiculo? {
         return vehiculoPorDefecto
+    }
+
+    override suspend fun establecerTipoRutaPorDefecto(tipoRuta: TipoRuta): Boolean {
+        return false
+    }
+
+    override suspend fun obtenerTipoRutaPorDefecto(): TipoRuta? {
+        return tipoRutaPorDefecto
     }
 
     override suspend fun getVehiculos(): List<Vehiculo> {

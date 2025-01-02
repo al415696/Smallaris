@@ -164,6 +164,41 @@ class TestServicioUsuarios {
         }
 
         @Test
+        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoExito() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val tipoRutaElegido = TipoRuta.Rapida
+
+            // When
+            val resultado = servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+
+            // Then
+            assertTrue(resultado)
+            val tipoRutaPorDefecto = servicioUsuarios.obtenerTipoRutaPorDefecto()
+            assertEquals(tipoRutaElegido, tipoRutaPorDefecto)
+        }
+
+        @Test
+        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoYaEstablecido() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val tipoRutaElegido = TipoRuta.Rapida
+            servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+
+            // When
+            var resultado: RouteException? = null
+            try {
+                servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+            } catch (excepcion: RouteException) {
+                resultado = excepcion
+            }
+
+            // Then
+            assertNotNull(resultado)
+            assertTrue(resultado is RouteException)
+        }
+
+        @Test
         fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoExito() = runBlocking {
             // Given
             servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
