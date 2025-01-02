@@ -3,6 +3,7 @@ package es.uji.smallaris
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.RepositorioVehiculos
 import es.uji.smallaris.model.ServicioRutas
+import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.VehicleException
@@ -26,6 +27,7 @@ class TestServicioVehiculos {
 
         private var mockRepositorioVehiculos = mockk<RepositorioVehiculos>(relaxed = true)
         private var mockServicioRutas = mockk<ServicioRutas>(relaxed = true)
+        private val mockServicioUsuarios = mockk<ServicioUsuarios>(relaxed = true)
 
         @JvmStatic
         @BeforeClass
@@ -37,6 +39,11 @@ class TestServicioVehiculos {
             coEvery { mockRepositorioVehiculos.updateVehiculos(any(), any()) } returns true
             coEvery { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) } returns true
             coEvery { mockServicioRutas.contains(ofType(Vehiculo::class)) } returns emptyList()
+            coEvery { mockServicioUsuarios.obtenerVehiculoPorDefecto() } returns Vehiculo(
+                "Mock",
+                matricula = "NULL",
+                tipo = TipoVehiculo.Desconocido
+            )
         }
     }
 
@@ -144,7 +151,7 @@ class TestServicioVehiculos {
             servicioVehiculos.addVehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
 
         //      WHEN
-        val exito = servicioVehiculos.deleteVehiculo(vehiculo, mockServicioRutas)
+        val exito = servicioVehiculos.deleteVehiculo(vehiculo, mockServicioRutas, mockServicioUsuarios)
 
         //      THEN
         assertNotNull(exito)
@@ -165,7 +172,9 @@ class TestServicioVehiculos {
 
         //      WHEN
         try {
-            servicioVehiculos.deleteVehiculo(vehiculoInexistente, mockServicioRutas)
+            servicioVehiculos.deleteVehiculo(
+                vehiculoInexistente, mockServicioRutas, servicioUsuarios = mockServicioUsuarios
+            )
         } catch (e: Exception) {
             resultado = e
         }
@@ -190,7 +199,8 @@ class TestServicioVehiculos {
         val resultado = servicioVehiculos.updateVehiculo(
             vehiculoInicial,
             nuevoNombre = "Moto",
-            nuevoTipoVehiculo = TipoVehiculo.Electrico
+            nuevoTipoVehiculo = TipoVehiculo.Electrico,
+            servicioUsuarios = mockServicioUsuarios
         )
 
         //        THEN
@@ -211,7 +221,8 @@ class TestServicioVehiculos {
         val resultado = servicioVehiculos.updateVehiculo(
             vehiculoInicial,
             nuevoNombre = "Moto",
-            nuevoTipoVehiculo = TipoVehiculo.Electrico
+            nuevoTipoVehiculo = TipoVehiculo.Electrico,
+            servicioUsuarios = mockServicioUsuarios
         )
 
         //        THEN
@@ -236,7 +247,8 @@ class TestServicioVehiculos {
         val resultado = servicioVehiculos.updateVehiculo(
             vehiculoInicial,
             nuevoNombre = "Moto",
-            nuevoTipoVehiculo = TipoVehiculo.Electrico
+            nuevoTipoVehiculo = TipoVehiculo.Electrico,
+            servicioUsuarios = mockServicioUsuarios
         )
 
         //        THEN
@@ -261,7 +273,8 @@ class TestServicioVehiculos {
             servicioVehiculos.updateVehiculo(
                 vehiculoInicial,
                 nuevoNombre = "Otro",
-                nuevoTipoVehiculo = TipoVehiculo.Electrico
+                nuevoTipoVehiculo = TipoVehiculo.Electrico,
+                servicioUsuarios = mockServicioUsuarios
             )
         } catch (e: Exception) {
             resultado = e
@@ -284,7 +297,9 @@ class TestServicioVehiculos {
 
         //        WHEN
         try {
-            servicioVehiculos.updateVehiculo(vehiculoInicial)
+            servicioVehiculos.updateVehiculo(
+                vehiculoInicial, servicioUsuarios = mockServicioUsuarios
+            )
         } catch (e: Exception) {
             resultado = e
         }
@@ -297,14 +312,34 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero() = runBlocking{
+    fun getVehiculos_R5HU4V2_getVehiculosOrdenadosFavoritosPrimero() = runBlocking {
         //      GIVEN
         val servicioVehiculos = ServicioVehiculos(mockRepositorioVehiculos)
-        servicioVehiculos.addVehiculo(nombre= "Zulom",consumo=5.13, matricula = "3333WWW" ,tipo=TipoVehiculo.Diesel)
-        servicioVehiculos.addVehiculo(nombre= "Abobamasnow",consumo=1.36, matricula = "1234DPP" ,tipo=TipoVehiculo.Gasolina95)
-        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+        servicioVehiculos.addVehiculo(
+            nombre = "Zulom",
+            consumo = 5.13,
+            matricula = "3333WWW",
+            tipo = TipoVehiculo.Diesel
+        )
+        servicioVehiculos.addVehiculo(
+            nombre = "Abobamasnow",
+            consumo = 1.36,
+            matricula = "1234DPP",
+            tipo = TipoVehiculo.Gasolina95
+        )
+        servicioVehiculos.addVehiculo(
+            nombre = "Zyxcrieg",
+            consumo = 6.66,
+            matricula = "4444XXX",
+            tipo = TipoVehiculo.Electrico
+        )
             .let { servicioVehiculos.setVehiculoFavorito(it) }
-        servicioVehiculos.addVehiculo(nombre= "Carrozaso",consumo=15.82, matricula = "5675BFC" ,tipo=TipoVehiculo.Gasolina95)
+        servicioVehiculos.addVehiculo(
+            nombre = "Carrozaso",
+            consumo = 15.82,
+            matricula = "5675BFC",
+            tipo = TipoVehiculo.Gasolina95
+        )
 
         //      WHEN
         val lista = servicioVehiculos.getVehiculos()
@@ -316,38 +351,53 @@ class TestServicioVehiculos {
     }
 
     @Test
-    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoVehiculoFavorito() = runBlocking{
-        //      GIVEN
-        val servicioVehiculos = ServicioVehiculos(mockRepositorioVehiculos)
-        val vehiculo= servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
+    fun getVehiculo_setFavorito_R5HU4V1_asignarVehiculoNoFavoritoComoVehiculoFavorito() =
+        runBlocking {
+            //      GIVEN
+            val servicioVehiculos = ServicioVehiculos(mockRepositorioVehiculos)
+            val vehiculo = servicioVehiculos.addVehiculo(
+                nombre = "Zyxcrieg",
+                consumo = 6.66,
+                matricula = "4444XXX",
+                tipo = TipoVehiculo.Electrico
+            )
 
-        //      WHEN
-        val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
+            //      WHEN
+            val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
 
-        //      THEN
-        assertTrue(cambiado)
-        assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
-        coVerify { mockRepositorioVehiculos.enFuncionamiento() }
-        coVerify { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) }
-    }
+            //      THEN
+            assertTrue(cambiado)
+            assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
+            coVerify { mockRepositorioVehiculos.enFuncionamiento() }
+            coVerify { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) }
+        }
 
     @Test
-    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoVehiculoFavorito() = runBlocking{
-        //      GIVEN
-        val servicioVehiculos = ServicioVehiculos(mockRepositorioVehiculos)
-        val vehiculo: Vehiculo
-        servicioVehiculos.addVehiculo(nombre= "Zyxcrieg",consumo=6.66, matricula = "4444XXX" ,tipo=TipoVehiculo.Electrico)
-            .let {vehiculo= it
-                servicioVehiculos.setVehiculoFavorito(it) }
-        servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX" )?.setFavorito(true)
+    fun getVehiculo_setFavorito_R5HU4I1_asignarVehiculoYaFavoritoComoVehiculoFavorito() =
+        runBlocking {
+            //      GIVEN
+            val servicioVehiculos = ServicioVehiculos(mockRepositorioVehiculos)
+            val vehiculo: Vehiculo
+            servicioVehiculos.addVehiculo(
+                nombre = "Zyxcrieg",
+                consumo = 6.66,
+                matricula = "4444XXX",
+                tipo = TipoVehiculo.Electrico
+            )
+                .let {
+                    vehiculo = it
+                    servicioVehiculos.setVehiculoFavorito(it)
+                }
+            servicioVehiculos.getVehiculo(nombre = "Zyxcrieg", matricula = "4444XXX")
+                ?.setFavorito(true)
 
-        //      WHEN
-        val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
+            //      WHEN
+            val cambiado = servicioVehiculos.setVehiculoFavorito(vehiculo)
 
-        //      THEN
-        assertFalse(cambiado)
-        assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
-        coVerify { mockRepositorioVehiculos.enFuncionamiento() }
-        coVerify(exactly = 1) { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) }
-    }
+            //      THEN
+            assertFalse(cambiado)
+            assertTrue(servicioVehiculos.getVehiculos()[0].isFavorito())
+            coVerify { mockRepositorioVehiculos.enFuncionamiento() }
+            coVerify(exactly = 1) { mockRepositorioVehiculos.setVehiculoFavorito(any(), any()) }
+        }
 }

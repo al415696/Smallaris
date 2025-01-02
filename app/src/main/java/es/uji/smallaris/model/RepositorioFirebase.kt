@@ -49,9 +49,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
 
             val document = userDocRef.get().await()
-            val vehiculoActual = document["vehiculoPorDefecto"] as? Map<String, Any>
 
-            if (vehiculoActual != null && vehiculoActual["matricula"] == vehiculo.matricula) {
+            if (vehiculoPorDefecto == vehiculo) {
                 throw VehicleException("El vehículo ya está establecido como por defecto.")
             }
 
@@ -477,6 +476,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             val usuario = resultadoAutenticacion.user
 
             if (usuario != null) {
+                vehiculoPorDefecto = obtenerVehiculoPorDefecto()
+                tipoRutaPorDefecto = obtenerTipoRutaPorDefecto()
                 return Usuario(correo = usuario.email ?: "")
             } else {
                 throw Exception("No se pudo iniciar sesión correctamente. Usuario no encontrado.")

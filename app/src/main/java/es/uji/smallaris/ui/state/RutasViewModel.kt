@@ -16,6 +16,7 @@ import es.uji.smallaris.model.RutaBuilder
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.ServicioRutas
+import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.TipoVehiculo
@@ -28,6 +29,7 @@ class RutasViewModel() : ViewModel() {
 
     private val servicioLugares: ServicioLugares = ServicioLugares.getInstance()
     private val servicioVehiculos: ServicioVehiculos = ServicioVehiculos.getInstance()
+    private val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
 
     suspend fun getVehiculos(): List<Vehiculo> {
         return servicioVehiculos.getVehiculos()
@@ -143,6 +145,20 @@ class RutasViewModel() : ViewModel() {
             return e.message?: "Fallo inesperado, prueba con otro momento"
         }
     }
+    suspend fun getDefaultVehiculo(): Vehiculo?{
+        return try {
+            servicioUsuarios.obtenerVehiculoPorDefecto()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    suspend fun getDefaultTipoRuta(): TipoRuta?{
+        return try {
+            servicioUsuarios.obtenerTipoRutaPorDefecto()
+        } catch (e: Exception) {
+            null
+        }
+    }
     suspend fun debugFillList() {
         val builder = servicioRutas.builder()
 
@@ -183,30 +199,37 @@ class RutasViewModel() : ViewModel() {
 
 
     suspend fun initializeList(){
-        servicioRutas.updateRutas()
-        updateList()
+        try {
+            servicioRutas.updateRutas()
+            updateList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    suspend fun updateList(){
-        // Step 1: Add missing elements
-        val nueva = servicioRutas.getRutas()
-        nueva.forEach { element ->
-            if (!listRutas.contains(element)) {
-                listRutas.add(element)
+    private suspend fun updateList(){
+        try {// Step 1: Add missing elements
+            val nueva = servicioRutas.getRutas()
+            nueva.forEach { element ->
+                if (!listRutas.contains(element)) {
+                    listRutas.add(element)
+                }
             }
-        }
 
-        // Step 2: Remove extra elements
-        val iterator = listRutas.iterator()
-        while (iterator.hasNext()) {
-            val element = iterator.next()
-            if (!nueva.contains(element)) {
-                iterator.remove()
+            // Step 2: Remove extra elements
+            val iterator = listRutas.iterator()
+            while (iterator.hasNext()) {
+                val element = iterator.next()
+                if (!nueva.contains(element)) {
+                    iterator.remove()
+                }
             }
-        }
 
-        // Step 3: Rearrange elements
-        sortItems()
+            // Step 3: Rearrange elements
+            sortItems()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 

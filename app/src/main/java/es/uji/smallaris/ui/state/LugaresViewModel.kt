@@ -10,15 +10,14 @@ import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.ErrorCategory
 import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.RouteException
-import es.uji.smallaris.model.lugares.ServicioLugares
-import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.ServicioAPIs
 import es.uji.smallaris.model.VehicleException
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
-import okhttp3.Route
 
 //@HiltViewModel
-class LugaresViewModel() : ViewModel() {
+class LugaresViewModel : ViewModel() {
 //    constructor(listState: Pair<Int,Int>) : this() {
 //        listStateValues = listState
 //    }
@@ -114,30 +113,38 @@ class LugaresViewModel() : ViewModel() {
             }
     }
     suspend fun initializeList(){
-        servicioLugares.updateLugares()
-        updateList()
+        try {
+            servicioLugares.updateLugares()
+            updateList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
-    suspend fun updateList(){
+    private suspend fun updateList(){
 //        items.value = servicioLugares.getLugares()
-        // Step 1: Add missing elements
-        val nueva = servicioLugares.getLugares()
-        nueva.forEach { element ->
-            if (!items.contains(element)) {
-                items.add(element)
+        try {
+            // Step 1: Add missing elements
+            val nueva = servicioLugares.getLugares()
+            nueva.forEach { element ->
+                if (!items.contains(element)) {
+                    items.add(element)
+                }
             }
-        }
 
-        // Step 2: Remove extra elements
-        val iterator = items.iterator()
-        while (iterator.hasNext()) {
-            val element = iterator.next()
-            if (!nueva.contains(element)) {
-                iterator.remove()
+            // Step 2: Remove extra elements
+            val iterator = items.iterator()
+            while (iterator.hasNext()) {
+                val element = iterator.next()
+                if (!nueva.contains(element)) {
+                    iterator.remove()
+                }
             }
-        }
 
-        // Step 3: Rearrange elements
-        sortItems()
+            // Step 3: Rearrange elements
+            sortItems()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun getToponimo(longitud: Double, latitud: Double):Pair<ErrorCategory,String>{

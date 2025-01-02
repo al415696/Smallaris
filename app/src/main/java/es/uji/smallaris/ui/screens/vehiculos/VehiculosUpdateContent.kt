@@ -77,7 +77,7 @@ fun VehiculosUpdateContent(
 
 
             confirmadoAdd = false
-            if (errorText.value.isNotEmpty())
+            if (errorText.value.isEmpty())
                 onBack()
         }
     }

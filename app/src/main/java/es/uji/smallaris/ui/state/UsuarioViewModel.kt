@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
+import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.UnloggedUserException
 import es.uji.smallaris.model.UnregisteredUserException
 import es.uji.smallaris.model.UserAlreadyExistsException
@@ -116,6 +117,25 @@ class UsuarioViewModel() : ViewModel() {
             false
         }
     }
+    suspend fun getDefaultTipoRuta(): TipoRuta?{
+        return try {
+            servicioUsuarios.obtenerTipoRutaPorDefecto()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    suspend fun setDefaultTipoRuta(tipoRuta: TipoRuta?): Boolean{
+        return try {
+
+            if (tipoRuta != null) {
+                println("En viewModel: " + tipoRuta.name)
+                servicioUsuarios.establecerTipoRutaPorDefecto(tipoRuta)
+            }
+            else false
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     fun getNombreUsuarioActual(): String{
         return try {
@@ -126,6 +146,7 @@ class UsuarioViewModel() : ViewModel() {
             "Tu cuenta principal??"
         }
     }
+
 
     companion object{
         val Saver: Saver<UsuarioViewModel, *> = listSaver(

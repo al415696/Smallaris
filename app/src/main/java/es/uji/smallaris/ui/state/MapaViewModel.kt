@@ -74,19 +74,6 @@ class MapaViewModel() : ViewModel() {
     }
 
 
-    var addMapState: MapViewportState = MapViewportState(
-        CameraState(
-            Point.fromLngLat(
-                -0.068547,
-                39.994259
-            ),
-            EdgeInsets(0.0, 0.0, 0.0, 0.0),
-            15.0, // Ajusta el nivel de zoom según lo que desees mostrar.
-            0.0,
-            0.0
-        )
-    )
-
     private val servicioAPI: ServicioAPIs = ServicioAPIs
 
     suspend fun getToponimo(longitud: Double, latitud: Double): Pair<ErrorCategory, String> {
