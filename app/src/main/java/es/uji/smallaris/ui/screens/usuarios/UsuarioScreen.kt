@@ -54,6 +54,8 @@ fun UsuarioScreen(
         funEliminarCuenta =  viewModel::eliminarCuenta,
         funGetNombreUsuario = viewModel::getNombreUsuarioActual,
         funConseguirVehiculos = viewModel::getVehiculos,
+        funGetVehiculoPorDefecto = viewModel::getDefaultVehiculo,
+        funSetVehiculoPorDefecto = viewModel::setDefaultVehiculo
         )
 }
 
@@ -63,10 +65,13 @@ fun UsuarioScreenContent(
     funEliminarCuenta: suspend () -> String = {""},
     funGetNombreUsuario: () -> String = { "test@gmail.es" },
     funConseguirVehiculos: suspend () -> List<Vehiculo> = { emptyList() },
+    funGetVehiculoPorDefecto: suspend () -> Vehiculo? = {null},
+    funSetVehiculoPorDefecto: suspend (Vehiculo) -> Boolean = {false}
     ){
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
     val currentDefaultTipoRuta = remember { mutableStateOf(TipoRuta.Rapida) }
     val currentDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
+    val realDefaultVehiculo: MutableState<Vehiculo?> = remember { mutableStateOf(null) }
     val errorText: MutableState<String> = remember{ mutableStateOf("")}
     val listVehiculos = remember { mutableStateListOf<Vehiculo>() }
     var initialLoadEnded by remember { mutableStateOf(false) }
@@ -86,7 +91,20 @@ fun UsuarioScreenContent(
 
     LaunchedEffect(Unit) {
         listVehiculos.addAll(funConseguirVehiculos())
+        realDefaultVehiculo.value = funGetVehiculoPorDefecto()
+        currentDefaultVehiculo.value = funGetVehiculoPorDefecto()
         initialLoadEnded = true
+    }
+    if (currentDefaultVehiculo.value != realDefaultVehiculo.value){
+        LaunchedEffect(Unit) {
+           currentDefaultVehiculo.value?.let {
+               if (funSetVehiculoPorDefecto(it)){
+                   realDefaultVehiculo.value = currentDefaultVehiculo.value
+               }
+
+           }
+        }
+
     }
     Surface(modifier = Modifier.fillMaxSize(),
         color= MaterialTheme.colorScheme.primary) {
