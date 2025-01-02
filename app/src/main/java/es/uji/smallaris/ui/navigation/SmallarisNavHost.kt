@@ -21,7 +21,6 @@ import es.uji.smallaris.ui.screens.rutas.RutasScreen
 import es.uji.smallaris.ui.screens.usuarios.LoginScreen
 import es.uji.smallaris.ui.screens.vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
-import es.uji.smallaris.ui.state.MapaViewModel
 import es.uji.smallaris.ui.state.RutasViewModel
 import es.uji.smallaris.ui.state.UsuarioViewModel
 import es.uji.smallaris.ui.state.VehiculosViewModel
@@ -37,7 +36,6 @@ fun SmallarisNavHost(
     // Nota: puede que sea necesario quitar el remember y asignar con: viewModel<ClaseNuestraDeViewModel>()
     // Al añadir cualquier cosa a los viewModels también hay que actualizar el Saver.
     //los cosaXXXX son para mostrar el proceso de asignar y definir variables; no son definitivos
-    val mapaViewModel = rememberSaveable(saver = MapaViewModel.Saver) { MapaViewModel() }
     val lugaresViewModel = rememberSaveable(saver = LugaresViewModel.Saver) { LugaresViewModel()}
     val vehiculosViewModel = rememberSaveable(saver =  VehiculosViewModel.Saver){ VehiculosViewModel()}
     val rutasViewModel = rememberSaveable(saver = RutasViewModel.Saver) { RutasViewModel()}
@@ -52,19 +50,20 @@ fun SmallarisNavHost(
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
-//                vehiculosViewModel.debugFillList()
                 vehiculosViewModel.initializeList()
+
                 //Lugares
-//                lugaresViewModel.debugFillList()
                 lugaresViewModel.initializeList()
 
                 //Rutas
-//                rutasViewModel.debugFillList()
                 rutasViewModel.initializeList()
 
-                navigationEnabled.value = true
+
             },
-            onTimeout = { loadingServiciosObjetos = false }
+            onTimeout = {
+                loadingServiciosObjetos = false
+                navigationEnabled.value = true
+            }
         )
     }
         else {

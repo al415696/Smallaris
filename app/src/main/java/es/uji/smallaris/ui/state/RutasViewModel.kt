@@ -159,44 +159,6 @@ class RutasViewModel() : ViewModel() {
             null
         }
     }
-    suspend fun debugFillList() {
-        val builder = servicioRutas.builder()
-
-        // Esta ruta es dummy, no tiene ni trayecto ni duración ni distancia
-        // La diferencia esta en la última llamada a getRuta()
-//        val ruta1 = builder.setNombre("Ruta 1").setInicio(
-//            LugarInteres(
-//                -0.03778,
-//                39.98574,
-//                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
-//                "Castellón de la Plana"
-//            )
-//        ).setFin(
-//            LugarInteres(-2.934, 43.268, "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao")
-//        ).setVehiculo(Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95))
-//            .setTipo(TipoRuta.Economica).getRuta()
-
-        // Esta ruta es completa, tiene trayecto, duración y distancia
-        // La diferencia esta en la última llamada a build()
-        val ruta2 = builder.setNombre("Ruta 1").setInicio(
-            LugarInteres(
-                -0.03778,
-                39.98574,
-                "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España",
-                "Castellón de la Plana"
-            )
-        ).setFin(
-            LugarInteres(-2.934, 43.268, "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao")
-        ).setVehiculo(Vehiculo("Coche", 7.0, "234", TipoVehiculo.Gasolina95))
-            .setTipo(TipoRuta.Corta).build()
-
-        // Lo comento por qué cada vez que entras al mapa genércio recrea la ruta y lanza excepción
-        //servicioRutas.addRuta(ruta1)
-
-//        servicioRutas.addRuta(ruta1)
-        servicioRutas.addRuta(ruta2)
-    }
-
 
     suspend fun initializeList(){
         try {

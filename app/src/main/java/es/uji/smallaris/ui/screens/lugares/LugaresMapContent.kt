@@ -66,7 +66,7 @@ fun LugaresMapContent(
 
             val markerImage = rememberIconImage(
                 key = "default_marker",
-                painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
+                painter = painterResource(R.drawable.map_marker_by_smashicons)// Cambia esto por el icono que prefieras
             )
             MapboxMap(
                 modifier = Modifier.fillMaxSize(),
@@ -81,8 +81,8 @@ fun LugaresMapContent(
                     PointAnnotation(point = savedMarker.value) {
                         iconColor = Color.Red
                         iconImage = markerImage
-                        iconSize = 3.5
-                        iconOffset = listOf(0.0, -10.0)
+                        iconSize = 0.35
+                        iconOffset = listOf(0.0, -95.0)
                         textColor = Color.Black
                         textSize = 10.0
                         textOffset =

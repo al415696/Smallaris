@@ -214,7 +214,7 @@ fun LugaresAddContent(
                 val scope = rememberCoroutineScope()
                 val markerImage = rememberIconImage(
                     key = "default_marker",
-                    painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
+                    painter = painterResource(R.drawable.map_marker_by_smashicons)// Cambia esto por el icono que prefieras
                 )
                 MapboxMap(
                     modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
@@ -246,12 +246,12 @@ fun LugaresAddContent(
                             PointAnnotation(point = point) {
                                 iconColor = Color.Red
                                 iconImage = markerImage
-                                iconSize = 3.5
-                                iconOffset = listOf(0.0, -10.0)
+                                iconSize = 0.35
+                                iconOffset = listOf(0.0, -95.0)
                                 textColor = Color.Black
                                 textSize = 10.0
                                 textOffset =
-                                    listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
+                                    listOf(0.0, -9.0) // Ajuste para colocar el texto correctamente
                             }
                         }
 

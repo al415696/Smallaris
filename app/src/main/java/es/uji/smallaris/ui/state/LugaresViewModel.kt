@@ -81,37 +81,6 @@ class LugaresViewModel : ViewModel() {
             return e.message?:"Fallo inesperado, prueba con otro momento"
         }
     }
-    suspend fun debugFillList(){
-
-            val lugarInteresTestData = listOf(
-            LugarInteres(-0.03778, 39.98574, "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana"),
-            LugarInteres(-2.934,43.268,  "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao"),
-            LugarInteres(-4.02057, 39.85788, "El Alcázar, Toledo, Castilla-La Mancha, España", "Toledo"),
-            LugarInteres(-0.47807, 38.34910, "Castillo de Santa Bárbara, Alicante, Comunidad Valenciana, España", "Alicante"),
-            LugarInteres(-3.7038, 40.4168, "Parque de las Aves", "Madrid"),
-            LugarInteres(2.1769, 41.3825, "Cascada de los Elfos", "Barcelona"),
-            LugarInteres(-5.9845,37.3891,  "Bosque Encantado", "Sevilla"),
-            LugarInteres(-4.4214,36.7213,  "Casa del Tiempo", "Málaga"),
-            LugarInteres(-1.6323,42.6986,  "Torre de la Eternidad", "Pamplona"),
-            LugarInteres(-0.8773,41.6561,  "Templo de los Milagros", "Zaragoza"),
-            LugarInteres(-1.1280,37.9834,  "Camino de los Ancestros", "Murcia"),
-            LugarInteres(-16.2546,28.4682,  "Isla de las Almas", "Santa Cruz de Tenerife"),
-            LugarInteres(-3.7176849639172684, 40.965189327470604,  "Calle random de Gargantilla del Lozoya y Pinilla de Buitrago", "Gargantilla del Lozoya y Pinilla de Buitrago"),
-//                LugarInteres(-0.57807, 38.24910, "Cerca de Castillo de Santa Bárbara, Alicante, Comunidad Valenciana, España", "Alicante"),
-//                LugarInteres(-3.8038, 40.3168, "Cerca de Parque de las Aves", "Madrid"),
-//                LugarInteres(2.2769, 41.2825, "Cerca de Cascada de los Elfos", "Barcelona"),
-//                LugarInteres(-5.0845,37.2891,  "Cerca de Bosque Encantado", "Sevilla"),
-//                LugarInteres(-4.5214,36.6213,  "Cerca de Casa del Tiempo", "Málaga"),
-//                LugarInteres(-1.7323,42.5986,  "Cerca de Torre de la Eternidad", "Pamplona"),
-//                LugarInteres(-0.9773,41.5561,  "Cerca de Templo de los Milagros", "Zaragoza"),
-//                LugarInteres(-1.2280,37.8834,  "Cerca de Camino de los Ancestros", "Murcia"),
-//                LugarInteres(-16.3546,28.3682,  "Cerca de Isla de las Almas", "Santa Cruz de Tenerife"),
-        )
-//        servicioLugares.addLugar(-0.03778, 39.98574, "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España")
-            for (lugar in lugarInteresTestData) {
-                addLugar(lugar.longitud, lugar.latitud, lugar.nombre)
-            }
-    }
     suspend fun initializeList(){
         try {
             servicioLugares.updateLugares()

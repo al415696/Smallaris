@@ -247,15 +247,6 @@ fun RutasAddContent(
             ) {
                 TopBackBar(onBack)
 
-
-                val scope = rememberCoroutineScope()
-                val markerImage = rememberIconImage(
-                    key = "default_marker",
-                    painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
-                )
-
-
-
                 Surface(
                     modifier = Modifier.padding(10.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
