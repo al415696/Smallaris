@@ -144,6 +144,12 @@ private fun EmailPasswordForm(
             FilteredTextField(
                 text = loginPass,
                 valid = loginPassValid,
+                filter= {
+                    if (it.isEmpty())
+                        "No puede estar vacía"
+                    else
+                        ""
+                },
                 label = "Contraseña",
                 visualTransformation = PasswordVisualTransformation()
             )
