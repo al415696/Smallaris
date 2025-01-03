@@ -32,7 +32,34 @@ Este proyecto es parte de las asignaturas **EI1039 - Diseño de Software** y **E
 
 ## Requisitos de Instalación
 
-### Clonar el Repositorio
+### 1. Clonar el Repositorio
 ```bash
 git clone https://github.com/al415696/Smallaris.git
 cd Smallaris
+```
+
+### 2. Configurar las claves API
+  Configura el archivo local.properties en la raíz del proyecto y añade las claves API necesarias para los siguientes servicios:
+  
+  - OpenRouteService
+  - Firebase
+  - Mapbox
+
+### 3. Configurar el entorno Android
+  Instala Android Studio y configura un dispositivo físico o virtual con al menos Android 8.0 (API 26)..
+
+### 4. Sincronizar y compilar
+  -  Abre el proyecto en Android Studio.
+  - Sincroniza el proyecto con Gradle para asegurarte de que todas las dependencias estén descargadas y configuradas correctamente.
+  - Compila y ejecuta el proyecto en tu dispositivo o emulador Android.
+
+## Estructura del Proyecto
+
+El proyecto sigue una estructura modular organizada de la siguiente manera:
+
+- **`app/src/main/`**
+  - **`ui/`**: Contiene los composables y la navegación de la interfaz de usuario.
+  - **`model/`**: Define las clases de dominio, como usuarios, rutas y vehículos.
+  - **`services/`**: Contiene los servicios relacionados con APIs y la persistencia de datos.
+  - **`viewmodel/`**: Gestiona la lógica de negocio a través de los ViewModels.
+
