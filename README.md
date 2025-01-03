@@ -64,12 +64,12 @@ El proyecto sigue una estructura modular organizada de la siguiente manera:
   - **`main/`**
     - **`model/`**: Define las clases de dominio, como usuarios, rutas y vehículos. También contiene los servicios relacionados con APIs y la persistencia de datos.
     - **`ui/`**: Interfaz de usuario.
-      - **`components/`**: 
-      - **`navigation/`**: 
-      - **`screens/`**: 
-      - **`state/`**:
-      - **`theme/`**:
-    - **`MainActivity/`**:  
+      - **`components/`**: funciones componibles generalizadas(componentes de UI) para ser usadas en varios ficheros sin redundancia.
+      - **`navigation/`**: Elementos directamente relacionados con la navegación como el controller de navegación y las rutas e iconos de cada ventana.
+      - **`screens/`**: Los grandes fragmentos de UI, las ventanas y subventanas que forman la GUI usando los elementos de los directiorios adyacentes.
+      - **`state/`**: Los View Models que comunican y adaptan la funcionalidad de los servicios del modelo para ser usados en la interfaz.
+      - **`theme/`**: La configuración general de elementos gráficos en compose: paletas de colores, tipografía y formas de contenedores.
+    - **`MainActivity/`**:  El archivo que se debe ejecutar para iniciar la aplicación. 
   - **`test/`**: Contiene las pruebas de aceptación  sobre los diferentes servicios implementados con todas las dependencias sustituidas con mocks de a librerria *Mockk*.
 
 
