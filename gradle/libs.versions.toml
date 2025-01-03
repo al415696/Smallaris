@@ -9,6 +9,7 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.04.01"
 navigationCompose = "2.8.4"
+uiTextGoogleFonts = "1.7.6"
 #firebaseBom = "33.1.1"
 #services = "4.4.2"
 
@@ -29,6 +30,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 #firebase-bom = { module  = "com.google.firebase:firebase-bom", version.ref = "firebaseBom"}
 #googleServices = { id = "com.google.gms.google-services", version.ref = "services"}
 

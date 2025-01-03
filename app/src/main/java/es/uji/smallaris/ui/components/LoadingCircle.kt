@@ -1,7 +1,6 @@
 package es.uji.smallaris.ui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -15,30 +14,35 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoadingCircle(
     modifier: Modifier = Modifier,
-    size: Dp = 48.dp
+    size: Dp = 48.dp,
+    strokeWidthPercentage: Float = 0.15f
 ) {
     Box(modifier = modifier) {
         CircularProgressIndicator(
-            modifier = Modifier.size(size).align(Alignment.Center),
+            modifier = Modifier
+                .size(size)
+                .align(Alignment.Center),
             color = MaterialTheme.colorScheme.secondary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            strokeWidth = size * 0.15f
+            strokeWidth = size * strokeWidthPercentage
         )
     }
-//        Spacer(Modifier.size(totalWidth/2))
 }
+
 @Composable
 @Preview
-fun previewDefaultLoadingCircle(){
+fun PreviewDefaultLoadingCircle() {
     LoadingCircle()
 }
+
 @Composable
 @Preview
-fun previewSmallLoadingCircle(){
+fun PreviewSmallLoadingCircle() {
     LoadingCircle(size = 32.dp)
 }
+
 @Composable
 @Preview
-fun previewBigLoadingCircle(){
+fun PreviewBigLoadingCircle() {
     LoadingCircle(size = 128.dp)
 }

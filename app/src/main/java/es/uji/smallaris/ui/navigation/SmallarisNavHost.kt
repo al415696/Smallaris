@@ -14,12 +14,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import es.uji.smallaris.ui.screens.LoadingScreen
 import es.uji.smallaris.ui.screens.lugares.LugaresScreen
-import es.uji.smallaris.ui.screens.MapaScreen
-import es.uji.smallaris.ui.screens.RutasScreen
-import es.uji.smallaris.ui.screens.UsuarioScreen
+import es.uji.smallaris.ui.screens.rutas.RutasScreen
+import es.uji.smallaris.ui.screens.usuarios.LoginScreen
+import es.uji.smallaris.ui.screens.usuarios.UsuarioScreen
 import es.uji.smallaris.ui.screens.vehiculos.VehiculosScreen
 import es.uji.smallaris.ui.state.LugaresViewModel
-import es.uji.smallaris.ui.state.MapaViewModel
 import es.uji.smallaris.ui.state.RutasViewModel
 import es.uji.smallaris.ui.state.UsuarioViewModel
 import es.uji.smallaris.ui.state.VehiculosViewModel
@@ -32,33 +31,40 @@ fun SmallarisNavHost(
     navigationEnabled: MutableState<Boolean>
 
 ) {
-    // Nota: puede que sea necesario quitar el remember y asignar con: viewModel<ClaseNuestraDeViewModel>()
-    // Al añadir cualquier cosa a los viewModels también hay que actualizar el Saver.
-    //los cosaXXXX son para mostrar el proceso de asignar y definir variables; no son definitivos
-    val mapaViewModel = rememberSaveable(saver = MapaViewModel.Saver) { MapaViewModel() }
-    val lugaresViewModel = rememberSaveable(saver = LugaresViewModel.Saver) { LugaresViewModel()}
-    val vehiculosViewModel = rememberSaveable(saver =  VehiculosViewModel.Saver){ VehiculosViewModel()}
-    val rutasViewModel = rememberSaveable(saver = RutasViewModel.Saver) { RutasViewModel()}
-    val usuarioViewModel = rememberSaveable(saver = UsuarioViewModel.Saver) { UsuarioViewModel()}
+    val lugaresViewModel = rememberSaveable(saver = LugaresViewModel.Saver) { LugaresViewModel() }
+    val vehiculosViewModel =
+        rememberSaveable(saver = VehiculosViewModel.Saver) { VehiculosViewModel() }
+    val rutasViewModel = rememberSaveable(saver = RutasViewModel.Saver) { RutasViewModel() }
+    val usuarioViewModel = rememberSaveable(saver = UsuarioViewModel.Saver) { UsuarioViewModel() }
 
-
-
-    var loading by remember { mutableStateOf(true) }
-    if (loading){
+    var loadingServiciosObjetos by remember { mutableStateOf(true) }
+    if (!usuarioViewModel.sesionIniciada) {
+        if (!usuarioViewModel.sesionIniciada) {
+            LoginScreen(
+                viewModel = usuarioViewModel,
+                modifier = modifier // Pasar el modificador aquí
+            ) { loadingServiciosObjetos = true }
+        }
+    } else if (loadingServiciosObjetos) {
         LoadingScreen(
             loadingProcess = {
                 //Vehiculos
-//                vehiculosViewModel.debugFillList()
-                vehiculosViewModel.updateList()
+                vehiculosViewModel.initializeList()
+
                 //Lugares
-//                lugaresViewModel.debugFillList()
-                lugaresViewModel.updateList()
-                navigationEnabled.value = true
+                lugaresViewModel.initializeList()
+
+                //Rutas
+                rutasViewModel.initializeList()
+
+
             },
-            onTimeout = { loading = false }
+            onTimeout = {
+                loadingServiciosObjetos = false
+                navigationEnabled.value = true
+            }
         )
-    }
-        else {
+    } else {
         NavHost(
             navController = navController,
             modifier = modifier,
@@ -67,27 +73,9 @@ fun SmallarisNavHost(
         {
 
 
-            composable(route = MapaDestination.route) {
-
-                MapaScreen(
-                    viewModel = mapaViewModel
-//                onClickSeeAllAccounts = {
-//                    navController.navigateSingleTopTo(Accounts.route)
-//                },
-//                onClickSeeAllBills = {
-//                    navController.navigateSingleTopTo(Bills.route)
-//                },
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
-                )
-            }
             composable(route = LugaresDestination.route) {
                 LugaresScreen(
                     viewModel = lugaresViewModel
-//                onAccountClick = { accountType ->
-//                    navController.navigateToSingleAccount(accountType)
-//                }
                 )
             }
             composable(route = VehiculosDestination.route) {
@@ -110,6 +98,7 @@ fun SmallarisNavHost(
     }
 
 }
+
 fun NavHostController.navigateSingleTopTo(route: String) =
     this.navigate(route) {
         popUpTo(
@@ -120,6 +109,3 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         restoreState = true
     }
-private fun NavHostController.navigateToMapWithCoords(longitud: Double, latitud: Double, onBack: ()-> Unit) {
-    this.navigateSingleTopTo("${MapaDestination.route}/$longitud")
-}

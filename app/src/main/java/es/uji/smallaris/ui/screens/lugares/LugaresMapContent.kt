@@ -37,16 +37,18 @@ fun LugaresMapContent(
             setCameraOptions {
                 zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
                 center(
-                    marker
-                ) // Coordenadas de la Universidad Jaume I.
+                    marker// Coordenadas indicadas
+                )
                 pitch(0.0)
                 bearing(0.0)
             }
         }
-    val opcionesAddLugar = rememberSaveable { mutableStateOf(OpcionesAddLugar.Toponimo) }
     BackHandler {
         onBack()
     }
+
+
+    val savedMarker = rememberSaveable { mutableStateOf(marker) }
 
     Surface(
         modifier = Modifier
@@ -64,10 +66,10 @@ fun LugaresMapContent(
 
             val markerImage = rememberIconImage(
                 key = "default_marker",
-                painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
+                painter = painterResource(R.drawable.map_marker_by_smashicons)
             )
             MapboxMap(
-                modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                modifier = Modifier.fillMaxSize(),
                 mapViewportState = mapboxMapState,
                 compass = {},
                 logo = {},
@@ -75,18 +77,18 @@ fun LugaresMapContent(
                 attribution = {},
 
                 content = {
-                    marker.let { point ->
-                        PointAnnotation(point = point) {
-                            iconColor = Color.Red
-                            iconImage = markerImage
-                            iconSize = 3.5
-                            iconOffset = listOf(0.0, -10.0)
-                            textColor = Color.Black
-                            textSize = 10.0
-                            textOffset =
-                                listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
-                        }
+
+                    PointAnnotation(point = savedMarker.value) {
+                        iconColor = Color.Red
+                        iconImage = markerImage
+                        iconSize = 0.35
+                        iconOffset = listOf(0.0, -95.0)
+                        textColor = Color.Black
+                        textSize = 10.0
+                        textOffset =
+                            listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
                     }
+
 
                     // Aplicar estilo con idioma en español
                     MapEffect(Unit) { mapView ->
@@ -103,11 +105,9 @@ fun LugaresMapContent(
 }
 
 
-
-
 @Preview
 @Composable
-private fun previewLugaresInteresMapContent() {
+private fun PreviewLugaresInteresMapContent() {
     LugaresMapContent()
 }
 

@@ -15,6 +15,7 @@ object ServicioAPIs {
     fun setServicioMapa(servicioORS: ServicioORS) {
         this.servicioORS = servicioORS
     }
+
     fun setServicioPrecios(servicioPrecios: IServicioPrecios) {
         this.servicioPrecios = servicioPrecios
     }
@@ -25,7 +26,12 @@ object ServicioAPIs {
     }
 
     @Throws(RouteException::class)
-    suspend fun getRuta(inicio: LugarInteres, fin: LugarInteres, tipoRuta: TipoRuta, tipoVehiculo: TipoVehiculo): String {
+    suspend fun getRuta(
+        inicio: LugarInteres,
+        fin: LugarInteres,
+        tipoRuta: TipoRuta,
+        tipoVehiculo: TipoVehiculo
+    ): String {
         return servicioORS.getRuta(inicio, fin, tipoRuta, tipoVehiculo)
     }
 
@@ -38,7 +44,11 @@ object ServicioAPIs {
     suspend fun getPrecioCombustible(lugar: LugarInteres, tipoVehiculo: TipoVehiculo): Double {
         return when (tipoVehiculo) {
             TipoVehiculo.Electrico -> servicioPrecios.getPrecioElectrico()
-            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> servicioPrecios.getPrecioCombustible(lugar, tipoVehiculo)
+            TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> servicioPrecios.getPrecioCombustible(
+                lugar,
+                tipoVehiculo
+            )
+
             TipoVehiculo.Desconocido -> throw VehicleException("Tipo de vehículo no soportado")
             else -> throw VehicleException("No hace falta pedir el precio en bici o pie")
         }

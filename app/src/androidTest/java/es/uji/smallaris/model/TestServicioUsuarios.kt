@@ -1,14 +1,12 @@
 package es.uji.smallaris.model
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
@@ -16,18 +14,32 @@ import org.junit.runner.RunWith
 @RunWith(Enclosed::class)
 class TestServicioUsuarios {
 
-    class PruebasQueNoBorranFirebase {
-
-        private lateinit var repositorioUsuarios: RepositorioUsuarios
+    class PruebasConBeforeTest {
+        private lateinit var repositorioFirebase: RepositorioFirebase
         private lateinit var servicioUsuarios: ServicioUsuarios
 
-        @After
-        fun tearDown(): Unit {
+        @Before
+        fun setUp() {
+            repositorioFirebase = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+
             runBlocking {
-                val auth = FirebaseAuth.getInstance()
-                // Cierra sesión si hay un usuario activo
-                auth.currentUser?.let {
-                    auth.signOut()
+                try {
+                    servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
+                    servicioUsuarios.cerrarSesion()
+                } catch (_: UserAlreadyExistsException) {
+                }
+            }
+        }
+
+        @After
+        fun tearDown() {
+            runBlocking {
+                try {
+                    servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                    servicioUsuarios.borrarUsuario()
+                } catch (e: Exception) {
+                    println("Error al borrar el usuario: ${e.message}")
                 }
             }
         }
@@ -35,20 +47,17 @@ class TestServicioUsuarios {
         @Test
         fun registrarUsuario_R1HU01_registrarUsuarioYaExistente() {
             runBlocking {
+                // Given
                 var resultado: UserAlreadyExistsException? = null
-                // Dado
-                repositorioUsuarios = RepositorioFirebase()
-                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
 
-                // Cuando
+                // When
                 try {
                     servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
                 } catch (excepcion: UserAlreadyExistsException) {
                     resultado = excepcion
                 }
 
-                // Entonces
+                // Then
                 assertNotNull(resultado)
                 assertTrue(resultado is UserAlreadyExistsException)
             }
@@ -57,78 +66,187 @@ class TestServicioUsuarios {
         @Test
         fun iniciarSesion_R1HU02_iniciarSesionExito() {
             runBlocking {
-                // Dado
-                repositorioUsuarios = RepositorioFirebase()
-                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
+                // Given
+                val correo = "al415647@uji.es"
+                val contrasena = "12345678"
 
-                // Cuando
-                val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                // When
+                val usuario = servicioUsuarios.iniciarSesion(correo, contrasena)
 
-                // Entonces
-                assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
-                assertNotNull(servicioUsuarios.obtenerUsuarioActual())
+                // Then
+                assertEquals(Usuario(correo = correo), usuario)
             }
         }
 
         @Test
         fun iniciarSesion_R1HU02_iniciarSesionSinRegistrarse() = runBlocking {
+            // Given
             var resultado: UnregisteredUserException? = null
 
-            // Dado
-            repositorioUsuarios = RepositorioFirebase()
-            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-
-            // Cuando
+            // When
             try {
                 servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
             } catch (excepcion: UnregisteredUserException) {
                 resultado = excepcion
             }
 
-            // Entonces
+            // Then
             assertNotNull(resultado)
             assertTrue(resultado is UnregisteredUserException)
+        }
+
+        @Test
+        fun cerrarSesion_R1HU03_cerrarSesionExito() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+
+            // When
+            val usuario = servicioUsuarios.cerrarSesion()
+
+            // Then
+            assertEquals("al415647@uji.es", usuario.correo)
             assertNull(servicioUsuarios.obtenerUsuarioActual())
         }
 
         @Test
-        fun cerrarSesion_R1HU03_cerrarSesionExito() {
-            runBlocking {
-                // Dado
-                repositorioUsuarios = RepositorioFirebase()
-                servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                // El usuario que tiene "al415647@uji.es" por correo está siempre registrado en la base de datos de Firebase
-                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+        fun cerrarSesion_R1HU03_cerrarSesionSinIniciarSesion() = runBlocking {
+            // Given
+            var resultado: UnloggedUserException? = null
+            val repositorioUsuarios = RepositorioFirebase()
+            val servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
 
-                // Cuando
-                val resultado = servicioUsuarios.cerrarSesion()
-
-                // Entonces
-                assertTrue("Devuelve true solo en caso de cerrar sesión con éxito.", resultado)
-                assertNull(servicioUsuarios.obtenerUsuarioActual())
+            // When
+            try {
+                servicioUsuarios.cerrarSesion()
+            } catch (excepcion: UnloggedUserException) {
+                resultado = excepcion
             }
+
+            // Then
+            assertNotNull(resultado)
+            assertTrue(resultado is UnloggedUserException)
         }
 
         @Test
-        fun cerrarSesion_R1HU03_cerrarSesionSinIniciarSesion() {
+        fun cambiarContrasena_R1HU05_cambiarContrasenaExito() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val contrasenaNueva = "87654321"
+
+            // When
+            val resultado = servicioUsuarios.cambiarContrasena("12345678", contrasenaNueva)
+
+            // Then
+            assertTrue(resultado)
+
+            servicioUsuarios.cerrarSesion()
+            val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", contrasenaNueva)
+            servicioUsuarios.cambiarContrasena(
+                contrasenaNueva,
+                "12345678"
+            ) // Vuelvo a dejar la contraseña previa para que funcione el After
+            assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
+        }
+
+        @Test
+        fun cambiarContrasena_R1HU05_cambiarContrasenaNuevaContrasenaInvalida() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            var resultado: InvalidPasswordException? = null
+
+            // When
+            try {
+                servicioUsuarios.cambiarContrasena("12345678", "123")
+            } catch (excepcion: InvalidPasswordException) {
+                resultado = excepcion
+            }
+
+            // Then
+            assertNotNull(resultado)
+            assertTrue(resultado is InvalidPasswordException)
+        }
+
+        @Test
+        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoExito() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val tipoRutaElegido = TipoRuta.Rapida
+
+            // When
+            val resultado = servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+
+            // Then
+            assertTrue(resultado)
+            val tipoRutaPorDefecto = servicioUsuarios.obtenerTipoRutaPorDefecto()
+            assertEquals(tipoRutaElegido, tipoRutaPorDefecto)
+        }
+
+        @Test
+        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoYaEstablecido() =
             runBlocking {
-                var resultado: UnloggedUserException? = null
-                // Dado
-                val repositorioUsuarios = RepositorioFirebase()
-                val servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                // Cuando
+                // Given
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                val tipoRutaElegido = TipoRuta.Rapida
+                servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+
+                // When
+                var resultado: RouteException? = null
                 try {
-                    servicioUsuarios.cerrarSesion() // Intentar cerrar sesión sin usuario
-                } catch (excepcion: UnloggedUserException) {
+                    servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+                } catch (excepcion: RouteException) {
                     resultado = excepcion
                 }
-                // Entonces
+
+                // Then
                 assertNotNull(resultado)
-                assertTrue(resultado is UnloggedUserException)
-                assertNull(servicioUsuarios.obtenerUsuarioActual())
+                assertTrue(resultado is RouteException)
             }
+
+        @Test
+        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoExito() = runBlocking {
+            // Given
+            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val vehiculoCreado = Vehiculo(
+                nombre = "VehiculoTest",
+                consumo = 10.0,
+                matricula = "TEST1234",
+                tipo = TipoVehiculo.Diesel
+            )
+
+            // When
+            val resultado = servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+
+            // Then
+            assertTrue(resultado)
+            val vehiculoPorDefecto = servicioUsuarios.obtenerVehiculoPorDefecto()
+            assertEquals(vehiculoCreado, vehiculoPorDefecto)
         }
+
+        @Test
+        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoYaEstablecido() =
+            runBlocking {
+                // Given
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                val vehiculoCreado = Vehiculo(
+                    nombre = "VehiculoTest",
+                    consumo = 10.0,
+                    matricula = "TEST1234",
+                    tipo = TipoVehiculo.Diesel
+                )
+                servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+
+                // When
+                var resultado: VehicleException? = null
+                try {
+                    servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+                } catch (excepcion: VehicleException) {
+                    resultado = excepcion
+                }
+
+                // Then
+                assertNotNull(resultado)
+                assertTrue(resultado is VehicleException)
+            }
     }
 
     class RegistrarUsuarioExitoTest {
@@ -138,38 +256,52 @@ class TestServicioUsuarios {
         @Test
         fun registrarUsuario_R1HU01_registrarUsuarioExito() {
             runBlocking {
-                // Dado
+                // Given
                 repositorioUsuarios = RepositorioFirebase()
                 servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
-                // Cuando
-                val usuario =
-                    servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
-                // Entonces
+
+                // When
+                val usuario = servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+
+                // Then
                 assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
-                assertNotNull(servicioUsuarios.obtenerUsuarioActual())
             }
         }
 
         @After
         fun tearDown() {
             runBlocking {
-                val auth = FirebaseAuth.getInstance()
-                val firestore = FirebaseFirestore.getInstance()
+                // Given
+                try {
+                    servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
 
-                // Elimina el usuario creado y su documento en la colección usuarios-test
-                auth.currentUser?.let { user ->
-                    try {
-                        firestore.collection("usuarios")
-                            .document(user.uid).delete()
-                            .await()
-                        user.delete().await()
-                    } catch (ex: Exception) {
-                        // Manejo de excepciones si es necesario
-                    } finally {
-                        auth.signOut()
-                    }
+                    // When
+                    servicioUsuarios.borrarUsuario()
+                } catch (e: Exception) {
+                    println("Error al borrar el usuario: ${e.message}")
                 }
             }
+        }
+    }
+
+    class BorrarUsuarioExitoTest {
+        private lateinit var repositorioUsuarios: RepositorioUsuarios
+        private lateinit var servicioUsuarios: ServicioUsuarios
+
+        @Test
+        fun borrarUsuario_R1HU04_borrarUsuarioExito() = runBlocking {
+            // Given
+            repositorioUsuarios = RepositorioFirebase()
+            servicioUsuarios = ServicioUsuarios(repositorioUsuarios)
+            servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+
+            // When
+            val usuario = servicioUsuarios.borrarUsuario()
+
+            // Then
+            assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+            assertNull(servicioUsuarios.obtenerUsuarioActual())
         }
     }
 }

@@ -12,7 +12,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.lang.reflect.Type
-import kotlin.jvm.Throws
 
 class ServicioPrecioCombustible(private val valueForNotPresent: Double = -1.0) :
     IServicioPrecioCombustible {
@@ -24,7 +23,7 @@ class ServicioPrecioCombustible(private val valueForNotPresent: Double = -1.0) :
         scopeBusqueda: ScopePeticionAPI,
         tipoVehiculo: TipoVehiculo?
     ): Combustible {
-        var resultadoPeticion: List<Combustible>
+        val resultadoPeticion: List<Combustible>
         when (scopeBusqueda) {
             ScopePeticionAPI.Municipal -> {
                 if (!this::mapIdMunicipio.isInitialized)

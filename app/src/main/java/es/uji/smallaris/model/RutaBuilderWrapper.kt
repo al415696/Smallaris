@@ -56,6 +56,7 @@ class RutaBuilderWrapper(
                     servicioRutasYCoste
                 )
             )
+
             TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
                 CosteCarburanteSimple(servicioRutasYCoste)
             )
@@ -67,6 +68,10 @@ class RutaBuilderWrapper(
 
         // Crear la ruta y devolverla
         return builder.getRutaCalculada()
+    }
+
+    fun getRuta(): Ruta {
+        return builder.getRuta()
     }
 
 }

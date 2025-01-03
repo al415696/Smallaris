@@ -1,10 +1,10 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -13,13 +13,33 @@ import org.junit.Test
 
 class TestServicioRutas {
 
-    private var repositorioRutas: RepositorioRutas = RepositorioFirebase()
-    private val servicioAPIs = ServicioAPIs
+    private lateinit var repositorioFirebase: RepositorioFirebase
+    private lateinit var servicioUsuarios: ServicioUsuarios
+    private lateinit var servicioRutas: ServicioRutas
+    private lateinit var calculadorRutas: CalculadorRutasORS
+    private lateinit var servicioAPIs: ServicioAPIs
 
     @Before
-    fun setUp() {
-        repositorioRutas = RepositorioFirebase()
-        assert(servicioAPIs.apiEnFuncionamiento(API.RUTA))
+    fun setUp() = runBlocking {
+        repositorioFirebase = RepositorioFirebase()
+        repositorioFirebase.registrarUsuario("testRuta@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testRuta@uji.es", "12345678")
+
+        servicioUsuarios = ServicioUsuarios(repositorioFirebase)
+        servicioAPIs = ServicioAPIs
+        calculadorRutas = CalculadorRutasORS(servicioAPIs)
+        servicioRutas = ServicioRutas(calculadorRutas, repositorioFirebase, servicioAPIs)
+    }
+
+    @After
+    fun tearDown() {
+        runBlocking {
+            try {
+                servicioUsuarios.borrarUsuario()
+            } catch (e: Exception) {
+                println("Error al borrar el usuario: ${e.message}")
+            }
+        }
     }
 
     @Test
@@ -39,9 +59,6 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
-
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
             .setFin(destino).setVehiculo(coche)
@@ -74,8 +91,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
             .setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).build()
@@ -115,8 +131,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -145,8 +160,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -177,8 +191,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         try {
@@ -208,8 +221,7 @@ class TestServicioRutas {
                 "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
                 "Castellón de la Plana"
             )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         try {
@@ -245,8 +257,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -279,8 +290,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         try {
@@ -316,8 +326,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -334,7 +343,7 @@ class TestServicioRutas {
         val servicioAPIs = ServicioAPIs
         assert(servicioAPIs.apiEnFuncionamiento(API.COSTE))
 
-        val pie = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
+        val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
         val origen =
             LugarInteres(
                 -0.067893,
@@ -348,17 +357,15 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
-            .setFin(destino).setVehiculo(pie)
+            .setFin(destino).setVehiculo(bici)
             .setTipo(TipoRuta.Corta).build()
 
         // Then
         assert(ruta.getCoste() > 0)
-        Log.d("Coste", "Resultado del test: ${ruta.getCoste()}")
     }
 
     @Test
@@ -377,8 +384,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         try {
@@ -410,8 +416,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
 
         // When
         try {
@@ -444,8 +449,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -483,8 +487,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón1").setInicio(origen)
                 .setFin(destino1).setVehiculo(pie)
@@ -522,8 +525,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -557,8 +559,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -593,8 +594,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)
@@ -629,8 +629,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        val servicioRutas =
-            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioRutas, servicioAPIs)
+
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)
@@ -648,8 +647,7 @@ class TestServicioRutas {
         //Then
         assertNotNull(excepcion)
         assertTrue(excepcion is RouteException)
-        assertTrue(excepcion!!.message.equals("Ruta favorita"))
+        assertTrue(excepcion!!.message.equals("Ruta favorita no se puede borrar"))
         assertEquals(1, servicioRutas.getRutas().size)
     }
-
 }

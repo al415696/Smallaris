@@ -1,33 +1,37 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlinx.coroutines.runBlocking
-import kotlin.jvm.Throws
 
 class ServicioRutas(
     private val calculadorRutas: CalculadorRutas,
     private val repositorioRutas: RepositorioRutas = RepositorioFirebase(),
     private val servicioRutasYCoste: ServicioAPIs = ServicioAPIs
 ) {
-    private val rutas = mutableListOf<Ruta>()
+    private var rutas = mutableListOf<Ruta>()
 
     init {
         runBlocking {
-            inicializarRutas()
+            updateRutas()
         }
     }
 
-    private suspend fun inicializarRutas() {
-        this.rutas.addAll(repositorioRutas.getRutas())
+    suspend fun updateRutas() {
+        this.rutas = repositorioRutas.getRutas().toMutableList()
     }
 
     @Throws(ConnectionErrorException::class, RouteException::class)
     suspend fun addRuta(ruta: Ruta): Ruta {
+        if (ruta.isFavorito())
+            throw RouteException("No se puede eliminar una ruta favoria")
         if (!repositorioRutas.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible")
         if (rutas.contains(ruta))
             throw RouteException("La ruta ya existe")
-        rutas.add(ruta)
-        repositorioRutas.addRuta(ruta)
+        if (repositorioRutas.addRuta(ruta))
+            rutas.add(ruta)
+        else
+            throw RouteException("No se pudo añadir la ruta por un problema remoto")
         return ruta
     }
 
@@ -64,15 +68,47 @@ class ServicioRutas(
             throw ConnectionErrorException("Firebase no está disponible")
 
         if (ruta.isFavorito()) {
-            throw RouteException("Ruta favorita")
+            throw RouteException("Ruta favorita no se puede borrar")
         }
 
         rutas.remove(ruta)
-        return repositorioRutas.deleteLugar(ruta)
+        return repositorioRutas.deleteRuta(ruta)
     }
 
     fun contains(ruta: Ruta): Boolean {
         return rutas.contains(ruta)
+    }
+
+    fun contains(lugar: LugarInteres): List<Ruta> {
+        val lista = mutableListOf<Ruta>()
+        for (ruta in rutas) {
+            if (ruta.getInicio() == lugar || ruta.getFin() == lugar)
+                lista.add(ruta)
+        }
+        return lista
+    }
+
+    fun contains(vehiculo: Vehiculo): List<Ruta> {
+        val lista = mutableListOf<Ruta>()
+        for (ruta in rutas) {
+            if (ruta.getVehiculo() == vehiculo)
+                lista.add(ruta)
+        }
+        return lista
+    }
+
+    companion object {
+        private lateinit var servicio: ServicioRutas
+        fun getInstance(): ServicioRutas {
+            if (!this::servicio.isInitialized) {
+                servicio = ServicioRutas(
+                    CalculadorRutasORS(ServicioAPIs),
+                    RepositorioFirebase.getInstance(),
+                    ServicioAPIs
+                )
+            }
+            return servicio
+        }
     }
 
 }

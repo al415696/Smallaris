@@ -41,20 +41,19 @@ fun ObjetoListable(
     favorito: Boolean = false,
     favoriteFuncion: () -> Unit = {},
     firstActionIcon: ImageVector = Icons.Rounded.Edit,
-    firstActionFunction:() -> Unit = {},
+    firstActionFunction: () -> Unit = {},
     secondActionIcon: ImageVector = Icons.Rounded.Delete,
     secondActionFuncition: () -> Unit = {},
     closedHeight: Dp = 45.dp,
     ratioHiddenFields: Float = 0.5F
 
-    ) {
+) {
 
     Surface(
-        modifier = if (selected) modifier else  modifier.height(closedHeight),
-        color =if (selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primaryContainer,
+        modifier = if (selected) modifier else modifier.height(closedHeight),
+        color = if (selected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
         onClick = {
             onGeneralClick()
-            println("prueba")
         }
     ) {
 
@@ -89,7 +88,7 @@ fun ObjetoListable(
                 modifier = Modifier.align(Alignment.Top),
             ) {
                 Icon(
-                    imageVector =  firstActionIcon,
+                    imageVector = firstActionIcon,
                     stringResource(R.string.default_description_text),
                     modifier = Modifier.size(30.dp)
                 )
@@ -97,10 +96,11 @@ fun ObjetoListable(
             }
             IconButton(
                 onClick = secondActionFuncition,
+                enabled = !favorito,
                 modifier = Modifier.align(Alignment.Top),
             ) {
                 Icon(
-                    imageVector =  secondActionIcon,
+                    imageVector = secondActionIcon,
                     stringResource(R.string.default_description_text),
                     modifier = Modifier.size(30.dp),
                 )
@@ -123,24 +123,24 @@ fun DisplayDataObjetoSimplificada(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxHeight()
-            .width(250.dp).padding(vertical = 5.dp),
+            .width(250.dp)
+            .padding(vertical = 5.dp),
         horizontalArrangement = Arrangement.Absolute.Left,
     ) {
-        if (!expanded){
+        if (!expanded) {
             Text(
-                text =primaryInfo,
+                text = primaryInfo,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = modifier.fillMaxWidth(),
                 maxLines = 1
             )
-        }
-        else{
+        } else {
             Column(
                 modifier = modifier
                     .width(250.dp)
                     .fillMaxHeight()
                     .padding(vertical = 5.dp),
-                verticalArrangement = Arrangement.spacedBy(5.dp) //.Center
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
                     primaryInfo, style = MaterialTheme.typography.headlineSmall,
@@ -166,71 +166,11 @@ fun DisplayDataObjetoSimplificada(
     }
 
 }
-@Composable
-fun DisplayDataObjetoSimplificada2(
-    modifier: Modifier = Modifier,
-    primaryInfo: String,
-    secondaryInfo: String,
-    terciaryInfo: String = "",
-    expanded: Boolean = false
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxHeight()
-            .width(250.dp),
-        horizontalArrangement = Arrangement.Absolute.Left,
-    ) {
-        if (terciaryInfo.isEmpty()) {
-            Text(
-                primaryInfo, style = MaterialTheme.typography.bodyLarge,
-                modifier = modifier.fillMaxWidth(0.75F)
-            )
-            Text(
-                secondaryInfo, style = MaterialTheme.typography.bodySmall,
-                modifier = modifier.fillMaxWidth()
-            )
-        } else {
-            Column(
-                modifier = modifier
-                    .width(250.dp)
-                    .fillMaxHeight()
-                    .padding(vertical = 5.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = modifier
-                        .fillMaxHeight(.25f)
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(
-                        primaryInfo, style = MaterialTheme.typography.bodyLarge,
-                        modifier = modifier.fillMaxWidth(0.75F)
-                    )
-                    Text(
-                        secondaryInfo, style = MaterialTheme.typography.bodySmall,
-                        modifier = modifier.fillMaxWidth()
-                    )
-                }
-//                HorizontalDivider()
-                Text(
-                    text = terciaryInfo,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = modifier
-                        .padding(horizontal = 10.dp)
-                        .fillMaxHeight(0.25f)
-                )
-            }
-        }
-    }
 
-}
 
 @Preview
 @Composable
-private fun previewVehiculoSinTerciary() {
+private fun PreviewVehiculoSinTerciary() {
     ObjetoListable(
         primaryInfo = "Prueba",
         secondaryInfo = "Prueba2"
@@ -239,7 +179,7 @@ private fun previewVehiculoSinTerciary() {
 
 @Preview
 @Composable
-private fun previewVehiculoConTerciary() {
+private fun PreviewVehiculoConTerciary() {
     ObjetoListable(
         primaryInfo = "Prueba",
         secondaryInfo = "Prueba2",
@@ -249,7 +189,7 @@ private fun previewVehiculoConTerciary() {
 
 @Preview
 @Composable
-private fun previewVehiculoSeleccionadoConTerciary() {
+private fun PreviewVehiculoSeleccionadoConTerciary() {
     ObjetoListable(
         primaryInfo = "Prueba",
         secondaryInfo = "Prueba2",

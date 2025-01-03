@@ -3,7 +3,6 @@ package es.uji.smallaris.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -14,11 +13,6 @@ interface SmallarisDestination {
     val route: String
 }
 
-object MapaDestination : SmallarisDestination {
-    override val icon = Icons.Filled.Map
-
-    override val route = "screens/MapaScreen"
-}
 
 object LugaresDestination : SmallarisDestination {
     override val icon = Icons.Filled.LocationOn

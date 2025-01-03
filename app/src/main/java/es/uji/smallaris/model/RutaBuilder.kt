@@ -3,7 +3,7 @@ package es.uji.smallaris.model
 import com.mapbox.geojson.LineString
 import es.uji.smallaris.model.lugares.LugarInteres
 
-class RutaBuilder: IBuilderRutas {
+class RutaBuilder : IBuilderRutas {
     private var inicio: LugarInteres = LugarInteres(0.0, 0.0, "", "")
     private var fin: LugarInteres = LugarInteres(0.0, 0.0, "", "")
     private var vehiculo: Vehiculo = Vehiculo("Desconocido", 0.0, "", TipoVehiculo.Desconocido)
@@ -22,9 +22,11 @@ class RutaBuilder: IBuilderRutas {
 
     override fun setTipo(tipo: TipoRuta): IBuilderRutas = apply { this.tipo = tipo }
 
-    override fun setTrayecto(trayecto: LineString): IBuilderRutas = apply { this.trayecto = trayecto }
+    override fun setTrayecto(trayecto: LineString): IBuilderRutas =
+        apply { this.trayecto = trayecto }
 
-    override fun setDistancia(distancia: Float): IBuilderRutas = apply { this.distancia = distancia }
+    override fun setDistancia(distancia: Float): IBuilderRutas =
+        apply { this.distancia = distancia }
 
     override fun setDuracion(duracion: Float): IBuilderRutas = apply { this.duracion = duracion }
 

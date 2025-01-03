@@ -26,15 +26,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.TipoVehiculo
+import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
-import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
+import es.uji.smallaris.ui.components.vehiculos.ArquetipoDependantFields
+import es.uji.smallaris.ui.screens.safeToDouble
 
 @Composable
 fun VehiculosAddContent(
-    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> ""},
+    funAddVehiculo: suspend (nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo) -> String = { _: String, _: Double, _: String, _: TipoVehiculo -> "" },
     onBack: () -> Unit = {}
 ) {
     val nombre = rememberSaveable { mutableStateOf("") }
@@ -47,8 +50,7 @@ fun VehiculosAddContent(
     var confirmadoAdd by rememberSaveable { mutableStateOf(false) }
 
 
-    var mensajeError by rememberSaveable { mutableStateOf("") }
-    var errorConAdd by rememberSaveable { mutableStateOf(false) }
+    val errorText = rememberSaveable { mutableStateOf("") }
     val arquetipo = rememberSaveable { mutableStateOf(ArquetipoVehiculo.Combustible) }
 
     BackHandler {
@@ -56,17 +58,14 @@ fun VehiculosAddContent(
     }
     if (confirmadoAdd) {
         LaunchedEffect(Unit) {
-            mensajeError = funAddVehiculo(
+            errorText.value = funAddVehiculo(
                 nombre.value,
-                if (consumo.value.isEmpty()) 0.0 else consumo.value.toDouble(),
+                consumo.value.safeToDouble(),
                 matricula.value,
                 tipoVehiculo.value
             )
-
-
             confirmadoAdd = false
-            errorConAdd = mensajeError.isNotEmpty()
-            if (!errorConAdd)
+            if (errorText.value.isEmpty())
                 onBack()
         }
     }
@@ -110,7 +109,13 @@ fun VehiculosAddContent(
                 )
 
                 // Elegir arquetipo de vehiculo
-                ArquetipoDependantFields(arquetipo, tipoVehiculo, matricula, matriculaValid, consumo)
+                ArquetipoDependantFields(
+                    arquetipo,
+                    tipoVehiculo,
+                    matricula,
+                    matriculaValid,
+                    consumo
+                )
                 if (confirmadoAdd) {
                     Column {
                         Text(
@@ -122,17 +127,8 @@ fun VehiculosAddContent(
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
-                if (errorConAdd)
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 5.dp),
-                            text = mensajeError,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    }
+
+                ErrorBubble(errorText = errorText)
 
             }
 
@@ -143,29 +139,27 @@ fun VehiculosAddContent(
                     .height(75.dp)
                     .fillMaxWidth()
             ) {
-//                Surface(color = MaterialTheme.colorScheme.primaryContainer) {// Submit Button
                 Button(
                     modifier = Modifier.fillMaxSize(),
                     enabled = nombreValid.value && matriculaValid.value,
                     colors = ButtonColors(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.onPrimaryContainer,
                         MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
                         MaterialTheme.colorScheme.onSurface,
                     ),
                     onClick = {
-                        // Handle form submission
                         confirmadoAdd = true
                     }) {
-                    Text(text="Añadir",
-                        style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = "Añadir",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 }
-//                }
             }
         }
     }
 }
-
 
 
 @Preview

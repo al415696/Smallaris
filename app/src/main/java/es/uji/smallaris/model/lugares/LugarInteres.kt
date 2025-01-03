@@ -6,7 +6,21 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String, val municipio: String) : Favoritable() {
+class LugarInteres(
+    val longitud: Double,
+    val latitud: Double,
+    val nombre: String,
+    val municipio: String
+) : Favoritable() {
+
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "longitud" to longitud,
+            "latitud" to latitud,
+            "nombre" to nombre,
+            "municipio" to municipio
+        )
+    }
 
     private fun redondear(valor: Double): Double {
         val factor = 10.0.pow(5.0)
@@ -25,10 +39,35 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
     }
 
     override fun toString(): String {
-        return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre')"
+        return "LugarInteres(longitud=$longitud, latitud=$latitud, nombre='$nombre', municipio='$municipio')"
     }
 
-    fun distancia(otro: LugarInteres): Double{
+    // Método companion que convierte un String a un objeto LugarInteres
+    companion object {
+        fun fromString(lugarString: String): LugarInteres {
+            // Expresión regular para extraer los valores del String incluyendo municipio
+            val regex =
+                """LugarInteres\(longitud=(.*?), latitud=(.*?), nombre='(.*?)', municipio='(.*?)'\)""".toRegex()
+
+            val matchResult = regex.find(lugarString)
+
+            if (matchResult != null) {
+                val (longitud, latitud, nombre, municipio) = matchResult.destructured
+
+                // Crear un objeto LugarInteres con los valores extraídos
+                return LugarInteres(
+                    longitud = longitud.toDouble(),
+                    latitud = latitud.toDouble(),
+                    nombre = nombre,
+                    municipio = municipio
+                )
+            } else {
+                throw IllegalArgumentException("El formato del String no es válido.")
+            }
+        }
+    }
+
+    fun distancia(otro: LugarInteres): Double {
         val theta = longitud - otro.longitud
         var dist = sin(deg2rad(latitud)) * sin(deg2rad(otro.latitud)) + cos(
             deg2rad(latitud)

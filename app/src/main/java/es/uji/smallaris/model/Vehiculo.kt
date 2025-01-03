@@ -1,19 +1,15 @@
 package es.uji.smallaris.model
 
-class Vehiculo : Favoritable {
-    var nombre: String
+class Vehiculo(
+    var nombre: String,
+    consumo: Double = -1.0,
+    var matricula: String,
+    var tipo: TipoVehiculo,
+    favorito: Boolean = false
+) : Favoritable() {
     var consumo: Double = 0.0
-    var matricula: String
-    var tipo: TipoVehiculo
 
-    constructor(
-        nombre: String,
-        consumo: Double = -1.0,
-        matricula: String,
-        tipo: TipoVehiculo,
-        favorito: Boolean = false
-    ) {
-        this.nombre = nombre
+    init {
         when (tipo) {
             TipoVehiculo.Pie -> {
                 this.consumo = 50.0
@@ -27,9 +23,17 @@ class Vehiculo : Favoritable {
                 this.consumo = consumo
             }
         }
-        this.matricula = matricula
-        this.tipo = tipo
         this.setFavorito(favorito)
+    }
+
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "nombre" to nombre,
+            "consumo" to consumo,
+            "matricula" to matricula,
+            "tipo" to tipo.name,
+            "favorito" to isFavorito()
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -54,5 +58,32 @@ class Vehiculo : Favoritable {
         return result
     }
 
+    override fun toString(): String {
+        return "Vehiculo(nombre='$nombre', consumo=$consumo, matricula='$matricula', tipo=$tipo)"
+    }
 
+    // Método companion que convierte un String a un objeto Vehiculo
+    companion object {
+        fun fromString(vehicleString: String): Vehiculo {
+            // Expresión regular para extraer los valores del String
+            val regex =
+                """Vehiculo\(nombre='(.*?)', consumo=(.*?), matricula='(.*?)', tipo=(.*?)\)""".toRegex()
+
+            val matchResult = regex.find(vehicleString)
+
+            if (matchResult != null) {
+                val (nombre, consumo, matricula, tipo) = matchResult.destructured
+
+                // Crear un objeto Vehiculo con los valores extraídos
+                return Vehiculo(
+                    nombre = nombre,
+                    consumo = consumo.toDouble(),
+                    matricula = matricula,
+                    tipo = TipoVehiculo.valueOf(tipo) // Convertir el String del tipo a un valor del Enum
+                )
+            } else {
+                throw IllegalArgumentException("El formato del String no es válido.")
+            }
+        }
+    }
 }

@@ -17,30 +17,35 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0): IServicioPrecioElectricidad {
-    override suspend fun obtenerPrecioMedioElecHoy(): Electricidad{
-        val listElectricidades: List<Electricidad> = obtenerPreciosElecHoy() ?: throw ConnectionErrorException("No se ha podido conectar con el API de precio de la Luz")
-        if (listElectricidades.isEmpty()){
+class ServicioPrecioElectricidad(private val valueForNotPresent: Double = -1.0) :
+    IServicioPrecioElectricidad {
+    override suspend fun obtenerPrecioMedioElecHoy(): Electricidad {
+        val listElectricidades: List<Electricidad> = obtenerPreciosElecHoy()
+            ?: throw ConnectionErrorException("No se ha podido conectar con el API de precio de la Luz")
+        if (listElectricidades.isEmpty()) {
             throw APIException("No se han obtenido valores del precio de la luz de hoy")
-        }else{
+        } else {
             val electricidadMedia: Electricidad
             var sumPrecioElectricidad = 0.0
-            for (elec:Electricidad in listElectricidades){
+            for (elec: Electricidad in listElectricidades) {
                 sumPrecioElectricidad += elec.precio
             }
             electricidadMedia = Electricidad(
-                precio= sumPrecioElectricidad / listElectricidades.size,
-                timestamp= listElectricidades[0].timestamp
+                precio = sumPrecioElectricidad / listElectricidades.size,
+                timestamp = listElectricidades[0].timestamp
             )
             return electricidadMedia
         }
     }
+
     private data class ElecResponse(
         @SerializedName("included") val included: Array<ElecIncluded>
     )
+
     private data class ElecIncluded(
         @SerializedName("attributes") val attributes: ElecIncludedAttributes
     )
+
     private data class ElecIncludedAttributes(
         @SerializedName("values") val values: Array<Electricidad>
     )
@@ -56,11 +61,16 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
 
             if (jsonObject != null) {
                 val builder = GsonBuilder()
-                    .registerTypeAdapter(Electricidad::class.java,
-                        ElecDeserializer())
+                    .registerTypeAdapter(
+                        Electricidad::class.java,
+                        ElecDeserializer()
+                    )
                 val gson = builder.create()
 
-                val values = gson.fromJson(jsonObject.get("values").asJsonArray , Array<Electricidad>::class.java)
+                val values = gson.fromJson(
+                    jsonObject.get("values").asJsonArray,
+                    Array<Electricidad>::class.java
+                )
 
                 return ElecIncludedAttributes(
                     values = values
@@ -70,6 +80,7 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
         }
 
     }
+
     private class ElecDeserializer : JsonDeserializer<Electricidad> {
         override fun deserialize(
             json: JsonElement?,
@@ -81,18 +92,20 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
 
             if (jsonObject != null) {
                 val precio: Double = jsonObject.get("value").asDouble
-                val timestamp: Long = getTimeStampFromJSONObjectString(jsonObject.get("datetime").asString)
+                val timestamp: Long =
+                    getTimeStampFromJSONObjectString(jsonObject.get("datetime").asString)
                 return Electricidad(
                     precio = precio,
-                    timestamp= timestamp
+                    timestamp = timestamp
                 )
             }
             return null
         }
-        private fun getTimeStampFromJSONObjectString(string: String): Long{
+
+        private fun getTimeStampFromJSONObjectString(string: String): Long {
             val editedString = string.replace("T", " ").dropLast(6)
 
-            return Timestamp.valueOf(editedString).time//if (string.isEmpty()) -1.0 else string.replace(",", ".").toDouble()
+            return Timestamp.valueOf(editedString).time
         }
     }
 
@@ -124,8 +137,10 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
                             builder.registerTypeAdapter(
                                 Electricidad::class.java,
                                 ElecDeserializer()
-                            ).registerTypeAdapter(ElecIncludedAttributes::class.java,
-                                ElecIncludedAttributesDeserializer())
+                            ).registerTypeAdapter(
+                                ElecIncludedAttributes::class.java,
+                                ElecIncludedAttributesDeserializer()
+                            )
                         val gson = builder.create()
                         val data = gson.fromJson(responseBody, ElecResponse::class.java)
 
@@ -135,7 +150,6 @@ class ServicioPrecioElectricidad(private val valueForNotPresent :Double = -1.0):
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            println("Nada obtenido")
             return@withContext null  // En caso de error o fallo en la solicitud
         }
     }
