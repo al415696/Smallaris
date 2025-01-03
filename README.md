@@ -21,11 +21,12 @@ Este proyecto es parte de las asignaturas **EI1039 - Diseño de Software** y **E
 
 1. **Android Studio**: IDE principal para el desarrollo.
 2. **Jetpack Compose**: Marco moderno para construir interfaces de usuario nativas en Android.
-3. **OpenRouteService API**: Servicio de cálculo de rutas y geocodificación.
+3. **OpenRouteService API**: Servicio de cálculo de rutas, geocodificación, geocodificación inversa.
 4. **Mapbox**: Plataforma de mapas y navegación interactiva.
-5. **Firebase Firestore**: Base de datos en la nube para la persistencia de datos.
-6. **APIs de Precio de Combustible y Electricidad**: Para la estimación de costes asociados a rutas.
-7. **MockK**: Herramienta de mocking para pruebas unitarias e integración.
+5. **Firebase Firestore**: Base de datos noSQL en la nube para la persistencia de datos.
+6. **APIs de Precio de Combustible y Electricidad**: Para la estimación de costes asociados a rutas, proporcionada por organismos públicos.
+7. **MockK**: Herramienta de mocking para pruebas de integración.
+8. **JUnit4**: Herramienta de test para pruebas de aceptación.
 
 ---
 
