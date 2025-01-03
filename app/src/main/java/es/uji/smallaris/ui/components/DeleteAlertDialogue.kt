@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DeleteAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
-    deleteFuncition:suspend () -> String,
+    deleteFuncition: suspend () -> String,
     nombreObjetoBorrado: String = "El objeto seleccionado"
 ) {
-    var confirmadoBorrado by remember{ mutableStateOf(false) }
-    var errorText = remember { mutableStateOf("") }
-    if(confirmadoBorrado)
+    var confirmadoBorrado by remember { mutableStateOf(false) }
+    val errorText = remember { mutableStateOf("") }
+    if (confirmadoBorrado)
         LaunchedEffect(Unit) {
             errorText.value = deleteFuncition()
             if (errorText.value.isEmpty())
@@ -46,15 +46,13 @@ fun DeleteAlertDialogue(
             title = { Text(text = "¿Seguro que quieres borrar?") },
             text = {
                 Column {
-                if (confirmadoBorrado) {
+                    if (confirmadoBorrado) {
 
                         Text(text = "Borrando...")
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-
-                else {
-                    Text(text = "$nombreObjetoBorrado se borrará permantentemente")
-                }
+                    } else {
+                        Text(text = "$nombreObjetoBorrado se borrará permantentemente")
+                    }
 
                     ErrorBubble(errorText)
                 }
@@ -83,13 +81,14 @@ fun DeleteAlertDialogue(
         )
     }
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
-fun previewAlertDialogue(){
+fun PreviewAlertDialogue() {
     DeleteAlertDialogue(
-        shouldShowDialog =  mutableStateOf(true),
-        deleteFuncition =  {""}
+        shouldShowDialog = mutableStateOf(true),
+        deleteFuncition = { "" }
 
     )
 }

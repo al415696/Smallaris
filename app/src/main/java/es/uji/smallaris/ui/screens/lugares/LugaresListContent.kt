@@ -122,7 +122,7 @@ fun LazyListLugarInteres(
     state: LazyListState = rememberLazyListState(),
     items: List<LugarInteres> = lugarInteresTestData,
     onSelect: (lug: LugarInteres) -> Unit,
-    checkSelected: (otro: LugarInteres) -> Boolean,// = {otro: LugarInteres -> false}
+    checkSelected: (otro: LugarInteres) -> Boolean,
     viewFunction: (lugar: LugarInteres) -> Unit = {},
     deleteFuncition: suspend (lugarInteres: LugarInteres) -> String = { "" },
     favoriteFuncion: suspend (lugarInteres: LugarInteres, favorito: Boolean) -> Unit = { _, _ -> },

@@ -1,20 +1,21 @@
 package es.uji.smallaris.model
 
-enum class ArquetipoVehiculo{
-    Combustible{
+enum class ArquetipoVehiculo {
+    Combustible {
         override val unidad: String = "L/100km"
     },
-    Electrico{
+    Electrico {
         override val unidad: String = "kWh/100 km"
     },
-    Otro{
+    Otro {
         override val unidad: String = "Cal"
     };
+
     abstract val unidad: String
 
-    fun getAllOfArquetipo(): List<TipoVehiculo>{
+    fun getAllOfArquetipo(): List<TipoVehiculo> {
         val list = mutableListOf<TipoVehiculo>()
-        for ( tipo in TipoVehiculo.entries){
+        for (tipo in TipoVehiculo.entries) {
             if (tipo.getArquetipo() == this)
                 list.add(tipo)
         }

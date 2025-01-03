@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -26,7 +24,7 @@ import es.uji.smallaris.R
 import es.uji.smallaris.ui.components.LoadingCircle
 
 @Composable
-fun LoadingScreen(loadingProcess: suspend ()->Unit, onTimeout: () -> Unit){
+fun LoadingScreen(loadingProcess: suspend () -> Unit, onTimeout: () -> Unit) {
     val currentOnTimeout by rememberUpdatedState(onTimeout)
     LaunchedEffect(Unit) {
         //Procesos de carga en los viewModel
@@ -35,9 +33,10 @@ fun LoadingScreen(loadingProcess: suspend ()->Unit, onTimeout: () -> Unit){
     }
     LoadingScreenContent()
 }
+
 @Composable
 @Preview
-fun PreviewLoadingScreen(){
+fun PreviewLoadingScreen() {
     LoadingScreenContent()
 }
 

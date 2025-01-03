@@ -1,13 +1,13 @@
 package es.uji.smallaris.model
 
-enum class OrdenRuta{
-    FAVORITO_THEN_NOMBRE{
+enum class OrdenRuta {
+    FAVORITO_THEN_NOMBRE {
         private val nombre = "Nombre"
 
-        override fun comparator(): Comparator<Ruta>{
-            return compareBy<Ruta>{
+        override fun comparator(): Comparator<Ruta> {
+            return compareBy<Ruta> {
                 if (it.isFavorito()) 0 else 1
-            }.thenBy{
+            }.thenBy {
                 it.getNombre()
             }
         }
@@ -16,13 +16,13 @@ enum class OrdenRuta{
             return nombre
         }
     },
-    FAVORITO_THEN_DURACION{
+    FAVORITO_THEN_DURACION {
         private val nombre = "Duracion"
 
-        override fun comparator(): Comparator<Ruta>{
-            return compareBy<Ruta>{
+        override fun comparator(): Comparator<Ruta> {
+            return compareBy<Ruta> {
                 if (it.isFavorito()) 0 else 1
-            }.thenBy{
+            }.thenBy {
                 it.getDuracion()
             }
         }
@@ -31,13 +31,13 @@ enum class OrdenRuta{
             return nombre
         }
     },
-    FAVORITO_THEN_DISTANCIA{
+    FAVORITO_THEN_DISTANCIA {
         private val nombre = "Distancia"
 
-        override fun comparator(): Comparator<Ruta>{
-            return compareBy<Ruta>{
+        override fun comparator(): Comparator<Ruta> {
+            return compareBy<Ruta> {
                 if (it.isFavorito()) 0 else 1
-            }.thenBy{
+            }.thenBy {
                 it.getDistancia()
             }
         }
@@ -46,13 +46,13 @@ enum class OrdenRuta{
             return nombre
         }
     },
-    FAVORITO_THEN_COSTE{
+    FAVORITO_THEN_COSTE {
         private val nombre = "Coste"
 
-        override fun comparator(): Comparator<Ruta>{
-            return compareBy<Ruta>{
+        override fun comparator(): Comparator<Ruta> {
+            return compareBy<Ruta> {
                 if (it.isFavorito()) 0 else 1
-            }.thenBy{
+            }.thenBy {
                 it.getCoste()
             }
         }
@@ -61,6 +61,7 @@ enum class OrdenRuta{
             return nombre
         }
     };
+
     abstract fun comparator(): Comparator<Ruta>
     abstract fun getNombre(): String
 

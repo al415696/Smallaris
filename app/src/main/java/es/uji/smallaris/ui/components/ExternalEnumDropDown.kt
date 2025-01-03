@@ -14,17 +14,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-inline fun <reified E : Enum<E>> EnumDropDown(
+inline fun <reified E : Enum<E>> ExternalEnumDropDown(
     modifier: Modifier = Modifier,
     opciones: List<E> = enumValues<E>().toList(),
-    elegida: MutableState<E>
+    elegida: MutableState<E>,
+    cargadoEnded: Boolean = false,
+    cargandoText: String = "Cargando..."
 ) {
 
     val isDropDownExpanded = remember {
@@ -32,9 +34,8 @@ inline fun <reified E : Enum<E>> EnumDropDown(
     }
 
     val itemPosition = remember {
-        mutableIntStateOf(opciones.indexOf(elegida.value))
+        derivedStateOf { opciones.indexOf(elegida.value) }
     }
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +54,9 @@ inline fun <reified E : Enum<E>> EnumDropDown(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    text = opciones[itemPosition.intValue].name
+                    text =
+                    if (cargadoEnded) opciones[itemPosition.value].name
+                    else cargandoText
                 )
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
@@ -71,8 +74,8 @@ inline fun <reified E : Enum<E>> EnumDropDown(
                     },
                         onClick = {
                             isDropDownExpanded.value = false
-                            itemPosition.intValue = index
-                            elegida.value = opciones[itemPosition.intValue]
+                            elegida.value = opciones[index]
+
                         })
                 }
             }

@@ -54,10 +54,10 @@ import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import es.uji.smallaris.R
 import es.uji.smallaris.model.ErrorCategory
-import es.uji.smallaris.ui.components.DecimalInputField
-import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
+import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.ErrorBubble
+import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.screens.safeToDouble
@@ -214,10 +214,10 @@ fun LugaresAddContent(
                 val scope = rememberCoroutineScope()
                 val markerImage = rememberIconImage(
                     key = "default_marker",
-                    painter = painterResource(R.drawable.add_location_alt_24px)// Cambia esto por el icono que prefieras
+                    painter = painterResource(R.drawable.map_marker_by_smashicons)// Cambia esto por el icono que prefieras
                 )
                 MapboxMap(
-                    modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                    modifier = Modifier.fillMaxSize(),
                     mapViewportState = mapboxMapState,
                     compass = {},
                     logo = {},
@@ -228,7 +228,6 @@ fun LugaresAddContent(
                         scope.launch {
                             val functionalLongitud = "%.5f".format(point.longitude()).safeToDouble()
                             val functionalLatitud = "%.5f".format(point.latitude()).safeToDouble()
-                            println("Epic1: $functionalLongitud")
                             tempLongitud.value = functionalLongitud.toCleanString()
                             tempLatitud.value = functionalLatitud.toCleanString()
                             val result =
@@ -246,12 +245,12 @@ fun LugaresAddContent(
                             PointAnnotation(point = point) {
                                 iconColor = Color.Red
                                 iconImage = markerImage
-                                iconSize = 3.5
-                                iconOffset = listOf(0.0, -10.0)
+                                iconSize = 0.35
+                                iconOffset = listOf(0.0, -95.0)
                                 textColor = Color.Black
                                 textSize = 10.0
                                 textOffset =
-                                    listOf(0.0, 1.5) // Ajuste para colocar el texto correctamente
+                                    listOf(0.0, -9.0) // Ajuste para colocar el texto correctamente
                             }
                         }
 
@@ -303,7 +302,6 @@ fun LugaresAddContent(
                                 MaterialTheme.colorScheme.onSurface,
                             ),
                             onClick = {
-                                // Handle form submission
                                 showAddDialogue.value = true
                             }) {
                             Text(

@@ -52,7 +52,7 @@ fun RutasMapContent(
     val markerImage =
         rememberIconImage(
             key = "default_marker",
-            painter = painterResource(R.drawable.add_location_alt_24px) // Cambia esto por el icono que prefieras
+            painter = painterResource(R.drawable.map_marker_by_smashicons)
         )
 
 
@@ -72,7 +72,7 @@ fun RutasMapContent(
                         (ruta.getInicio().longitud + ruta.getFin().longitud) / 2,
                         (ruta.getInicio().latitud + ruta.getFin().latitud) / 2
                     )
-                ) // Coordenadas de la Universidad Jaume I.
+                )
                 pitch(0.0)
                 bearing(0.0)
             }
@@ -126,16 +126,16 @@ fun RutasMapContent(
                         PointAnnotation(point = savedMarkerInicio.value) {
                             iconColor = Color.Green // Color verde para el inicio
                             iconImage = markerImage
-                            iconSize = 2.5
-                            iconOffset = listOf(0.0, -10.0)
+                            iconSize = 0.35
+                            iconOffset = listOf(0.0, -95.0)
                         }
 
                         // Dibujar el punto de fin (con un marcador diferente)
                         PointAnnotation(point = savedMarkerFin.value) {
                             iconColor = Color.Red // Color rojo para el fin
                             iconImage = markerImage
-                            iconSize = 2.5
-                            iconOffset = listOf(0.0, -10.0)
+                            iconSize = 0.35
+                            iconOffset = listOf(0.0, -95.0)
                         }
                     }
 

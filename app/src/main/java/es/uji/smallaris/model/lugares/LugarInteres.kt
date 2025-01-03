@@ -6,7 +6,12 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String, val municipio: String) : Favoritable() {
+class LugarInteres(
+    val longitud: Double,
+    val latitud: Double,
+    val nombre: String,
+    val municipio: String
+) : Favoritable() {
 
     fun toMap(): Map<String, Any> {
         return mapOf(
@@ -41,7 +46,8 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
     companion object {
         fun fromString(lugarString: String): LugarInteres {
             // Expresión regular para extraer los valores del String incluyendo municipio
-            val regex = """LugarInteres\(longitud=(.*?), latitud=(.*?), nombre='(.*?)', municipio='(.*?)'\)""".toRegex()
+            val regex =
+                """LugarInteres\(longitud=(.*?), latitud=(.*?), nombre='(.*?)', municipio='(.*?)'\)""".toRegex()
 
             val matchResult = regex.find(lugarString)
 
@@ -61,7 +67,7 @@ class LugarInteres(val longitud: Double, val latitud: Double, val nombre: String
         }
     }
 
-    fun distancia(otro: LugarInteres): Double{
+    fun distancia(otro: LugarInteres): Double {
         val theta = longitud - otro.longitud
         var dist = sin(deg2rad(latitud)) * sin(deg2rad(otro.latitud)) + cos(
             deg2rad(latitud)
