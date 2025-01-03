@@ -72,4 +72,15 @@ El proyecto sigue una estructura modular organizada de la siguiente manera:
     - **`MainActivity/`**:  El archivo que se debe ejecutar para iniciar la aplicación. 
   - **`test/`**: Contiene las pruebas de aceptación  sobre los diferentes servicios implementados con todas las dependencias sustituidas con mocks de a librerria *Mockk*.
 
+---
+
+## Autores
+
+Este proyecto ha sido desarrollado por:
+
+- **[Alejandro Díaz Rivero](https://github.com/MCY-1911)**: Gesttión de lugares de iterés, rutas y mapas.
+- **[Hugo Martí Fernández](https://github.com/HugoMartiFernandez)**: Gestión de usuarios y Firerbase.
+- **[Oscar Renau Pallarés](https://github.com/al415696)**: Gestión de vhiculos, servicios de prcios e interfaces gráficas.
+
+Si deseas colaborar o tienes alguna pregunta, no dudes en ponerte en contacto con los autores a través de sus perfiles de GitHub.
 
