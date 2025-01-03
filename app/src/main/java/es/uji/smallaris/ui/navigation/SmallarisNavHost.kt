@@ -43,7 +43,7 @@ fun SmallarisNavHost(
             viewModel = usuarioViewModel,
             modifier = modifier // Pasar el modificador aquí
         ) { loadingServiciosObjetos = true }
-        
+
     } else if (loadingServiciosObjetos) {
         LoadingScreen(
             loadingProcess = {
