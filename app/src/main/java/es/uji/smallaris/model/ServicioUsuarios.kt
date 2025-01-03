@@ -1,7 +1,6 @@
 package es.uji.smallaris.model
 
 import com.google.firebase.auth.FirebaseUser
-import kotlin.Throws
 
 class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
 
@@ -9,17 +8,21 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
     suspend fun registrarUsuario(correo: String, contrasena: String): Usuario {
 
         // Comprobación de conexión a Firebase
-        if ( !repositorioUsuarios.enFuncionamiento() )
+        if (!repositorioUsuarios.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible.")
 
         return repositorioUsuarios.registrarUsuario(correo, contrasena)
     }
 
-    @Throws(UnregisteredUserException::class, InvalidPasswordException::class, ConnectionErrorException::class)
+    @Throws(
+        UnregisteredUserException::class,
+        InvalidPasswordException::class,
+        ConnectionErrorException::class
+    )
     suspend fun iniciarSesion(correo: String, contrasena: String): Usuario {
 
         // Comprobación de conexión a Firebase
-        if ( !repositorioUsuarios.enFuncionamiento() )
+        if (!repositorioUsuarios.enFuncionamiento())
             throw ConnectionErrorException("Firebase no está disponible.")
 
         return repositorioUsuarios.iniciarSesion(correo, contrasena)
@@ -94,10 +97,10 @@ class ServicioUsuarios(private val repositorioUsuarios: RepositorioUsuarios) {
         return repositorioUsuarios.obtenerTipoRutaPorDefecto()
     }
 
-    companion object{
+    companion object {
         private lateinit var servicioUsuarios: ServicioUsuarios
-        fun getInstance(): ServicioUsuarios{
-            if (!this::servicioUsuarios.isInitialized){
+        fun getInstance(): ServicioUsuarios {
+            if (!this::servicioUsuarios.isInitialized) {
                 servicioUsuarios = ServicioUsuarios(RepositorioFirebase.getInstance())
             }
             return servicioUsuarios

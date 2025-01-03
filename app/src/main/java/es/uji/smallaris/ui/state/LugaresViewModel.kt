@@ -16,72 +16,68 @@ import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
 
-//@HiltViewModel
 class LugaresViewModel : ViewModel() {
-//    constructor(listState: Pair<Int,Int>) : this() {
-//        listStateValues = listState
-//    }
 
     private val servicioLugares: ServicioLugares = ServicioLugares.getInstance()
 
     private val servicioAPI: ServicioAPIs = ServicioAPIs
 
     var listState: LazyListState = LazyListState()
+
     // Lista observable
     var items: SnapshotStateList<LugarInteres> = mutableStateListOf<LugarInteres>()
     private var currentSorting: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE
 
-    fun sortItems(ordenLugar: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE){
+    fun sortItems(ordenLugar: OrdenLugarInteres = OrdenLugarInteres.FAVORITO_THEN_NOMBRE) {
         currentSorting = ordenLugar
         sortItems()
     }
-    private fun sortItems(){
+
+    private fun sortItems() {
         items.sortWith(currentSorting.comparator())
     }
 
-    suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): String{
+    suspend fun addLugar(longitud: Double, latitud: Double, nombre: String = ""): String {
         try {
             servicioLugares.addLugar(longitud, latitud, nombre)
             updateList()
-        }
-        catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             e.printStackTrace()
             return "Error al conectarse con el servidor"
-        }
-        catch (e: UbicationException){
+        } catch (e: UbicationException) {
 
             return e.message ?: "Fallo con el lugar, no se ha añadido"
         }
         return ""
     }
-    suspend fun setLugarFavorito(lugaresInteres: LugarInteres, favorito: Boolean){
+
+    suspend fun setLugarFavorito(lugaresInteres: LugarInteres, favorito: Boolean) {
         try {
-            if(servicioLugares.setLugarInteresFavorito(lugaresInteres, favorito))
+            if (servicioLugares.setLugarInteresFavorito(lugaresInteres, favorito))
                 updateList()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    suspend fun deleteLugar(lugaresInteres: LugarInteres): String{
+
+    suspend fun deleteLugar(lugaresInteres: LugarInteres): String {
         try {
-            if(servicioLugares.deleteLugar(lugaresInteres)) {
+            if (servicioLugares.deleteLugar(lugaresInteres)) {
                 updateList()
             }
             return ""
         } catch (e: ConnectionErrorException) {
             return "Error al conectarse con el servidor"
-        }
-        catch (e: VehicleException) {
-            return e.message?: "Error con el lugar"
-        }
-        catch (e: RouteException) {
-            return e.message?: "El lugar está en alguna ruta, no se puede borrar"
-        }
-        catch (e: Exception) {
-            return e.message?:"Fallo inesperado, prueba con otro momento"
+        } catch (e: VehicleException) {
+            return e.message ?: "Error con el lugar"
+        } catch (e: RouteException) {
+            return e.message ?: "El lugar está en alguna ruta, no se puede borrar"
+        } catch (e: Exception) {
+            return e.message ?: "Fallo inesperado, prueba con otro momento"
         }
     }
-    suspend fun initializeList(){
+
+    suspend fun initializeList() {
         try {
             servicioLugares.updateLugares()
             updateList()
@@ -89,8 +85,8 @@ class LugaresViewModel : ViewModel() {
             e.printStackTrace()
         }
     }
-    private suspend fun updateList(){
-//        items.value = servicioLugares.getLugares()
+
+    private suspend fun updateList() {
         try {
             // Step 1: Add missing elements
             val nueva = servicioLugares.getLugares()
@@ -116,40 +112,40 @@ class LugaresViewModel : ViewModel() {
         }
     }
 
-    suspend fun getToponimo(longitud: Double, latitud: Double):Pair<ErrorCategory,String>{
+    suspend fun getToponimo(longitud: Double, latitud: Double): Pair<ErrorCategory, String> {
         try {
-            return Pair(ErrorCategory.NotAnError,servicioAPI.getToponimoCercano(longitud, latitud))
+            return Pair(ErrorCategory.NotAnError, servicioAPI.getToponimoCercano(longitud, latitud))
         } catch (e: UbicationException) {
             e.printStackTrace()
-            return Pair(ErrorCategory.FormatError,"Error: " + e.message)
-        }catch (e: Exception){
+            return Pair(ErrorCategory.FormatError, "Error: " + e.message)
+        } catch (e: Exception) {
             e.printStackTrace()
-            return Pair(ErrorCategory.NotAnError,"Error inesperado")
+            return Pair(ErrorCategory.NotAnError, "Error inesperado")
         }
     }
-    suspend fun getCoordenadas(toponimo: String):Pair<ErrorCategory,Pair<Double,Double>>{
+
+    suspend fun getCoordenadas(toponimo: String): Pair<ErrorCategory, Pair<Double, Double>> {
         try {
             //(longitud, latitud)
-
             return Pair(ErrorCategory.NotAnError, servicioAPI.getCoordenadas(toponimo))
         } catch (e: UbicationException) {
             e.printStackTrace()
-            return Pair(ErrorCategory.UnknownError ,Pair(-999.9,-999.9))
+            return Pair(ErrorCategory.UnknownError, Pair(-999.9, -999.9))
         }
     }
-    companion object{
+
+    companion object {
         val Saver: Saver<LugaresViewModel, *> =
-//            mapSaver(
-//            save = { hashMapOf(Pair("state",it.listState))},
-//            restore = {LugaresViewModel(
-//                it["state"] as LazyListState
-//            )}
-//        )
             listSaver(
-            save = { listOf<Any>(it.listState.firstVisibleItemIndex,it.listState.firstVisibleItemScrollOffset)},
-            restore = {
-                LugaresViewModel()
-            }
-        )
+                save = {
+                    listOf<Any>(
+                        it.listState.firstVisibleItemIndex,
+                        it.listState.firstVisibleItemScrollOffset
+                    )
+                },
+                restore = {
+                    LugaresViewModel()
+                }
+            )
     }
 }

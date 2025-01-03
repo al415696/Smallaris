@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-inline fun < reified E: Enum<E>>EnumDropDown(
+inline fun <reified E : Enum<E>> EnumDropDown(
     modifier: Modifier = Modifier,
     opciones: List<E> = enumValues<E>().toList(),
     elegida: MutableState<E>
@@ -36,7 +36,7 @@ inline fun < reified E: Enum<E>>EnumDropDown(
     }
 
     Column(
-        modifier= modifier,
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -49,8 +49,12 @@ inline fun < reified E: Enum<E>>EnumDropDown(
                     isDropDownExpanded.value = true
                 }
             ) {
-                Text(modifier= Modifier.fillMaxWidth().weight(1f),
-                    text = opciones[itemPosition.intValue].name)
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    text = opciones[itemPosition.intValue].name
+                )
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = "DropDown Icon"

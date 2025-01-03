@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -35,44 +33,41 @@ import androidx.compose.ui.unit.dp
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-inline fun <E>ListDropDown(
+inline fun <E> ListDropDown(
     modifier: Modifier = Modifier,
     opciones: List<E> = emptyList(),
     elegida: MutableState<E>,
     ignorado: MutableState<E?> = mutableStateOf(null),
-    crossinline shownValue: (objeto: E) -> String = { objeto-> objeto.toString()},
+    crossinline shownValue: (objeto: E) -> String = { objeto -> objeto.toString() },
     notSelectedText: String = "No seleccionado"
 ) {
 
     val isDropDownExpanded = remember {
         mutableStateOf(false)
     }
-//    val ready by remember{ derivedStateOf { elegida.value != null }}
-    val ready by remember{ derivedStateOf { opciones.isNotEmpty() }}
+    val ready by remember { derivedStateOf { opciones.isNotEmpty() } }
 
-    val itemPosition = remember { mutableIntStateOf ( opciones.indexOf(elegida.value) ) }
-//    val itemPosition = remember {
-//        mutableIntStateOf(opciones.indexOf(elegida.value))
-//    }
+    val itemPosition = remember { mutableIntStateOf(opciones.indexOf(elegida.value)) }
     if (!ready) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 text = shownValue(elegida.value),
-                maxLines = 3)
+                maxLines = 3
+            )
 
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "DropDown Icon"
-                )
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = "DropDown Icon"
+            )
 
         }
-    }
-    else {
+    } else {
         itemPosition.intValue = opciones.indexOf(elegida.value)
         if (itemPosition.intValue == -1) itemPosition.intValue = 0
         Column(
@@ -85,45 +80,42 @@ inline fun <E>ListDropDown(
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable(
-//                        enabled = elegida.value != null
-                    ) {
+                    modifier = Modifier.clickable {
                         isDropDownExpanded.value = true
                     }
                 ) {
-                    Text(modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                        text =if(elegida.value == null) notSelectedText else shownValue(opciones[itemPosition.intValue]),
-                        maxLines = 3)
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "DropDown Icon"
-                        )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        text = if (elegida.value == null) notSelectedText else shownValue(opciones[itemPosition.intValue]),
+                        maxLines = 3
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "DropDown Icon"
+                    )
                 }
 
                 DropdownMenu(
                     modifier = Modifier
-                    .wrapContentSize()
+                        .wrapContentSize()
                         .width(intrinsicSize = IntrinsicSize.Max)
-                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp / 3)
-
-//                    height(intrinsicSize = IntrinsicSize.Max).fillMaxHeight(0.3f)
-                    ,
+                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp / 3),
                     expanded = isDropDownExpanded.value,
                     onDismissRequest = {
                         isDropDownExpanded.value = false
                     }) {
                     opciones.forEachIndexed { index, elemento ->
-                        if (elemento!= ignorado.value)
-                        DropdownMenuItem(text = {
-                            Text(text = shownValue(elemento))
-                        },
-                            onClick = {
-                                isDropDownExpanded.value = false
-                                itemPosition.value = index
-                                elegida.value = opciones[itemPosition.value]
-                            })
+                        if (elemento != ignorado.value)
+                            DropdownMenuItem(text = {
+                                Text(text = shownValue(elemento))
+                            },
+                                onClick = {
+                                    isDropDownExpanded.value = false
+                                    itemPosition.intValue = index
+                                    elegida.value = opciones[itemPosition.intValue]
+                                })
                     }
                 }
             }
@@ -131,26 +123,27 @@ inline fun <E>ListDropDown(
         }
     }
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview
-fun PreviewListDropDownCorrecto(){
+fun PreviewListDropDownCorrecto() {
 
     Surface {
         ListDropDown(opciones = listOf("Hola"),
             elegida = mutableStateOf("Hola"),
-            shownValue = { objeto: String -> objeto.toString() })
+            shownValue = { objeto: String -> objeto })
     }
 }
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview
-fun PreviewListDropDownEsperando(){
+fun PreviewListDropDownEsperando() {
 
     Surface {
         ListDropDown(opciones = emptyList(),
             elegida = mutableStateOf(null),
-            shownValue = {objeto: String? ->  objeto ?: "Cargando..." })
+            shownValue = { objeto: String? -> objeto ?: "Cargando..." })
     }
 }

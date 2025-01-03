@@ -15,40 +15,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-inline fun < reified E: Enum<E>>ExternalEnumDropDown(
+inline fun <reified E : Enum<E>> ExternalEnumDropDown(
     modifier: Modifier = Modifier,
     opciones: List<E> = enumValues<E>().toList(),
     elegida: MutableState<E>,
     cargadoEnded: Boolean = false,
     cargandoText: String = "Cargando..."
-//    action: (E) -> Boolean = {false}
 ) {
-    var startedAction by mutableStateOf(false)
-
 
     val isDropDownExpanded = remember {
         mutableStateOf(false)
     }
 
     val itemPosition = remember {
-        derivedStateOf { opciones.indexOf(elegida.value)}
+        derivedStateOf { opciones.indexOf(elegida.value) }
     }
-//    if (startedAction)
-//        LaunchedEffect(Unit) {
-//            action(opciones[index])
-//            elegida.value = opciones[itemPosition.value]
-//
-//        }
     Column(
-        modifier= modifier,
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -61,9 +50,10 @@ inline fun < reified E: Enum<E>>ExternalEnumDropDown(
                     isDropDownExpanded.value = true
                 }
             ) {
-                Text(modifier= Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     text =
                     if (cargadoEnded) opciones[itemPosition.value].name
                     else cargandoText
@@ -84,8 +74,6 @@ inline fun < reified E: Enum<E>>ExternalEnumDropDown(
                     },
                         onClick = {
                             isDropDownExpanded.value = false
-//                            itemPosition.value = index
-//                            startedAction = true
                             elegida.value = opciones[index]
 
                         })

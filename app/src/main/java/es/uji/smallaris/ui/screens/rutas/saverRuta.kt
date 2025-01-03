@@ -2,10 +2,10 @@ package es.uji.smallaris.ui.screens.rutas
 
 import androidx.compose.runtime.saveable.Saver
 import com.mapbox.geojson.LineString
-import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.model.lugares.LugarInteres
 
 // Define cómo guardar y restaurar Ruta
 val rutaSaver = Saver<Ruta, Map<String, Any>>(
@@ -14,7 +14,8 @@ val rutaSaver = Saver<Ruta, Map<String, Any>>(
             "nombre" to ruta.getNombre(),
             "inicio" to ruta.getInicio().toString(),
             "fin" to ruta.getFin().toString(),
-            "vehiculo" to ruta.getVehiculo().toString(), // Puedes usar una representación simple del vehiculo
+            "vehiculo" to ruta.getVehiculo()
+                .toString(), // Puedes usar una representación simple del vehiculo
             "tipo" to ruta.getTipo().toString(), // Similar para el tipo de ruta
             "trayecto" to ruta.getTrayecto().toJson(), // Serializamos el LineString a JSON
             "distancia" to ruta.getDistancia(),

@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import es.uji.smallaris.R
-import es.uji.smallaris.model.ArquetipoVehiculo
 import es.uji.smallaris.model.Ruta
 import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.ui.components.BottomListActionBar
@@ -44,7 +43,6 @@ import es.uji.smallaris.ui.components.ObjetoListable
 import es.uji.smallaris.ui.screens.toCleanCost
 import es.uji.smallaris.ui.screens.toCleanDistance
 import es.uji.smallaris.ui.screens.toTimeFormat
-import java.util.Locale
 
 
 @Composable
@@ -53,13 +51,14 @@ fun RutasListContent(
     items: List<Ruta> = listOf(),
     addFunction: () -> Unit = {},
     viewFunction: (ruta: Ruta) -> Unit = {},
-    sortFunction: () -> String = {""},
-    deleteFuncition: suspend (ruta: Ruta) -> String = {""},
-    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ ->},
+    sortFunction: () -> String = { "" },
+    deleteFuncition: suspend (ruta: Ruta) -> String = { "" },
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ -> },
     state: LazyListState = rememberLazyListState()
 
 ) {
-    var rutaSelected: Ruta? by remember { mutableStateOf(null)
+    var rutaSelected: Ruta? by remember {
+        mutableStateOf(null)
     }
     val firstItemVisible by remember {
         derivedStateOf {
@@ -119,42 +118,44 @@ fun RutasListContent(
         }
     }
 }
+
 @Composable
 fun LazyListRuta(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     items: List<Ruta> = emptyList(),
     onSelect: (rut: Ruta) -> Unit,
-    checkSelected: (otro: Ruta)-> Boolean,
+    checkSelected: (otro: Ruta) -> Boolean,
     viewFunction: (ruta: Ruta) -> Unit = {},
-    deleteFuncition: suspend (ruta: Ruta) -> String = {""},
-    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
+    deleteFuncition: suspend (ruta: Ruta) -> String = { "" },
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ -> },
 ) {
-    val shouldShowDialog = remember { mutableStateOf(false )}
-    val rutaABorrar = remember { mutableStateOf<Ruta?>(null )}
+    val shouldShowDialog = remember { mutableStateOf(false) }
+    val rutaABorrar = remember { mutableStateOf<Ruta?>(null) }
     if (shouldShowDialog.value) {
-        DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { rutaABorrar.value?.let { deleteFuncition(it) }?: "" },
+        DeleteAlertDialogue(
+            shouldShowDialog = shouldShowDialog,
+            deleteFuncition = { rutaABorrar.value?.let { deleteFuncition(it) } ?: "" },
             nombreObjetoBorrado = "El ruta elegido"
 
         )
     }
     LazyColumn(
-        
+
         modifier = modifier,
         state = state,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        item{
+        item {
             Spacer(Modifier.size(0.dp))
         }
         items(items) { item: Ruta ->
-            rutaListable(
+            RutaListable(
                 ruta = item,
                 onSelect = onSelect,
                 selected = checkSelected(item),
                 viewFunction = viewFunction,
-                deleteFuncition = {ruta ->
+                deleteFuncition = { ruta ->
                     rutaABorrar.value = ruta
                     shouldShowDialog.value = true
                 },
@@ -162,24 +163,25 @@ fun LazyListRuta(
 
             )
         }
-        item{
+        item {
             Spacer(Modifier.size(30.dp))
         }
     }
 
 }
+
 @Composable
-fun rutaListable(
+fun RutaListable(
     ruta: Ruta,
     onSelect: (rut: Ruta) -> Unit,
     selected: Boolean,
     viewFunction: (ruta: Ruta) -> Unit = {},
     deleteFuncition: (ruta: Ruta) -> Unit = {},
-    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = {ruta,favorito ->},
+    favoriteFuncion: suspend (ruta: Ruta, favorito: Boolean) -> Unit = { _, _ -> },
 
-){
-    var cambiandoFavorito by remember{ mutableStateOf(false)}
-    if(cambiandoFavorito) {
+    ) {
+    var cambiandoFavorito by remember { mutableStateOf(false) }
+    if (cambiandoFavorito) {
         LaunchedEffect(Unit) {
             favoriteFuncion(ruta, !ruta.isFavorito())
             cambiandoFavorito = false
@@ -187,41 +189,43 @@ fun rutaListable(
     }
 
 
-        ObjetoListable(
-            primaryInfo = ruta.getNombre(),
-            secondaryInfo =  (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
-                    "\n\n"+
-                    ruta.getCoste().toCleanCost(ruta.getVehiculo().tipo.getArquetipo()),
-            terciaryInfo =ruta.getDistancia().toCleanDistance() +"\n\n"+ruta.getDuracion().toTimeFormat(),
-            onGeneralClick = { onSelect(ruta) },
-            favoriteFuncion = { cambiandoFavorito = true },
-            firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
-            firstActionFunction = {viewFunction(ruta)},
-            secondActionFuncition = { deleteFuncition(ruta)},
-            favorito = ruta.isFavorito(),
-            selected = selected,
-            ratioHiddenFields = 0.6f
+    ObjetoListable(
+        primaryInfo = ruta.getNombre(),
+        secondaryInfo = (if (ruta.getVehiculo().tipo == TipoVehiculo.Pie) "A pie" else "Con " + ruta.getVehiculo().nombre) +
+                "\n\n" +
+                ruta.getCoste().toCleanCost(ruta.getVehiculo().tipo.getArquetipo()),
+        terciaryInfo = ruta.getDistancia().toCleanDistance() + "\n\n" + ruta.getDuracion()
+            .toTimeFormat(),
+        onGeneralClick = { onSelect(ruta) },
+        favoriteFuncion = { cambiandoFavorito = true },
+        firstActionIcon = Icons.AutoMirrored.Filled.NotListedLocation,
+        firstActionFunction = { viewFunction(ruta) },
+        secondActionFuncition = { deleteFuncition(ruta) },
+        favorito = ruta.isFavorito(),
+        selected = selected,
+        ratioHiddenFields = 0.6f
 
-        )
+    )
 }
 
 
 @Preview
 @Composable
-private fun rutaListContentPreview() {
-    val modifier: Modifier = Modifier
-    RutasListContent(modifier, emptyList())
-}
-@Preview
-@Composable
-private fun rutaListContentVacioPreview() {
+private fun RutaListContentPreview() {
     val modifier: Modifier = Modifier
     RutasListContent(modifier, emptyList())
 }
 
 @Preview
 @Composable
-private fun previewListaRuta() {
-    LazyListRuta(onSelect =  {},
-        checkSelected = {true})
+private fun RutaListContentVacioPreview() {
+    val modifier: Modifier = Modifier
+    RutasListContent(modifier, emptyList())
+}
+
+@Preview
+@Composable
+private fun PreviewListaRuta() {
+    LazyListRuta(onSelect = {},
+        checkSelected = { true })
 }

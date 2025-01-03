@@ -56,6 +56,7 @@ class RutaBuilderWrapper(
                     servicioRutasYCoste
                 )
             )
+
             TipoVehiculo.Gasolina95, TipoVehiculo.Gasolina98, TipoVehiculo.Diesel -> calculadorRutas.setStrategy(
                 CosteCarburanteSimple(servicioRutasYCoste)
             )

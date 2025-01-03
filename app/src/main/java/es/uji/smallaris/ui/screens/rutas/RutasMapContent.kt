@@ -52,7 +52,7 @@ fun RutasMapContent(
     val markerImage =
         rememberIconImage(
             key = "default_marker",
-            painter = painterResource(R.drawable.map_marker_by_smashicons) // Cambia esto por el icono que prefieras
+            painter = painterResource(R.drawable.map_marker_by_smashicons)
         )
 
 
@@ -72,7 +72,7 @@ fun RutasMapContent(
                         (ruta.getInicio().longitud + ruta.getFin().longitud) / 2,
                         (ruta.getInicio().latitud + ruta.getFin().latitud) / 2
                     )
-                ) // Coordenadas de la Universidad Jaume I.
+                )
                 pitch(0.0)
                 bearing(0.0)
             }

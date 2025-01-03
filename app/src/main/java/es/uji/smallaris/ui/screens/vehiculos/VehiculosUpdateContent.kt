@@ -32,7 +32,7 @@ import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
-import es.uji.smallaris.ui.components.Vehiculos.ArquetipoDependantFields
+import es.uji.smallaris.ui.components.vehiculos.ArquetipoDependantFields
 import es.uji.smallaris.ui.screens.safeToDouble
 import es.uji.smallaris.ui.screens.toCleanString
 
@@ -161,7 +161,6 @@ fun VehiculosUpdateContent(
                         MaterialTheme.colorScheme.onSurface,
                     ),
                     onClick = {
-                        // Handle form submission
                         confirmadoAdd = true
                     }) {
                     Text(

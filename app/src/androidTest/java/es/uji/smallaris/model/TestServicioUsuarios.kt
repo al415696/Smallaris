@@ -141,7 +141,10 @@ class TestServicioUsuarios {
 
             servicioUsuarios.cerrarSesion()
             val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", contrasenaNueva)
-            servicioUsuarios.cambiarContrasena(contrasenaNueva, "12345678") // Vuelvo a dejar la contraseña previa para que funcione el After
+            servicioUsuarios.cambiarContrasena(
+                contrasenaNueva,
+                "12345678"
+            ) // Vuelvo a dejar la contraseña previa para que funcione el After
             assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
         }
 
@@ -179,24 +182,25 @@ class TestServicioUsuarios {
         }
 
         @Test
-        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoYaEstablecido() = runBlocking {
-            // Given
-            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
-            val tipoRutaElegido = TipoRuta.Rapida
-            servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
-
-            // When
-            var resultado: RouteException? = null
-            try {
+        fun establecerTipoRutaPorDefecto_R5HU02_establecerTipoRutaPorDefectoYaEstablecido() =
+            runBlocking {
+                // Given
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                val tipoRutaElegido = TipoRuta.Rapida
                 servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
-            } catch (excepcion: RouteException) {
-                resultado = excepcion
-            }
 
-            // Then
-            assertNotNull(resultado)
-            assertTrue(resultado is RouteException)
-        }
+                // When
+                var resultado: RouteException? = null
+                try {
+                    servicioUsuarios.establecerTipoRutaPorDefecto(tipoRutaElegido)
+                } catch (excepcion: RouteException) {
+                    resultado = excepcion
+                }
+
+                // Then
+                assertNotNull(resultado)
+                assertTrue(resultado is RouteException)
+            }
 
         @Test
         fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoExito() = runBlocking {
@@ -219,29 +223,30 @@ class TestServicioUsuarios {
         }
 
         @Test
-        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoYaEstablecido() = runBlocking {
-            // Given
-            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
-            val vehiculoCreado = Vehiculo(
-                nombre = "VehiculoTest",
-                consumo = 10.0,
-                matricula = "TEST1234",
-                tipo = TipoVehiculo.Diesel
-            )
-            servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
-
-            // When
-            var resultado: VehicleException? = null
-            try {
+        fun establecerVehiculoPorDefecto_R5HU01_establecerVehiculoPorDefectoYaEstablecido() =
+            runBlocking {
+                // Given
+                servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+                val vehiculoCreado = Vehiculo(
+                    nombre = "VehiculoTest",
+                    consumo = 10.0,
+                    matricula = "TEST1234",
+                    tipo = TipoVehiculo.Diesel
+                )
                 servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
-            } catch (excepcion: VehicleException) {
-                resultado = excepcion
-            }
 
-            // Then
-            assertNotNull(resultado)
-            assertTrue(resultado is VehicleException)
-        }
+                // When
+                var resultado: VehicleException? = null
+                try {
+                    servicioUsuarios.establecerVehiculoPorDefecto(vehiculoCreado)
+                } catch (excepcion: VehicleException) {
+                    resultado = excepcion
+                }
+
+                // Then
+                assertNotNull(resultado)
+                assertTrue(resultado is VehicleException)
+            }
     }
 
     class RegistrarUsuarioExitoTest {

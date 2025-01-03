@@ -7,25 +7,19 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.lugares.LugarInteres
-import es.uji.smallaris.model.OrdenLugarInteres
 import es.uji.smallaris.model.OrdenRuta
 import es.uji.smallaris.model.RouteException
 import es.uji.smallaris.model.Ruta
-import es.uji.smallaris.model.RutaBuilder
-import es.uji.smallaris.model.ServicioAPIs
-import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.ServicioRutas
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoRuta
-import es.uji.smallaris.model.TipoVehiculo
-import es.uji.smallaris.model.VehicleException
-import es.uji.smallaris.model.lugares.UbicationException
 import es.uji.smallaris.model.Vehiculo
+import es.uji.smallaris.model.lugares.LugarInteres
+import es.uji.smallaris.model.lugares.ServicioLugares
+import es.uji.smallaris.model.lugares.UbicationException
 
-//@HiltViewModel
-class RutasViewModel() : ViewModel() {
+class RutasViewModel : ViewModel() {
 
     private val servicioLugares: ServicioLugares = ServicioLugares.getInstance()
     private val servicioVehiculos: ServicioVehiculos = ServicioVehiculos.getInstance()
@@ -41,118 +35,107 @@ class RutasViewModel() : ViewModel() {
 
 
     private val servicioRutas: ServicioRutas = ServicioRutas.getInstance()
-
-    private val servicioAPI: ServicioAPIs = ServicioAPIs
-
     var listState: LazyListState = LazyListState()
+
     // Lista observable
     var listRutas: SnapshotStateList<Ruta> = mutableStateListOf<Ruta>()
     private var currentSorting: OrdenRuta = OrdenRuta.FAVORITO_THEN_NOMBRE
 
-    fun sortItems(ordenLugar: OrdenRuta = OrdenRuta.FAVORITO_THEN_NOMBRE){
+    fun sortItems(ordenLugar: OrdenRuta = OrdenRuta.FAVORITO_THEN_NOMBRE) {
         currentSorting = ordenLugar
         sortItems()
     }
-    private fun sortItems(){
+
+    private fun sortItems() {
         listRutas.sortWith(currentSorting.comparator())
     }
-//    var dummyRuta: Ruta = RutaBuilder()
-//        .setNombre("Ruta por Aionios")
-//        .setInicio(LugarInteres(-999.03778, 999.98574, "Mercado Central, Castellón de la Plana, Comunidad Valenciana, España", "Castellón de la Plana"))
-//        .setFin(LugarInteres(999.934,-999.268,  "Museo Guggenheim, Bilbao, País Vasco, España", "Bilbao"),)
-//        .setVehiculo(Vehiculo("Vacío", 2.2, "9999ÑÑÑ",TipoVehiculo.Desconocido))
-//        .setTipo(TipoRuta.Corta).getRutaCalculada()
-//    fun getDummyRuta(): Ruta{
-//        return
-//    }
 
     suspend fun addRuta(
         nombreRuta: String,
-        inicio:LugarInteres,
+        inicio: LugarInteres,
         fin: LugarInteres,
         vehiculo: Vehiculo,
         tipoRuta: TipoRuta
-    ): String{
+    ): String {
         try {
             val rutaAAnyadir = servicioRutas.builder().setNombre(nombreRuta).setInicio(inicio)
                 .setFin(fin).setVehiculo(vehiculo)
                 .setTipo(tipoRuta).build()
             servicioRutas.addRuta(rutaAAnyadir)
             updateList()
-        }
-        catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             e.printStackTrace()
             return "Error al conectarse con el servidor"
-        }
-        catch (e: UbicationException){
+        } catch (e: UbicationException) {
 
             return e.message ?: "Fallo con los lugares de intérs, no se ha añadido"
-        }
-        catch (e: RouteException){
+        } catch (e: RouteException) {
 
             return e.message ?: "Fallo con la ruta, no se ha añadido"
         }
         return ""
     }
+
     suspend fun calcRuta(
         nombreRuta: String,
-        inicio:LugarInteres,
+        inicio: LugarInteres,
         fin: LugarInteres,
         vehiculo: Vehiculo,
         tipoRuta: TipoRuta
-    ):Pair <String, Ruta> {
+    ): Pair<String, Ruta> {
         val builder = servicioRutas.builder().setNombre(nombreRuta).setInicio(inicio)
             .setFin(fin).setVehiculo(vehiculo)
             .setTipo(tipoRuta)
         try {
 
-            return  Pair("",builder.build())
+            return Pair("", builder.build())
         } catch (e: ConnectionErrorException) {
             e.printStackTrace()
-            return  Pair(e.message?: "Error de conexión",builder.getRuta())
-        }
-        catch (e: UbicationException){
+            return Pair(e.message ?: "Error de conexión", builder.getRuta())
+        } catch (e: UbicationException) {
             e.printStackTrace()
-            return  Pair(e.message?: "Error de ubicación de lugares",builder.getRuta())
-        }catch (e: RouteException){
+            return Pair(e.message ?: "Error de ubicación de lugares", builder.getRuta())
+        } catch (e: RouteException) {
             e.printStackTrace()
-            return  Pair(e.message?: "Error de construcción de ruta",builder.getRuta())
-        }catch(e: Exception){
+            return Pair(e.message ?: "Error de construcción de ruta", builder.getRuta())
+        } catch (e: Exception) {
             e.printStackTrace()
-            return  Pair("Error inesperado",builder.getRuta())
+            return Pair("Error inesperado", builder.getRuta())
         }
     }
-    suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean){
+
+    suspend fun setRutaFavorita(ruta: Ruta, favorito: Boolean) {
         try {
-            if(servicioRutas.setFavorito(ruta, favorito))
+            if (servicioRutas.setFavorito(ruta, favorito))
                 updateList()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    suspend fun deleteRuta(ruta: Ruta): String{
+
+    suspend fun deleteRuta(ruta: Ruta): String {
         try {
-            if(servicioRutas.deleteRuta(ruta))
+            if (servicioRutas.deleteRuta(ruta))
                 updateList()
             return ""
-        }catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             return "Error al conectarse con el servidor"
-        }
-        catch (e: RouteException) {
-            return e.message?: "Error con la ruta"
-        }
-        catch (e: Exception) {
-            return e.message?: "Fallo inesperado, prueba con otro momento"
+        } catch (e: RouteException) {
+            return e.message ?: "Error con la ruta"
+        } catch (e: Exception) {
+            return e.message ?: "Fallo inesperado, prueba con otro momento"
         }
     }
-    suspend fun getDefaultVehiculo(): Vehiculo?{
+
+    suspend fun getDefaultVehiculo(): Vehiculo? {
         return try {
             servicioUsuarios.obtenerVehiculoPorDefecto()
         } catch (e: Exception) {
             null
         }
     }
-    suspend fun getDefaultTipoRuta(): TipoRuta?{
+
+    suspend fun getDefaultTipoRuta(): TipoRuta? {
         return try {
             servicioUsuarios.obtenerTipoRutaPorDefecto()
         } catch (e: Exception) {
@@ -160,7 +143,7 @@ class RutasViewModel() : ViewModel() {
         }
     }
 
-    suspend fun initializeList(){
+    suspend fun initializeList() {
         try {
             servicioRutas.updateRutas()
             updateList()
@@ -169,7 +152,7 @@ class RutasViewModel() : ViewModel() {
         }
     }
 
-    private suspend fun updateList(){
+    private suspend fun updateList() {
         try {// Step 1: Add missing elements
             val nueva = servicioRutas.getRutas()
             nueva.forEach { element ->
@@ -195,11 +178,9 @@ class RutasViewModel() : ViewModel() {
     }
 
 
-
-
-    companion object{
+    companion object {
         val Saver: Saver<RutasViewModel, *> = listSaver(
-            save = { listOf<Any>()},
+            save = { listOf<Any>() },
             restore = {
                 RutasViewModel(
 

@@ -1,4 +1,5 @@
 package es.uji.smallaris.ui.screens.lugares
+
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import es.uji.smallaris.model.lugares.LugarInteres

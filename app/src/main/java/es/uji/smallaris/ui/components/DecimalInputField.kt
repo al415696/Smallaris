@@ -3,9 +3,7 @@ package es.uji.smallaris.ui.components
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,7 +14,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
@@ -32,11 +29,11 @@ fun DecimalInputField(
     text: MutableState<String>,
     maxLenght: Int = 8,
     useVisualTransformation: Boolean = true,
-    supportingText: @Composable (()->Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
     label: @Composable (() -> Unit)? = null
 
-    ) {
-    Surface (modifier= modifier, shape = MaterialTheme.shapes.small) {
+) {
+    Surface(modifier = modifier, shape = MaterialTheme.shapes.small) {
         Column(verticalArrangement = Arrangement.Center)
         {
             TextField(
@@ -47,8 +44,10 @@ fun DecimalInputField(
                         text.value = decimalFormatter.cleanup(it)
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                visualTransformation = if (useVisualTransformation) DecimalInputVisualTransformation(decimalFormatter) else VisualTransformation.None,
-                shape= MaterialTheme.shapes.small,
+                visualTransformation = if (useVisualTransformation) DecimalInputVisualTransformation(
+                    decimalFormatter
+                ) else VisualTransformation.None,
+                shape = MaterialTheme.shapes.small,
                 label = label
             )
             if (supportingText != null) {
@@ -58,9 +57,10 @@ fun DecimalInputField(
         }
     }
 }
+
 abstract class IDecimalFormatter(
     val symbols: DecimalFormatSymbols = DecimalFormatSymbols.getInstance()
-){
+) {
 
 
     abstract fun cleanup(input: String): String
@@ -108,7 +108,8 @@ class StandardDecimalFormatter : IDecimalFormatter() {
         val fractionPart = split.getOrNull(1)
 
         return if (fractionPart == null) intPart else intPart + decimalSeparator + fractionPart
-    } }
+    }
+}
 
 class CoordinateDecimalFormatter : IDecimalFormatter() {
 
@@ -120,15 +121,17 @@ class CoordinateDecimalFormatter : IDecimalFormatter() {
             if (input.length > 1 && input.substring(1).matches("\\D".toRegex()))
                 return ""
 
-        }
-        else
-            if (input.matches("\\D".toRegex())) { return ""
+        } else
+            if (input.matches("\\D".toRegex())) {
+                return ""
             }
         if (input.matches("0+".toRegex())) return "0"
         if (input.matches("-0+".toRegex())) return "-0"
 
-        if (input.matches(("-?\\d{3}[^$decimalSeparator]").toRegex())) return input.substring(0,input.length-1)
-//        if (input.matches(("-?\\d{3}[^.]").toRegex())) return input.substring(0,input.length-1)
+        if (input.matches(("-?\\d{3}[^$decimalSeparator]").toRegex())) return input.substring(
+            0,
+            input.length - 1
+        )
 
         val sb = StringBuilder()
 
@@ -141,7 +144,7 @@ class CoordinateDecimalFormatter : IDecimalFormatter() {
                 sb.append(char)
                 continue
             }
-            if (char == '-' && sb.isEmpty() && !hasNegative){
+            if (char == '-' && sb.isEmpty() && !hasNegative) {
                 sb.append(char)
                 hasNegative = true
                 continue
@@ -204,20 +207,21 @@ private class FixedCursorOffsetMapping(
     override fun originalToTransformed(offset: Int): Int = formattedContentLength
     override fun transformedToOriginal(offset: Int): Int = contentLength
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
-fun PreviewCoordinateInput(){
+fun PreviewCoordinateInput() {
     DecimalInputField(
         modifier = Modifier.width(100.dp),
         text = mutableStateOf("0.45"),
         decimalFormatter = CoordinateDecimalFormatter(),
         maxLenght = 9,
         useVisualTransformation = false
-    ){
+    ) {
         Text(
-                    text = "Latitud",
-                    style = MaterialTheme.typography.labelSmall
-                )
+            text = "Latitud",
+            style = MaterialTheme.typography.labelSmall
+        )
     }
 }
