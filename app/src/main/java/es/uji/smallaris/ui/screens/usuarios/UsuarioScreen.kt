@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -32,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,7 +62,8 @@ fun UsuarioScreen(
         funGetVehiculoPorDefecto = viewModel::getDefaultVehiculo,
         funSetVehiculoPorDefecto = viewModel::setDefaultVehiculo,
         funGetTipoRutaPorDefecto = viewModel::getDefaultTipoRuta,
-        funSetTipoRutaPorDefecto = viewModel::setDefaultTipoRuta
+        funSetTipoRutaPorDefecto = viewModel::setDefaultTipoRuta,
+        funCambiarContrasena = viewModel::cambiarContrasenya
     )
 }
 
@@ -72,7 +76,8 @@ fun UsuarioScreenContent(
     funGetVehiculoPorDefecto: suspend () -> Vehiculo? = { null },
     funSetVehiculoPorDefecto: suspend (Vehiculo) -> Boolean = { false },
     funGetTipoRutaPorDefecto: suspend () -> TipoRuta? = { null },
-    funSetTipoRutaPorDefecto: suspend (TipoRuta) -> Boolean = { false }
+    funSetTipoRutaPorDefecto: suspend (TipoRuta) -> Boolean = { false },
+    funCambiarContrasena: suspend (vieja: String, nueva: String) -> String = {_,_ -> ""}
 ) {
     val listaTipoRuta = listOf(TipoRuta.Rapida, TipoRuta.Economica, TipoRuta.Corta)
     val currentDefaultTipoRuta = rememberSaveable { mutableStateOf(TipoRuta.Rapida) }
@@ -85,6 +90,7 @@ fun UsuarioScreenContent(
     var initialLoadEnded by rememberSaveable { mutableStateOf(false) }
     val iniciadoCerrarSesion = remember { mutableStateOf(false) }
     val iniciadoEliminarCuenta = remember { mutableStateOf(false) }
+    val iniciadoCambiarContrasena = remember { mutableStateOf(false) }
     if (iniciadoCerrarSesion.value)
         CerrarSesionAlertDialogue(
             iniciadoCerrarSesion,
@@ -93,8 +99,13 @@ fun UsuarioScreenContent(
     if (iniciadoEliminarCuenta.value)
         DeleteAlertDialogue(
             iniciadoEliminarCuenta,
-            deleteFuncition = { funEliminarCuenta() },
+            deleteFuncition = funEliminarCuenta,
             "Tu cuenta junto a todos tus datos"
+        )
+    if (iniciadoCambiarContrasena.value)
+        CambiarContrasenaAlertDialogue(
+            iniciadoCambiarContrasena,
+            funCambiarContrasena = funCambiarContrasena,
         )
 
     LaunchedEffect(Unit) {
@@ -154,35 +165,48 @@ fun UsuarioScreenContent(
                         tonalElevation = 10.dp,
                         shape = MaterialTheme.shapes.medium
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                modifier = Modifier.size(50.dp),
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = stringResource(R.string.default_description_text)
-                            )
-                            Column(
-                                modifier = Modifier,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.8f)
-                                        .align(Alignment.Start),
-                                    text = "Email:",
-                                    textAlign = TextAlign.Start
+                        Column(modifier = Modifier) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    modifier = Modifier.size(50.dp),
+                                    imageVector = Icons.Filled.Person,
+                                    contentDescription = stringResource(R.string.default_description_text)
                                 )
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(0.8f),
-                                    text = funGetNombreUsuario(),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+                                Column(
+                                    modifier = Modifier,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.8f)
+                                            .align(Alignment.Start),
+                                        text = "Email:",
+                                        textAlign = TextAlign.Start
+                                    )
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(0.8f),
+                                        text = funGetNombreUsuario(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
 
+                            }
+                            Button(modifier = Modifier.align(Alignment.End),
+                                enabled = !iniciadoEliminarCuenta.value && !iniciadoCerrarSesion.value,
+                                onClick = {iniciadoCambiarContrasena.value = true},
+                                colors = ButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    )){
+                                Text(text = "Cambiar contraseña")
+                            }
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Button(
-                            enabled = !iniciadoEliminarCuenta.value,
+                            enabled = !iniciadoEliminarCuenta.value && !iniciadoCambiarContrasena.value,
                             onClick = { iniciadoCerrarSesion.value = true },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -195,7 +219,7 @@ fun UsuarioScreenContent(
                             Text(text = "Cerrar sesión")
                         }
                         Button(
-                            enabled = !iniciadoCerrarSesion.value,
+                            enabled = !iniciadoCerrarSesion.value && !iniciadoCambiarContrasena.value,
                             onClick = { iniciadoEliminarCuenta.value = true },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
@@ -311,6 +335,87 @@ fun CerrarSesionAlertDialogue(
                 ) {
                     Text(
                         text = "Cerrar sesión",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun CambiarContrasenaAlertDialogue(
+    shouldShowDialog: MutableState<Boolean>,
+    funCambiarContrasena: suspend (vieja: String, nueva: String) -> String = {_,_ -> "" },
+) {
+    val vieja = remember { mutableStateOf("") }
+    val nueva = remember { mutableStateOf("") }
+    var confirmadoChange by remember { mutableStateOf(false) }
+    val errorText = remember { mutableStateOf("") }
+
+    if (confirmadoChange)
+        LaunchedEffect(Unit) {
+            errorText.value = funCambiarContrasena(vieja.value, nueva.value)
+            confirmadoChange = false
+            if (errorText.value.isEmpty())
+                shouldShowDialog.value = false
+        }
+    if (shouldShowDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!confirmadoChange)
+                    shouldShowDialog.value = false
+            },
+
+            title = {
+                Text(
+                    text = "Cambiar la contraseña de la cuenta",
+                    textAlign = TextAlign.Center
+
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TextField(value = vieja.value,
+                        onValueChange = { vieja.value = it },
+                        supportingText = { Text(text = "Contraseña actual") },
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                    TextField(value = nueva.value,
+                        onValueChange = { nueva.value = it },
+                        supportingText = { Text(text = "Contraseña nueva") },
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+
+                    if (confirmadoChange) {
+                        Column {
+                            Text(text = "Cambiando...")
+                            LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+                    }
+                    ErrorBubble(errorText = errorText)
+                }
+            },
+            confirmButton = {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    onClick = {
+                        confirmadoChange = true
+                    },
+                    colors = ButtonColors(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
+                        MaterialTheme.colorScheme.onSurface,
+                    ),
+                ) {
+                    Text(
+                        text = "Confirmar",
                         style = MaterialTheme.typography.headlineLarge
                     )
                 }
