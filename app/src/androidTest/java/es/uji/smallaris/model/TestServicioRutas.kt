@@ -1,6 +1,5 @@
 package es.uji.smallaris.model
 
-import android.util.Log
 import es.uji.smallaris.model.lugares.LugarInteres
 import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
@@ -92,7 +91,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
             .setFin(destino).setVehiculo(coche)
             .setTipo(TipoRuta.Corta).build()
@@ -132,7 +131,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -161,7 +160,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -192,7 +191,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         try {
@@ -222,7 +221,7 @@ class TestServicioRutas {
                 "Talleres, Castellón de la Plana, Comunidad Valenciana, España",
                 "Castellón de la Plana"
             )
-        
+
 
         // When
         try {
@@ -258,7 +257,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -291,7 +290,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         try {
@@ -327,7 +326,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -358,7 +357,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
 
         // When
         val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -385,7 +384,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        
+
 
         // When
         try {
@@ -417,7 +416,7 @@ class TestServicioRutas {
             )
         val destino =
             LugarInteres(39.34651, -0.35293, "Albufera de Valencia, Valencia, España", "Valencia")
-        
+
 
         // When
         try {
@@ -450,7 +449,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -488,7 +487,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón1").setInicio(origen)
                 .setFin(destino1).setVehiculo(pie)
@@ -526,7 +525,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -560,7 +559,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón2").setInicio(origen)
                 .setFin(destino).setVehiculo(pie)
@@ -595,7 +594,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)
@@ -630,7 +629,7 @@ class TestServicioRutas {
             "Cámara de tráfico 10, Grao, Comunidad Valenciana, España",
             "Castellón de la Plana"
         )
-        
+
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
                 .setFin(destino).setVehiculo(coche)

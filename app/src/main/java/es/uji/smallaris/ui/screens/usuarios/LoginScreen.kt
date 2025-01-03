@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,25 +29,29 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import es.uji.smallaris.ui.components.ErrorBubble
 import es.uji.smallaris.ui.components.FilteredTextField
+import es.uji.smallaris.ui.components.LoadingCircle
+import es.uji.smallaris.ui.components.SmallarisTitle
 import es.uji.smallaris.ui.state.UsuarioViewModel
-import java.lang.Error
 
 @Composable
 fun LoginScreen(
+    modifier: Modifier = Modifier, // Recibir un Modifier como parámetro
     viewModel: UsuarioViewModel = viewModel<UsuarioViewModel>(),
-    reloadFun: ()-> Unit= {}
+    reloadFun: () -> Unit = {}
 ) {
     reloadFun()
     LoginScreenContent(
         funIniciarSesion = viewModel::iniciarSesion,
-        funRegistrar = viewModel::registrar
+        funRegistrar = viewModel::registrar,
+        modifier = modifier // Pasar el Modifier recibido a LoginScreenContent
     )
 }
 
 @Composable
 private fun LoginScreenContent(
-    funIniciarSesion: suspend (email: String, pass: String)-> String = {_,_ -> ""},
-    funRegistrar: suspend (email: String, pass: String)-> String = {_,_ -> ""},
+    modifier: Modifier = Modifier,
+    funIniciarSesion: suspend (email: String, pass: String) -> String = { _, _ -> "" },
+    funRegistrar: suspend (email: String, pass: String) -> String = { _, _ -> "" }
 ) {
     val loginUser = rememberSaveable { mutableStateOf("") }
     val loginUserValid = rememberSaveable { mutableStateOf(false) }
@@ -57,17 +63,20 @@ private fun LoginScreenContent(
     val registerPass = rememberSaveable { mutableStateOf("") }
     val registerPassValid = rememberSaveable { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            SmallarisTitle()
             EmailPasswordForm(
                 loginUser = loginUser,
                 loginUserValid = loginUserValid,
                 loginPass = loginPass,
-                loginPassValid =loginPassValid,
+                loginPassValid = loginPassValid,
                 textoIntroduccion = "Introduce email y contraseña",
                 confirmText = "Iniciar sesión",
                 clickAction = funIniciarSesion
@@ -76,7 +85,7 @@ private fun LoginScreenContent(
                 loginUser = registerUser,
                 loginUserValid = registerUserValid,
                 loginPass = registerPass,
-                loginPassValid =registerPassValid,
+                loginPassValid = registerPassValid,
                 textoIntroduccion =
                 "¿No tienes cuenta?\nRegístrate con con solo un correo",
                 confirmText = "Registrarse",
@@ -85,6 +94,7 @@ private fun LoginScreenContent(
         }
     }
 }
+
 
 @Composable
 private fun EmailPasswordForm(
@@ -95,14 +105,14 @@ private fun EmailPasswordForm(
     textoIntroduccion: String = "",
     confirmText: String = "Confirmar",
 
-    clickAction: suspend (email:String, password: String) -> String = {_,_ -> ""}
+    clickAction: suspend (email: String, password: String) -> String = { _, _ -> "" }
 ) {
-    val errorText: MutableState<String> = remember{ mutableStateOf("")}
-    var confirmado: Boolean by remember { mutableStateOf(false)}
+    val errorText: MutableState<String> = remember { mutableStateOf("") }
+    var confirmado: Boolean by remember { mutableStateOf(false) }
 
     if (confirmado)
         LaunchedEffect(Unit) {
-            errorText.value = clickAction(loginUser.value,loginPass.value)
+            errorText.value = clickAction(loginUser.value, loginPass.value)
             confirmado = false
         }
     Surface(
@@ -134,16 +144,30 @@ private fun EmailPasswordForm(
             FilteredTextField(
                 text = loginPass,
                 valid = loginPassValid,
+                filter= {
+                    if (it.isEmpty())
+                        "No puede estar vacía"
+                    else
+                        ""
+                },
                 label = "Contraseña",
                 visualTransformation = PasswordVisualTransformation()
             )
             Button(
                 enabled = loginUserValid.value && loginPassValid.value,
-                onClick = {confirmado = true}
+                colors = ButtonColors(
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                    MaterialTheme.colorScheme.onTertiaryContainer,
+                    MaterialTheme.colorScheme.surfaceDim,
+                    MaterialTheme.colorScheme.onSurface,
+                ),
+                onClick = { confirmado = true }
             ) {
                 Text(text = confirmText)
             }
             ErrorBubble(errorText = errorText)
+            if (confirmado)
+                LoadingCircle()
         }
 
     }

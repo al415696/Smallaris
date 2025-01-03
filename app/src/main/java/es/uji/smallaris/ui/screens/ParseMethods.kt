@@ -13,57 +13,58 @@ fun String.safeToDouble(): Double {
 
     try {
         val result = formatter.parse(this)?.toDouble()
-        return result?: 0.0
+        return result ?: 0.0
     } catch (e: NumberFormatException) {
         return 0.0 // Retorna un valor predeterminado si la conversión falla
-    }catch (e: ParseException) {
+    } catch (e: ParseException) {
         return 0.0 // Retorna un valor predeterminado si la conversión falla
     }
 }
+
 //Métodos para formatear Dobles a Strings
 fun Double.toCleanString(): String {
     return if (this % 1.0 == 0.0) {
-//        String.format(Locale.US,"%.0f", this)
-        String.format(Locale.getDefault(),"%.0f", this)
+        String.format(Locale.getDefault(), "%.0f", this)
     } else {
-        String.format(Locale.getDefault(),"%f", this).trimEnd('0')
+        String.format(Locale.getDefault(), "%f", this).trimEnd('0')
     }
 }
+
 fun Double.toCleanString(numOfDecimals: Int = 0): String {
     return if (this % 1.0 == 0.0) {
-//        String.format(Locale.US,"%.0f", this)
-        String.format(Locale.getDefault(),"%.0f", this)
+        String.format(Locale.getDefault(), "%.0f", this)
     } else {
-        String.format(Locale.getDefault(),"%."+numOfDecimals+"f", this).trimEnd('0')
+        String.format(Locale.getDefault(), "%." + numOfDecimals + "f", this).trimEnd('0')
     }
 }
 
 //Metodos para mostrar información al usuario
 fun Double.toCleanCost(arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Combustible): String {
-    var unidad: String = ""
-    if (arquetipoVehiculo == ArquetipoVehiculo.Otro)
-        unidad = "cal"
-    else
-        unidad = "€"
+    val unidad: String =
+        if (arquetipoVehiculo == ArquetipoVehiculo.Otro)
+            "cal"
+        else
+            "€"
 
-    return String.format(Locale.getDefault(),"%.2f", this) +" $unidad"
+    return String.format(Locale.getDefault(), "%.2f", this) + " $unidad"
 }
+
 fun Float.toCleanDistance(): String {
     return if (this < 1)
-        String.format(Locale.getDefault(),"%.0f", this*1000) + " m"
+        String.format(Locale.getDefault(), "%.0f", this * 1000) + " m"
     else
-        String.format(Locale.getDefault(),"%.3f", this) + " km"
+        String.format(Locale.getDefault(), "%.3f", this) + " km"
 }
-fun Float.toTimeFormat(): String{
+
+fun Float.toTimeFormat(): String {
     val horas: Int = (this / 60).toInt()
     val minutos: Int = (this % 60).toInt()
     val segundos: Int = (this * 60).toInt()
-    return if (horas == 0){
+    return if (horas == 0) {
         if (minutos == 0)
             String.format(Locale.getDefault(), "%d s", segundos)
         else
             String.format(Locale.getDefault(), "%d min", minutos)
-    }
-    else
+    } else
         String.format(Locale.getDefault(), "%d h %d m", horas, minutos)
 }

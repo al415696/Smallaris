@@ -66,7 +66,12 @@ class TestServicioRutas {
             // Configurar respuestas de los mocks
             val mockResponse = readFileFromResources("car_route.txt")
             coEvery { mockServicioORS.getRuta(any(), any(), any(), any()) } returns mockResponse
-            coEvery { mockServicioPrecio.getPrecioCombustible(any(), any()) } returns PRECIO_CARBURANTE
+            coEvery {
+                mockServicioPrecio.getPrecioCombustible(
+                    any(),
+                    any()
+                )
+            } returns PRECIO_CARBURANTE
             coEvery { mockServicioPrecio.getPrecioElectrico() } returns PRECIO_ELECTRICO
 
             coEvery { mockRepositorioRutas.enFuncionamiento() } returns true
@@ -94,7 +99,13 @@ class TestServicioRutas {
 
     @After
     fun setup() {
-        clearMocks(mockRepositorioRutas, mockServicioORS, mockServicioPrecio, recordedCalls = true, answers = false)
+        clearMocks(
+            mockRepositorioRutas,
+            mockServicioORS,
+            mockServicioPrecio,
+            recordedCalls = true,
+            answers = false
+        )
     }
 
     @Test
@@ -167,7 +178,8 @@ class TestServicioRutas {
         var resultado: VehicleException? = null
 
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
         // When
         try {
@@ -190,7 +202,8 @@ class TestServicioRutas {
         var resultado: UbicationException? = null
 
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val origen =
             LugarInteres(
                 -0.067893,
@@ -245,7 +258,8 @@ class TestServicioRutas {
         runBlocking {
             // Given
             val cocheElectrico = Vehiculo("Coche", 7.0, "234", TipoVehiculo.Electrico)
-            val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+            val servicioRutas =
+                ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
             // When
             val ruta = servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -253,7 +267,8 @@ class TestServicioRutas {
                 .setTipo(TipoRuta.Corta).build()
 
             // Then
-            val costeEsperado = (ruta.getDistancia() / 100) * coche.consumo * (PRECIO_ELECTRICO / 1000)
+            val costeEsperado =
+                (ruta.getDistancia() / 100) * coche.consumo * (PRECIO_ELECTRICO / 1000)
             assertTrue(
                 "El coste no es correcto. Obtenido: ${
                     redondear(
@@ -272,7 +287,8 @@ class TestServicioRutas {
         var resultado: VehicleException? = null
 
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
         // When
         try {
@@ -292,7 +308,8 @@ class TestServicioRutas {
     @Test
     fun builder_R4HU3_costePieCorrecto() = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
         val pie = Vehiculo("Pie", matricula = "Pie", tipo = TipoVehiculo.Pie)
 
@@ -317,7 +334,8 @@ class TestServicioRutas {
     @Test
     fun builder_R4HU3_costeBiciCorrecto(): Unit = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
 
         // When
@@ -341,7 +359,8 @@ class TestServicioRutas {
     @Test
     fun getLugares_R4HU6_listaRutasCorrecto(): Unit = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
 
         servicioRutas.addRuta(
@@ -361,7 +380,8 @@ class TestServicioRutas {
     @Test
     fun getLugares_R5HU5_listaRutasFavoritoPrimero(): Unit = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
 
         servicioRutas.addRuta(
@@ -388,7 +408,8 @@ class TestServicioRutas {
     @Test
     fun getLugares_setFavoritos_R5HU5V1_asignarRutaNoFavoritaComoFavorita(): Unit = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
 
         servicioRutas.addRuta(
@@ -410,7 +431,8 @@ class TestServicioRutas {
     @Test
     fun getLugares_setFavoritos_R5HU5I1_asignarRutaFavoritaComoFavorita(): Unit = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
         val bici = Vehiculo("Bici", matricula = "Bici", tipo = TipoVehiculo.Bici)
 
         servicioRutas.addRuta(
@@ -434,7 +456,8 @@ class TestServicioRutas {
     @Test
     fun deleteRuta_R4HU07_eliminarRutaOK() = runBlocking {
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)
@@ -457,7 +480,8 @@ class TestServicioRutas {
         var excepcion: RouteException? = null
 
         // Given
-        val servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
+        val servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), mockRepositorioRutas, servicioAPIs)
 
         val ruta = servicioRutas.addRuta(
             servicioRutas.builder().setNombre("Ruta por Castellón").setInicio(origen)

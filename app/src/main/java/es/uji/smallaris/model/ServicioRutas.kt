@@ -1,7 +1,7 @@
 package es.uji.smallaris.model
 
+import es.uji.smallaris.model.lugares.LugarInteres
 import kotlinx.coroutines.runBlocking
-import kotlin.jvm.Throws
 
 class ServicioRutas(
     private val calculadorRutas: CalculadorRutas,
@@ -28,7 +28,7 @@ class ServicioRutas(
             throw ConnectionErrorException("Firebase no está disponible")
         if (rutas.contains(ruta))
             throw RouteException("La ruta ya existe")
-        if  (repositorioRutas.addRuta(ruta))
+        if (repositorioRutas.addRuta(ruta))
             rutas.add(ruta)
         else
             throw RouteException("No se pudo añadir la ruta por un problema remoto")
@@ -79,11 +79,33 @@ class ServicioRutas(
         return rutas.contains(ruta)
     }
 
-    companion object{
+    fun contains(lugar: LugarInteres): List<Ruta> {
+        val lista = mutableListOf<Ruta>()
+        for (ruta in rutas) {
+            if (ruta.getInicio() == lugar || ruta.getFin() == lugar)
+                lista.add(ruta)
+        }
+        return lista
+    }
+
+    fun contains(vehiculo: Vehiculo): List<Ruta> {
+        val lista = mutableListOf<Ruta>()
+        for (ruta in rutas) {
+            if (ruta.getVehiculo() == vehiculo)
+                lista.add(ruta)
+        }
+        return lista
+    }
+
+    companion object {
         private lateinit var servicio: ServicioRutas
-        fun getInstance(): ServicioRutas{
-            if (!this::servicio.isInitialized){
-                servicio = ServicioRutas(CalculadorRutasORS(ServicioAPIs), RepositorioFirebase.getInstance(), ServicioAPIs)
+        fun getInstance(): ServicioRutas {
+            if (!this::servicio.isInitialized) {
+                servicio = ServicioRutas(
+                    CalculadorRutasORS(ServicioAPIs),
+                    RepositorioFirebase.getInstance(),
+                    ServicioAPIs
+                )
             }
             return servicio
         }

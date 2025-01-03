@@ -46,10 +46,10 @@ fun VehiculosListContent(
     modifier: Modifier,
     items: List<Vehiculo> = listOf(),
     addFunction: () -> Unit = {},
-    sortFunction: () -> String = {""},
-    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = {""},
-    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { vehiculo, favorito ->},
-    updateFunction:(viejo: Vehiculo) -> Unit = {}
+    sortFunction: () -> String = { "" },
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = { "" },
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { _, _ -> },
+    updateFunction: (viejo: Vehiculo) -> Unit = {}
 
 ) {
     var vehiculoSelected by remember {
@@ -99,7 +99,7 @@ fun VehiculosListContent(
                         onSelect = { veh: Vehiculo ->
                             vehiculoSelected = veh
                         },
-                        checkSelected = { other: Vehiculo -> vehiculoSelected.equals(other) },
+                        checkSelected = { other: Vehiculo -> vehiculoSelected == other },
                         updateFunction = updateFunction,
                         deleteFuncition = deleteFuncition,
                         favoriteFuncion = favoriteFuncion
@@ -119,42 +119,44 @@ fun VehiculosListContent(
         }
     }
 }
+
 @Composable
 fun LazyListVehiculos(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     items: List<Vehiculo> = vehiculoTestData,
     onSelect: (veh: Vehiculo) -> Unit,
-    checkSelected: (otro: Vehiculo)-> Boolean,// = {otro: Vehiculo -> false}
-    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = {""},
-    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
-    updateFunction:(viejo:Vehiculo) -> Unit = {}
+    checkSelected: (otro: Vehiculo) -> Boolean,
+    deleteFuncition: suspend (vehiculo: Vehiculo) -> String = { "" },
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { _, _ -> },
+    updateFunction: (viejo: Vehiculo) -> Unit = {}
 ) {
-    val shouldShowDialog = remember { mutableStateOf(false )}
-    val vehiculoABorrar = remember { mutableStateOf<Vehiculo?>(null )}
+    val shouldShowDialog = remember { mutableStateOf(false) }
+    val vehiculoABorrar = remember { mutableStateOf<Vehiculo?>(null) }
     if (shouldShowDialog.value) {
-        DeleteAlertDialogue(shouldShowDialog = shouldShowDialog,
-            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) }?: "" },
+        DeleteAlertDialogue(
+            shouldShowDialog = shouldShowDialog,
+            deleteFuncition = { vehiculoABorrar.value?.let { deleteFuncition(it) } ?: "" },
             nombreObjetoBorrado = "El vehículo elegido"
 
         )
     }
     LazyColumn(
-        
+
         modifier = modifier,
         state = state,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        item{
+        item {
             Spacer(Modifier.size(0.dp))
         }
         items(items) { item: Vehiculo ->
             if (item.tipo.getArquetipo() != ArquetipoVehiculo.Otro)
-                vehiculoListable(
+                VehiculoListable(
                     vehiculo = item,
                     onSelect = onSelect,
                     selected = checkSelected(item),
-                    deleteFuncition = {vehiculo ->
+                    deleteFuncition = { vehiculo ->
                         vehiculoABorrar.value = vehiculo
                         shouldShowDialog.value = true
                     },
@@ -162,44 +164,44 @@ fun LazyListVehiculos(
                     favoriteFuncion = favoriteFuncion,
                 )
         }
-        item{
+        item {
             Spacer(Modifier.size(30.dp))
         }
     }
 
 }
+
 @Composable
-fun vehiculoListable(
+fun VehiculoListable(
     vehiculo: Vehiculo,
     onSelect: (veh: Vehiculo) -> Unit,
     selected: Boolean,
-    addFuncion: (vehiculo: Vehiculo) -> Unit = {},
     deleteFuncition: (vehiculo: Vehiculo) -> Unit = {},
-    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = {vehiculo,favorito ->},
-    updateFunction:(viejo:Vehiculo) -> Unit = {}
+    favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { _, _ -> },
+    updateFunction: (viejo: Vehiculo) -> Unit = {}
 
-){
-    var cambiandoFavorito by remember{ mutableStateOf(false)}
-    if(cambiandoFavorito) {
+) {
+    var cambiandoFavorito by remember { mutableStateOf(false) }
+    if (cambiandoFavorito) {
         LaunchedEffect(Unit) {
             favoriteFuncion(vehiculo, !vehiculo.isFavorito())
             cambiandoFavorito = false
         }
     }
 
-        ObjetoListable(
-            primaryInfo = vehiculo.nombre,
-            secondaryInfo = vehiculo.matricula,
-            terciaryInfo =  "${vehiculo.consumo.toCleanString()} ${vehiculo.tipo.getArquetipo().unidad}",
-            onGeneralClick = { onSelect(vehiculo) },
-            favoriteFuncion = { cambiandoFavorito = true },
-            secondActionFuncition = { deleteFuncition(vehiculo) },
-            firstActionFunction = {updateFunction(vehiculo)},
-            favorito = vehiculo.isFavorito(),
-            selected = selected,
-            ratioHiddenFields = 0.4F
+    ObjetoListable(
+        primaryInfo = vehiculo.nombre,
+        secondaryInfo = vehiculo.matricula,
+        terciaryInfo = "${vehiculo.consumo.toCleanString()} ${vehiculo.tipo.getArquetipo().unidad}",
+        onGeneralClick = { onSelect(vehiculo) },
+        favoriteFuncion = { cambiandoFavorito = true },
+        secondActionFuncition = { deleteFuncition(vehiculo) },
+        firstActionFunction = { updateFunction(vehiculo) },
+        favorito = vehiculo.isFavorito(),
+        selected = selected,
+        ratioHiddenFields = 0.4F
 
-        )
+    )
 }
 
 val vehiculoTestData = listOf(
@@ -218,40 +220,71 @@ val vehiculoTestData = listOf(
         matricula = "1234DPP",
         tipo = TipoVehiculo.Gasolina95,
         favorito = false
-    ),Vehiculo("MotoGP", 3.5, "6789MOT", TipoVehiculo.Gasolina98),
+    ), Vehiculo("MotoGP", 3.5, "6789MOT", TipoVehiculo.Gasolina98),
     Vehiculo("PatinElectrico", 1.1, "9999PAT", TipoVehiculo.Electrico),
     Vehiculo(nombre = "Cargobike", consumo = 0.5, matricula = "BIKE001", tipo = TipoVehiculo.Bici),
-    Vehiculo(nombre = "MonsterTruck", consumo = 25.0, matricula = "TRUCK99", tipo = TipoVehiculo.Diesel),
+    Vehiculo(
+        nombre = "MonsterTruck",
+        consumo = 25.0,
+        matricula = "TRUCK99",
+        tipo = TipoVehiculo.Diesel
+    ),
     Vehiculo("Helicoptero", 120.0, "HELI007", TipoVehiculo.Gasolina98),
-    Vehiculo(nombre = "SegwayMax", consumo = 0.2, matricula = "SEGWAYX", tipo = TipoVehiculo.Electrico),
+    Vehiculo(
+        nombre = "SegwayMax",
+        consumo = 0.2,
+        matricula = "SEGWAYX",
+        tipo = TipoVehiculo.Electrico
+    ),
     Vehiculo("JetSki", 50.0, "JSKI420", TipoVehiculo.Gasolina98),
-    Vehiculo(nombre = "CamionMan", consumo = 35.0, matricula = "CAM5678", tipo = TipoVehiculo.Diesel),
+    Vehiculo(
+        nombre = "CamionMan",
+        consumo = 35.0,
+        matricula = "CAM5678",
+        tipo = TipoVehiculo.Diesel
+    ),
     Vehiculo("TeslaCyber", 0.0, "CYBRTRK", TipoVehiculo.Electrico),
     Vehiculo("Zamboni", 8.0, "ICE9999", TipoVehiculo.Diesel),
-    Vehiculo(nombre = "TractorRojo", consumo = 15.0, matricula = "TRC2345", tipo = TipoVehiculo.Gasolina95),
-    Vehiculo(nombre = "GoKart", consumo = 4.2, matricula = "KART123", tipo = TipoVehiculo.Gasolina98),
+    Vehiculo(
+        nombre = "TractorRojo",
+        consumo = 15.0,
+        matricula = "TRC2345",
+        tipo = TipoVehiculo.Gasolina95
+    ),
+    Vehiculo(
+        nombre = "GoKart",
+        consumo = 4.2,
+        matricula = "KART123",
+        tipo = TipoVehiculo.Gasolina98
+    ),
     Vehiculo("CarrozaReal", 0.0, "REINA00", TipoVehiculo.Bici),
-    Vehiculo(nombre = "Submarino", consumo = 300.0, matricula = "SUBMAR1", tipo = TipoVehiculo.Desconocido),
+    Vehiculo(
+        nombre = "Submarino",
+        consumo = 300.0,
+        matricula = "SUBMAR1",
+        tipo = TipoVehiculo.Desconocido
+    ),
     Vehiculo("Furgoneta", 10.2, "FURG005", TipoVehiculo.Diesel)
 
 )
 
 @Preview
 @Composable
-private fun vehiculosListContentPreview() {
+private fun VehiculosListContentPreview() {
     val modifier: Modifier = Modifier
     VehiculosListContent(modifier, vehiculoTestData)
 }
+
 @Preview
 @Composable
-private fun vehiculosListContentVacioPreview() {
+private fun VehiculosListContentVacioPreview() {
     val modifier: Modifier = Modifier
     VehiculosListContent(modifier, emptyList())
 }
 
 @Preview
 @Composable
-private fun previewListaVehiculos() {
-    LazyListVehiculos(onSelect =  {},
-        checkSelected = {true})
+private fun PreviewListaVehiculos() {
+    LazyListVehiculos(onSelect = {},
+        checkSelected = { true })
 }

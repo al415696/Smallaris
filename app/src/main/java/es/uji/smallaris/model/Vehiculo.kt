@@ -1,19 +1,15 @@
 package es.uji.smallaris.model
 
-class Vehiculo : Favoritable {
-    var nombre: String
+class Vehiculo(
+    var nombre: String,
+    consumo: Double = -1.0,
+    var matricula: String,
+    var tipo: TipoVehiculo,
+    favorito: Boolean = false
+) : Favoritable() {
     var consumo: Double = 0.0
-    var matricula: String
-    var tipo: TipoVehiculo
 
-    constructor(
-        nombre: String,
-        consumo: Double = -1.0,
-        matricula: String,
-        tipo: TipoVehiculo,
-        favorito: Boolean = false
-    ) {
-        this.nombre = nombre
+    init {
         when (tipo) {
             TipoVehiculo.Pie -> {
                 this.consumo = 50.0
@@ -27,8 +23,6 @@ class Vehiculo : Favoritable {
                 this.consumo = consumo
             }
         }
-        this.matricula = matricula
-        this.tipo = tipo
         this.setFavorito(favorito)
     }
 
@@ -72,7 +66,8 @@ class Vehiculo : Favoritable {
     companion object {
         fun fromString(vehicleString: String): Vehiculo {
             // Expresión regular para extraer los valores del String
-            val regex = """Vehiculo\(nombre='(.*?)', consumo=(.*?), matricula='(.*?)', tipo=(.*?)\)""".toRegex()
+            val regex =
+                """Vehiculo\(nombre='(.*?)', consumo=(.*?), matricula='(.*?)', tipo=(.*?)\)""".toRegex()
 
             val matchResult = regex.find(vehicleString)
 

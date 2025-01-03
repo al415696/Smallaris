@@ -60,12 +60,14 @@ class TestPersistencia {
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
-        servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
+        servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
         val vehiculosRecuperados = servicioVehiculos.getVehiculos()
         assertTrue(vehiculosRecuperados.contains(vehiculoCreado))
 
-        val vehiculoFavorito = vehiculoCreado.let { servicioVehiculos.setVehiculoFavorito(it, true) }
+        val vehiculoFavorito =
+            vehiculoCreado.let { servicioVehiculos.setVehiculoFavorito(it, true) }
         assertTrue(vehiculoFavorito)
         assertTrue(vehiculoCreado.isFavorito())
 
@@ -93,7 +95,8 @@ class TestPersistencia {
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
-        servicioRutas = ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
+        servicioRutas =
+            ServicioRutas(CalculadorRutasORS(servicioAPIs), repositorioFirebase, servicioAPIs)
 
         val lugaresRecuperados = servicioLugares.getLugares()
         assertTrue(lugaresRecuperados.contains(lugarCreado))

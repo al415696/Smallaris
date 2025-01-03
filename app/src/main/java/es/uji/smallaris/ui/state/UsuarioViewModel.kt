@@ -7,23 +7,20 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
-import es.uji.smallaris.model.RepositorioFirebase
+import es.uji.smallaris.model.InvalidPasswordException
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
+import es.uji.smallaris.model.TipoRuta
 import es.uji.smallaris.model.UnloggedUserException
 import es.uji.smallaris.model.UnregisteredUserException
 import es.uji.smallaris.model.UserAlreadyExistsException
+import es.uji.smallaris.model.UserException
 import es.uji.smallaris.model.Vehiculo
 
-//@HiltViewModel
-class UsuarioViewModel() : ViewModel() {
-    constructor(cosaUsuario : Int) : this() {
-        this.cosaUsuario = cosaUsuario
-    }
-    var cosaUsuario by mutableStateOf(1)
+class UsuarioViewModel : ViewModel() {
     private val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
 
-    val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
+    private val servicioVehiculos: ServicioVehiculos = ServicioVehiculos.getInstance()
 
     suspend fun getVehiculos(): List<Vehiculo> {
         return servicioVehiculos.getVehiculos()
@@ -31,74 +28,150 @@ class UsuarioViewModel() : ViewModel() {
 
     var sesionIniciada by mutableStateOf(servicioUsuarios.obtenerUsuarioActual() != null)
 
-    suspend fun iniciarSesion(email:String,passwd: String): String{
+    private fun updateSesion() {
+        sesionIniciada = servicioUsuarios.obtenerUsuarioActual() != null
+    }
+
+    suspend fun iniciarSesion(email: String, passwd: String): String {
         try {
-           servicioUsuarios.iniciarSesion(email,passwd)
-            sesionIniciada = true
+            servicioUsuarios.iniciarSesion(email, passwd)
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
-        }catch (e: UnregisteredUserException) {
-            return "Usuario no registrado o contraseña errónea"
-        }catch (e: Exception) {
-            return e.message?: "Error inesperado, inicio de sesión cancelado"
+        } catch (e: UnregisteredUserException) {
+            return e.message ?: "Usuario no registrado"
+        } catch (e: InvalidPasswordException) {
+            return e.message ?: "Usuario no registrado o contraseña errónea"
+        } catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, inicio de sesión cancelado"
         }
         return ""
     }
-    suspend fun registrar(email:String,passwd: String): String{
+
+    suspend fun registrar(email: String, passwd: String): String {
         try {
-            servicioUsuarios.registrarUsuario(email,passwd)
-            sesionIniciada = true
+            servicioUsuarios.registrarUsuario(email, passwd)
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
-        }catch (e: UserAlreadyExistsException) {
+        } catch (e: UserAlreadyExistsException) {
             return "El correo que has introducido ya está en uso, introduce otro"
-        }catch (e: Exception) {
-            return e.message?: "Error inesperado, registro no completado"
+        } catch (e: UserException) {
+            return e.message ?: "Credenciales inválidos"
+        } catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, registro no completado"
         }
         return ""
     }
-    suspend fun cerrarSesion(): String{
+
+    suspend fun cerrarSesion(): String {
         try {
             servicioUsuarios.cerrarSesion()
-            sesionIniciada = false
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
-        }catch (e: UnloggedUserException) {
+        } catch (e: UnloggedUserException) {
+            updateSesion()
             return "No hay ninguna sesión iniciada que cerrar"
-        }catch (e: Exception) {
-            return e.message?: "Error inesperado, no se ha cerrado sesión"
+        } catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, no se ha cerrado sesión"
         }
         return ""
     }
-    suspend fun eliminarCuenta(): String{
+    suspend fun cambiarContrasenya(contrasenaVieja: String,
+                                   contrasenaNueva: String): String {
+        try {
+            servicioUsuarios.cambiarContrasena(contrasenaVieja, contrasenaNueva)
+            updateSesion()
+        } catch (e: ConnectionErrorException) {
+            return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
+        } catch (e: UnloggedUserException) {
+            updateSesion()
+            return "No hay ninguna sesión iniciada que cerrar"
+        }catch (e: InvalidPasswordException) {
+            updateSesion()
+            return e.message?:"Contraseña vieja o nueva inválida"
+        }
+        catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, no se ha cerrado sesión"
+        }
+        return ""
+    }
+
+    suspend fun eliminarCuenta(): String {
         try {
             servicioUsuarios.borrarUsuario()
-            sesionIniciada = false
+            updateSesion()
         } catch (e: ConnectionErrorException) {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
-        }catch (e: UnloggedUserException) {
+        } catch (e: UnloggedUserException) {
+            updateSesion()
             return "No hay ninguna sesión iniciada que borrar"
-        }catch (e: Exception) {
-            return e.message?: "Error inesperado, no se ha borrado"
+        } catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, no se ha borrado"
         }
         return ""
     }
-    fun getNombreUsuarioActual(): String{
-        try {
-            return servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"
-        } catch (e: ConnectionErrorException) {
-            return "Tu cuenta principal?"
-        }catch (e: Exception) {
-            return "Tu cuenta principal??"
+
+    suspend fun getDefaultVehiculo(): Vehiculo? {
+        return try {
+            servicioUsuarios.obtenerVehiculoPorDefecto()
+        } catch (e: Exception) {
+            null
         }
     }
 
-    companion object{
+    suspend fun setDefaultVehiculo(vehiculo: Vehiculo?): Boolean {
+        return try {
+
+            if (vehiculo != null) {
+                servicioUsuarios.establecerVehiculoPorDefecto(vehiculo)
+            } else false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun getDefaultTipoRuta(): TipoRuta? {
+        return try {
+            servicioUsuarios.obtenerTipoRutaPorDefecto()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun setDefaultTipoRuta(tipoRuta: TipoRuta?): Boolean {
+        return try {
+
+            if (tipoRuta != null) {
+                servicioUsuarios.establecerTipoRutaPorDefecto(tipoRuta)
+            } else false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun getNombreUsuarioActual(): String {
+        return try {
+            servicioUsuarios.obtenerUsuarioActual()?.email ?: "Tu cuenta principal"
+        } catch (e: ConnectionErrorException) {
+            "Tu cuenta principal?"
+        } catch (e: Exception) {
+            "Tu cuenta principal??"
+        }
+    }
+
+
+    companion object {
         val Saver: Saver<UsuarioViewModel, *> = listSaver(
-            save = { listOf(it.cosaUsuario)},
+            save = { listOf<Any>() },
             restore = {
                 UsuarioViewModel(
-                    cosaUsuario = it[0]
                 )
             }
         )

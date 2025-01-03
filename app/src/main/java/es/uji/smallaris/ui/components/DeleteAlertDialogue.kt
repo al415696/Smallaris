@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,16 +24,17 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DeleteAlertDialogue(
     shouldShowDialog: MutableState<Boolean>,
-    deleteFuncition:suspend () -> String,
+    deleteFuncition: suspend () -> String,
     nombreObjetoBorrado: String = "El objeto seleccionado"
 ) {
-    var confirmadoBorrado by remember{ mutableStateOf(false) }
-    var errorText = remember { mutableStateOf("") }
-    if(confirmadoBorrado)
+    var confirmadoBorrado by remember { mutableStateOf(false) }
+    val errorText = remember { mutableStateOf("") }
+    if (confirmadoBorrado)
         LaunchedEffect(Unit) {
             errorText.value = deleteFuncition()
             if (errorText.value.isEmpty())
                 shouldShowDialog.value = false
+            confirmadoBorrado = false
         }
     if (shouldShowDialog.value) {
         AlertDialog(
@@ -44,15 +46,13 @@ fun DeleteAlertDialogue(
             title = { Text(text = "¿Seguro que quieres borrar?") },
             text = {
                 Column {
-                if (confirmadoBorrado) {
+                    if (confirmadoBorrado) {
 
                         Text(text = "Borrando...")
                         LoadingCircle(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-
-                else {
-                    Text(text = "$nombreObjetoBorrado se borrará permantentemente")
-                }
+                    } else {
+                        Text(text = "$nombreObjetoBorrado se borrará permantentemente")
+                    }
 
                     ErrorBubble(errorText)
                 }
@@ -64,7 +64,13 @@ fun DeleteAlertDialogue(
                         .height(60.dp),
                     onClick = {
                         confirmadoBorrado = true
-                    }
+                    },
+                    colors = ButtonColors(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        MaterialTheme.colorScheme.onTertiaryContainer,
+                        MaterialTheme.colorScheme.surfaceDim,
+                        MaterialTheme.colorScheme.onSurface,
+                    ),
                 ) {
                     Text(
                         text = "Borrar",
@@ -75,13 +81,14 @@ fun DeleteAlertDialogue(
         )
     }
 }
+
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
-fun previewAlertDialogue(){
+fun PreviewAlertDialogue() {
     DeleteAlertDialogue(
-        shouldShowDialog =  mutableStateOf(true),
-        deleteFuncition =  {""}
+        shouldShowDialog = mutableStateOf(true),
+        deleteFuncition = { "" }
 
     )
 }
