@@ -22,8 +22,8 @@ class TestPersistencia {
     @Before
     fun setUp() = runBlocking {
         repositorioFirebase = RepositorioFirebase()
-        repositorioFirebase.registrarUsuario("al415647@uji.es", "12345678")
-        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        repositorioFirebase.registrarUsuario("testPersistencia@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testPersistencia@uji.es", "12345678")
 
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
@@ -56,7 +56,7 @@ class TestPersistencia {
         servicioUsuarios.cerrarSesion()
 
         repositorioFirebase = RepositorioFirebase()
-        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testPersistencia@uji.es", "12345678")
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
@@ -91,7 +91,7 @@ class TestPersistencia {
         servicioUsuarios.cerrarSesion()
 
         repositorioFirebase = RepositorioFirebase()
-        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testPersistencia@uji.es", "12345678")
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
@@ -137,7 +137,7 @@ class TestPersistencia {
         servicioUsuarios.cerrarSesion()
 
         repositorioFirebase = RepositorioFirebase()
-        repositorioFirebase.iniciarSesion("al415647@uji.es", "12345678")
+        repositorioFirebase.iniciarSesion("testPersistencia@uji.es", "12345678")
         servicioUsuarios = ServicioUsuarios(repositorioFirebase)
         servicioVehiculos = ServicioVehiculos(repositorioFirebase)
         servicioLugares = ServicioLugares(repositorioFirebase, servicioAPIs)
