@@ -53,13 +53,19 @@ cd Smallaris
   - Sincroniza el proyecto con Gradle para asegurarte de que todas las dependencias estén descargadas y configuradas correctamente.
   - Compila y ejecuta el proyecto en tu dispositivo o emulador Android.
 
+---
+
 ## Estructura del Proyecto
 
 El proyecto sigue una estructura modular organizada de la siguiente manera:
 
-- **`app/src/main/`**
-  - **`ui/`**: Contiene los composables y la navegación de la interfaz de usuario.
-  - **`model/`**: Define las clases de dominio, como usuarios, rutas y vehículos.
-  - **`services/`**: Contiene los servicios relacionados con APIs y la persistencia de datos.
-  - **`viewmodel/`**: Gestiona la lógica de negocio a través de los ViewModels.
+- **`app/src/`**
+  - **`androidTest/`**: Contiene las pruebas de integración *end-to-end* sobre los diferentes servicios implementados.
+  - **`main/`**: Lógica de negocio y GUI.
+    - **`ui/`**: Contiene los composables y la navegación de la interfaz de usuario.
+    - **`model/`**: Define las clases de dominio, como usuarios, rutas y vehículos.
+    - **`services/`**: Contiene los servicios relacionados con APIs y la persistencia de datos.
+    - **`viewmodel/`**: Gestiona la lógica de negocio a través de los ViewModels.
+  - **`test/`**: Contiene las pruebas de aceptación  sobre los diferentes servicios implementados con todas las dependencias sustituidas con mocks de a librerria *Mockk*.
+
 
