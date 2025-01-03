@@ -7,6 +7,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import es.uji.smallaris.model.ConnectionErrorException
+import es.uji.smallaris.model.InvalidPasswordException
 import es.uji.smallaris.model.ServicioUsuarios
 import es.uji.smallaris.model.ServicioVehiculos
 import es.uji.smallaris.model.TipoRuta
@@ -15,7 +16,6 @@ import es.uji.smallaris.model.UnregisteredUserException
 import es.uji.smallaris.model.UserAlreadyExistsException
 import es.uji.smallaris.model.UserException
 import es.uji.smallaris.model.Vehiculo
-import es.uji.smallaris.model.WrongPasswordException
 
 class UsuarioViewModel : ViewModel() {
     private val servicioUsuarios: ServicioUsuarios = ServicioUsuarios.getInstance()
@@ -40,7 +40,7 @@ class UsuarioViewModel : ViewModel() {
             return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
         } catch (e: UnregisteredUserException) {
             return e.message ?: "Usuario no registrado"
-        } catch (e: WrongPasswordException) {
+        } catch (e: InvalidPasswordException) {
             return e.message ?: "Usuario no registrado o contraseña errónea"
         } catch (e: Exception) {
             updateSesion()
@@ -76,6 +76,26 @@ class UsuarioViewModel : ViewModel() {
             updateSesion()
             return "No hay ninguna sesión iniciada que cerrar"
         } catch (e: Exception) {
+            updateSesion()
+            return e.message ?: "Error inesperado, no se ha cerrado sesión"
+        }
+        return ""
+    }
+    suspend fun cambiarContrasenya(contrasenaVieja: String,
+                                   contrasenaNueva: String): String {
+        try {
+            servicioUsuarios.cambiarContrasena(contrasenaVieja, contrasenaNueva)
+            updateSesion()
+        } catch (e: ConnectionErrorException) {
+            return "No se puede establecer conexión con el servidor, vuelve a intentarlo más tarde"
+        } catch (e: UnloggedUserException) {
+            updateSesion()
+            return "No hay ninguna sesión iniciada que cerrar"
+        }catch (e: InvalidPasswordException) {
+            updateSesion()
+            return e.message?:"Contraseña vieja o nueva inválida"
+        }
+        catch (e: Exception) {
             updateSesion()
             return e.message ?: "Error inesperado, no se ha cerrado sesión"
         }

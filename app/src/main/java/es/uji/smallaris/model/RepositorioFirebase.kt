@@ -1,6 +1,7 @@
 package es.uji.smallaris.model
 
 import android.accounts.NetworkErrorException
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -317,8 +318,11 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     val municipio = item["municipio"] as? String
                     val latitud = item["latitud"] as? Double
                     val longitud = item["longitud"] as? Double
+                    val favorito = item["favorito"] as? Boolean ?: false
                     if (nombre != null && municipio != null && latitud != null && longitud != null) {
-                        LugarInteres(longitud, latitud, nombre, municipio)
+                        val lugar = LugarInteres(longitud, latitud, nombre, municipio)
+                        lugar.setFavorito(favorito)
+                        lugar
                     } else {
                         null
                     }
@@ -359,30 +363,32 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
     }
 
     override suspend fun setLugarInteresFavorito(lugar: LugarInteres, favorito: Boolean): Boolean {
+        Log.i("info","Se ha hecho a $lugar favorito asi ${favorito}")
         try {
             val currentUser = obtenerUsuarioActual()
                 ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            val userDocRef = obtenerFirestore()
+                .collection("usuarios")
+                .document(currentUser.uid)
+                .collection("lugares")
+                .document("data")
 
-            val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
-            val snapshot = userDocRef.get().await()
-            val lugaresExistentes =
-                (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val document = userDocRef.get().await()
 
-            val lugaresActualizados = lugaresExistentes.map {
-                if (it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio) {
-                    mapOf(
-                        "nombre" to lugar.nombre,
-                        "latitud" to lugar.latitud,
-                        "longitud" to lugar.longitud,
-                        "municipio" to lugar.municipio,
-                        "favorito" to favorito
-                    )
-                } else {
-                    it
+            if (document.exists() && document.contains("items")) {
+                val items = document["items"] as? List<Map<String, Any>> ?: return false
+                val index = items.indexOfFirst { it["longitud"] == lugar.longitud && it["latitud"] == lugar.latitud }
+                if (index != -1) {
+                    val updatedItems = items.toMutableList()
+                    val updatedLugar = items[index].toMutableMap()
+                    updatedLugar["favorito"] = favorito
+                    updatedItems[index] = updatedLugar
+                    userDocRef.update("items", updatedItems).await()
+                    return true
                 }
             }
-            userDocRef.update("lugares", lugaresActualizados).await()
-            return true
+            return false
+
         } catch (e: Exception) {
             println("Error al actualizar lugar: ${e.message}")
             return false
@@ -523,6 +529,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     val distancia = (item["distancia"] as? Number)?.toFloat()
                     val duracion = (item["duracion"] as? Number)?.toFloat()
                     val coste = (item["coste"] as? Number)?.toDouble()
+                    val favorito = item["favorito"] as? Boolean ?: false
 
                     if (nombre != null && inicioMap != null && finMap != null && vehiculoMap != null && trayecto != null && distancia != null && duracion != null && coste != null) {
                         val inicio = LugarInteres(
@@ -539,7 +546,7 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                             municipio = finMap["municipio"] as? String ?: return@mapNotNull null
                         )
 
-                        Ruta(
+                        val ruta = Ruta(
                             inicio = inicio,
                             fin = fin,
                             vehiculo = Vehiculo(
@@ -555,8 +562,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                             distancia = distancia,
                             duracion = duracion,
                             coste = coste,
-                            nombre = nombre
+                            nombre = nombre,
                         )
+                        ruta.setFavorito(favorito)
+                        ruta
                     } else {
                         null
                     }
