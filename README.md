@@ -100,7 +100,7 @@ Este proyecto está licenciado bajo la licencia [Apache 2.0](LICENSE).
 - Responsabilidad limitada
 - Sin garantías
 
-Consulta el archivo [`LICENSE`](LICENSE) en la raíz del repositorio para más detalles.
+Consulta el archivo [`LICENSE`](LICENSE.txt) en la raíz del repositorio para más detalles.
 
 
 
