@@ -84,3 +84,22 @@ Este proyecto ha sido desarrollado por:
 
 Si deseas colaborar o tienes alguna pregunta, no dudes en ponerte en contacto con los autores a través de sus perfiles de GitHub.
 
+--- 
+
+## Licencia
+
+Este proyecto está licenciado bajo la licencia [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+### Permisos otorgados:
+- Uso comercial
+- Modificación
+- Distribución
+- Uso privado
+
+### Limitaciones:
+- Responsabilidad limitada
+- Sin garantías
+
+Consulta el archivo `LICENSE` en la raíz del repositorio para más detalles.
+
+
