@@ -37,8 +37,8 @@ fun LugaresMapContent(
             setCameraOptions {
                 zoom(15.0) // Ajusta el nivel de zoom según lo que desees mostrar.
                 center(
-                    marker
-                ) // Coordenadas de la Universidad Jaume I.
+                    marker// Coordenadas indicadas
+                )
                 pitch(0.0)
                 bearing(0.0)
             }
@@ -66,7 +66,7 @@ fun LugaresMapContent(
 
             val markerImage = rememberIconImage(
                 key = "default_marker",
-                painter = painterResource(R.drawable.map_marker_by_smashicons)// Cambia esto por el icono que prefieras
+                painter = painterResource(R.drawable.map_marker_by_smashicons)
             )
             MapboxMap(
                 modifier = Modifier.fillMaxSize(),

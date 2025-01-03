@@ -30,7 +30,7 @@ class TestServicioLugares {
 
         @JvmStatic
         @BeforeClass
-        fun setupGlobal(): Unit {
+        fun setupGlobal() {
             mockServicioORS = mockk<ServicioORS>(relaxed = true)
             mockRepositorioLugares = mockk<RepositorioLugares>(relaxed = true)
             servicioAPIs.setServicioMapa(mockServicioORS)
@@ -44,8 +44,13 @@ class TestServicioLugares {
             coEvery { mockServicioORS.getToponimoCercano(39.8614095, -0.18500) } returns
                     "Camp de Futbol, Villavieja, Comunidad Valenciana, España"
             coEvery { mockRepositorioLugares.setLugarInteresFavorito(any(), any()) } returns true
-            coEvery { mockServicioORS.getCoordenadas("Topónimo_inexistente") } throws UbicationException("No se encontraron coordenadas para el topónimo Topónimo_inexistente")
-            coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(-0.037787, 39.987142)
+            coEvery { mockServicioORS.getCoordenadas("Topónimo_inexistente") } throws UbicationException(
+                "No se encontraron coordenadas para el topónimo Topónimo_inexistente"
+            )
+            coEvery { mockServicioORS.getCoordenadas("Castellón de la Plana") } returns Pair(
+                -0.037787,
+                39.987142
+            )
             coEvery { mockServicioORS.getToponimoCercano(-0.037787, 39.987142) } returns
                     "Buzón de Correos, Castellón de la Plana, Comunidad Valenciana, España"
             coEvery { mockServicioRutas.contains(ofType(LugarInteres::class)) } returns listOf()
@@ -363,7 +368,7 @@ class TestServicioLugares {
 
         // When
         try {
-            val resultado = servicioLugares.deleteLugar(lugar, mockServicioRutas)
+            servicioLugares.deleteLugar(lugar, mockServicioRutas)
 
         } catch (e: UbicationException) {
             excepcion = e

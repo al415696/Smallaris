@@ -13,91 +13,99 @@ import es.uji.smallaris.model.TipoVehiculo
 import es.uji.smallaris.model.VehicleException
 import es.uji.smallaris.model.Vehiculo
 
-//@HiltViewModel
 class VehiculosViewModel : ViewModel() {
 
-    private val servicioVehiculos:ServicioVehiculos = ServicioVehiculos.getInstance()
+    private val servicioVehiculos: ServicioVehiculos = ServicioVehiculos.getInstance()
 
     // Lista observable
-//    var items: MutableState<List<Vehiculo>> = mutableStateOf(emptyList())
     var items: SnapshotStateList<Vehiculo> = mutableStateListOf<Vehiculo>()
     private var currentSorting: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE
 
-    fun sortItems(ordenVehiculo: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE){
-       currentSorting = ordenVehiculo
+    fun sortItems(ordenVehiculo: OrdenVehiculo = OrdenVehiculo.FAVORITO_THEN_NOMBRE) {
+        currentSorting = ordenVehiculo
         sortItems()
     }
-    private fun sortItems(){
+
+    private fun sortItems() {
         items.sortWith(currentSorting.comparator())
     }
 
 
-    suspend fun addVehiculo(nombre: String, consumo: Double, matricula: String, tipo: TipoVehiculo): String{
+    suspend fun addVehiculo(
+        nombre: String,
+        consumo: Double,
+        matricula: String,
+        tipo: TipoVehiculo
+    ): String {
         try {
             servicioVehiculos.addVehiculo(nombre, consumo, matricula, tipo)
             updateList()
-        }
-        catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             e.printStackTrace()
             return "Error al conectarse con el servidor"
-        }
-        catch (e: VehicleException) {
+        } catch (e: VehicleException) {
 
             return e.message ?: "Fallo con el vehículo, no se ha añadido"
         }
         return ""
     }
-    suspend fun updateVehiculo(viejo: Vehiculo,
-                               nuevoNombre: String = viejo.nombre,
-                               nuevoConsumo: Double = viejo.consumo,
-                               nuevaMatricula: String = viejo.matricula,
-                               nuevoTipoVehiculo: TipoVehiculo = viejo.tipo): String{
+
+    suspend fun updateVehiculo(
+        viejo: Vehiculo,
+        nuevoNombre: String = viejo.nombre,
+        nuevoConsumo: Double = viejo.consumo,
+        nuevaMatricula: String = viejo.matricula,
+        nuevoTipoVehiculo: TipoVehiculo = viejo.tipo
+    ): String {
         try {
-            if (servicioVehiculos.updateVehiculo(viejo, nuevoNombre,nuevoConsumo, nuevaMatricula, nuevoTipoVehiculo)) {
+            if (servicioVehiculos.updateVehiculo(
+                    viejo,
+                    nuevoNombre,
+                    nuevoConsumo,
+                    nuevaMatricula,
+                    nuevoTipoVehiculo
+                )
+            ) {
                 updateList()
                 return ""
-            }
-            else{
+            } else {
                 return "Fallo inesperado, prueba con otro momento"
             }
-        }
-        catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             e.printStackTrace()
             return "Error al conectarse con el servidor"
-        }
-        catch (e: VehicleException){
+        } catch (e: VehicleException) {
 
             return e.message ?: ""
         }
     }
-    suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean){
+
+    suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean) {
         try {
-            if(servicioVehiculos.setVehiculoFavorito(vehiculo, favorito))
+            if (servicioVehiculos.setVehiculoFavorito(vehiculo, favorito))
                 updateList()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    suspend fun deleteVehiculo(vehiculo: Vehiculo): String{
+
+    suspend fun deleteVehiculo(vehiculo: Vehiculo): String {
         try {
-            if(servicioVehiculos.deleteVehiculo(vehiculo))
+            if (servicioVehiculos.deleteVehiculo(vehiculo))
                 updateList()
             return ""
-        }
-        catch (e: ConnectionErrorException) {
+        } catch (e: ConnectionErrorException) {
             return "Error al conectarse con el servidor"
-        }
-        catch (e: VehicleException) {
-            return e.message?: "Error con el vehiculo"
-        }
-        catch (e: RouteException) {
-            return e.message?: "Se usa en alguna ruta, no se puede borrar"
-        }
-        catch (e: Exception) {
-            return e.message?:"Fallo inesperado, prueba con otro momento"
+        } catch (e: VehicleException) {
+            return e.message ?: "Error con el vehiculo"
+        } catch (e: RouteException) {
+            return e.message ?: "Se usa en alguna ruta, no se puede borrar"
+        } catch (e: Exception) {
+            return e.message ?: "Fallo inesperado, prueba con otro momento"
         }
     }
-    suspend fun initializeList(){
+
+    suspend fun initializeList() {
         try {
             servicioVehiculos.updateVehiculos()
             updateList()
@@ -106,7 +114,7 @@ class VehiculosViewModel : ViewModel() {
         }
     }
 
-    private suspend fun updateList(){
+    private suspend fun updateList() {
         // Step 1: Add missing elements
         try {
             val nueva = servicioVehiculos.getVehiculos()
@@ -131,9 +139,10 @@ class VehiculosViewModel : ViewModel() {
             e.printStackTrace()
         }
     }
-    companion object{
+
+    companion object {
         val Saver: Saver<VehiculosViewModel, *> = listSaver(
-            save = { listOf<Any>()},
+            save = { listOf<Any>() },
             restore = {
                 VehiculosViewModel(
                 )
@@ -141,4 +150,3 @@ class VehiculosViewModel : ViewModel() {
         )
     }
 }
-//saver = Saver

@@ -54,10 +54,10 @@ import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.localization.localizeLabels
 import es.uji.smallaris.R
 import es.uji.smallaris.model.ErrorCategory
-import es.uji.smallaris.ui.components.DecimalInputField
-import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.CoordinateDecimalFormatter
+import es.uji.smallaris.ui.components.DecimalInputField
 import es.uji.smallaris.ui.components.ErrorBubble
+import es.uji.smallaris.ui.components.FilteredTextField
 import es.uji.smallaris.ui.components.LoadingCircle
 import es.uji.smallaris.ui.components.TopBackBar
 import es.uji.smallaris.ui.screens.safeToDouble
@@ -217,7 +217,7 @@ fun LugaresAddContent(
                     painter = painterResource(R.drawable.map_marker_by_smashicons)// Cambia esto por el icono que prefieras
                 )
                 MapboxMap(
-                    modifier = Modifier.fillMaxSize(),//width(100.dp).height(600.dp),
+                    modifier = Modifier.fillMaxSize(),
                     mapViewportState = mapboxMapState,
                     compass = {},
                     logo = {},
@@ -302,7 +302,6 @@ fun LugaresAddContent(
                                 MaterialTheme.colorScheme.onSurface,
                             ),
                             onClick = {
-                                // Handle form submission
                                 showAddDialogue.value = true
                             }) {
                             Text(

@@ -1,4 +1,3 @@
 package es.uji.smallaris.model
 
-class ConnectionErrorException(message: String) : Exception(message) {
-}
+class ConnectionErrorException(message: String) : Exception(message)

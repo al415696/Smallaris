@@ -4,7 +4,6 @@ import android.accounts.NetworkErrorException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -79,7 +78,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     val nombre = vehiculoActual["nombre"] as? String
                     val consumo = vehiculoActual["consumo"] as? Double
                     val matricula = vehiculoActual["matricula"] as? String
-                    val tipo = vehiculoActual["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido
+                    val tipo = vehiculoActual["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) }
+                        ?: TipoVehiculo.Desconocido
                     val favorito = vehiculoActual["favorito"] as? Boolean ?: false
 
                     if (nombre != null && matricula != null && consumo != null) {
@@ -157,7 +157,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     val nombre = item["nombre"] as? String
                     val consumo = item["consumo"] as? Double
                     val matricula = item["matricula"] as? String
-                    val tipo = item["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido
+                    val tipo = item["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) }
+                        ?: TipoVehiculo.Desconocido
                     val favorito = item["favorito"] as? Boolean ?: false
                     if (nombre != null && matricula != null && consumo != null) {
                         Vehiculo(nombre, consumo, matricula, tipo, favorito)
@@ -205,7 +206,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun updateVehiculos(viejo: Vehiculo, nuevo: Vehiculo): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            val currentUser = obtenerUsuarioActual()
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -225,7 +227,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     updatedVehiculo["consumo"] = nuevo.consumo
                     updatedVehiculo["matricula"] = nuevo.matricula
                     updatedVehiculo["tipo"] = nuevo.tipo.name
-                    updatedVehiculo["favorito"] = nuevo.isFavorito() // Actualizamos el campo favorito
+                    updatedVehiculo["favorito"] =
+                        nuevo.isFavorito() // Actualizamos el campo favorito
 
                     updatedItems[index] = updatedVehiculo
                     userDocRef.update("items", updatedItems).await()
@@ -241,7 +244,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun setVehiculoFavorito(vehiculo: Vehiculo, favorito: Boolean): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            val currentUser = obtenerUsuarioActual()
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -271,7 +275,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
     override suspend fun removeVehiculo(vehiculo: Vehiculo): Boolean {
         try {
-            val currentUser = obtenerUsuarioActual() ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
+            val currentUser = obtenerUsuarioActual()
+                ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
             val userDocRef = obtenerFirestore()
                 .collection("usuarios")
                 .document(currentUser.uid)
@@ -360,7 +365,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val lugaresExistentes =
+                (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
 
             val lugaresActualizados = lugaresExistentes.map {
                 if (it["nombre"] == lugar.nombre && it["municipio"] == lugar.municipio) {
@@ -390,7 +396,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
 
             val userDocRef = obtenerFirestore().collection("usuarios").document(currentUser.uid)
             val snapshot = userDocRef.get().await()
-            val lugaresExistentes = (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
+            val lugaresExistentes =
+                (snapshot["lugares"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
 
             // Filtra los lugares para eliminar el especificado
             val lugaresActualizados = lugaresExistentes.filterNot {
@@ -413,44 +420,44 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                 auth.createUserWithEmailAndPassword(correo, contrasena).await()
             val usuario = resultadoAutenticacion.user
 
-        if (usuario != null) {
-            val usuarioData = mapOf(
-                "correo" to usuario.email,
-            )
+            if (usuario != null) {
+                val usuarioData = mapOf(
+                    "correo" to usuario.email,
+                )
 
-            // Crear el documento del usuario en la colección 'usuarios'
-            val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
-            usuarioDocRef.set(usuarioData).await()
+                // Crear el documento del usuario en la colección 'usuarios'
+                val usuarioDocRef = obtenerFirestore().collection("usuarios").document(usuario.uid)
+                usuarioDocRef.set(usuarioData).await()
 
-            // Datos predeterminados de vehículos
-            val vehiculoPie = mapOf(
-                "nombre" to "A pie",
-                "consumo" to 0.0,
-                "matricula" to "Sin matrícula",
-                "tipo" to "Pie",
-                "favorito" to false
-            )
+                // Datos predeterminados de vehículos
+                val vehiculoPie = mapOf(
+                    "nombre" to "A pie",
+                    "consumo" to 0.0,
+                    "matricula" to "Sin matrícula",
+                    "tipo" to "Pie",
+                    "favorito" to false
+                )
 
-            val vehiculoBici = mapOf(
-                "nombre" to "Bicicleta",
-                "consumo" to 0.0,
-                "matricula" to "Sin matrícula",
-                "tipo" to "Bici",
-                "favorito" to false
-            )
+                val vehiculoBici = mapOf(
+                    "nombre" to "Bicicleta",
+                    "consumo" to 0.0,
+                    "matricula" to "Sin matrícula",
+                    "tipo" to "Bici",
+                    "favorito" to false
+                )
 
-            val vehiculosData = mapOf(
-                "items" to listOf(vehiculoPie, vehiculoBici)
-            )
+                val vehiculosData = mapOf(
+                    "items" to listOf(vehiculoPie, vehiculoBici)
+                )
 
-            // Crear subcolección 'vehículos' con documento 'data' y array 'items'
-            usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
+                // Crear subcolección 'vehículos' con documento 'data' y array 'items'
+                usuarioDocRef.collection("vehículos").document("data").set(vehiculosData).await()
 
 
-            db.collection("usuarios")
-                .document(usuario.uid)
-                .set(usuarioData)
-                .await()
+                db.collection("usuarios")
+                    .document(usuario.uid)
+                    .set(usuarioData)
+                    .await()
 
                 return Usuario(correo = usuario.email ?: "")
             } else {
@@ -510,7 +517,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                     val inicioMap = item["inicio"] as? Map<String, Any>
                     val finMap = item["fin"] as? Map<String, Any>
                     val vehiculoMap = item["vehiculo"] as? Map<String, Any>
-                    val tipo = item["tipo"]?.let { TipoRuta.valueOf(it.toString()) } ?: TipoRuta.Desconocida
+                    val tipo = item["tipo"]?.let { TipoRuta.valueOf(it.toString()) }
+                        ?: TipoRuta.Desconocida
                     val trayecto = item["trayecto"] as? String
                     val distancia = (item["distancia"] as? Number)?.toFloat()
                     val duracion = (item["duracion"] as? Number)?.toFloat()
@@ -538,7 +546,8 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
                                 nombre = vehiculoMap["nombre"] as? String ?: "",
                                 consumo = vehiculoMap["consumo"] as? Double ?: 0.0,
                                 matricula = vehiculoMap["matricula"] as? String ?: "",
-                                tipo = vehiculoMap["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) } ?: TipoVehiculo.Desconocido,
+                                tipo = vehiculoMap["tipo"]?.let { TipoVehiculo.valueOf(it.toString()) }
+                                    ?: TipoVehiculo.Desconocido,
                                 favorito = vehiculoMap["favorito"] as? Boolean ?: false
                             ),
                             tipo = tipo,
@@ -722,7 +731,10 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
         }
     }
 
-    override suspend fun cambiarContrasena(contrasenaVieja: String, contrasenaNueva: String): Boolean {
+    override suspend fun cambiarContrasena(
+        contrasenaVieja: String,
+        contrasenaNueva: String
+    ): Boolean {
         val usuarioActual = auth.currentUser
             ?: throw UnloggedUserException("No hay un usuario logueado actualmente.")
 
@@ -768,21 +780,19 @@ class RepositorioFirebase : RepositorioVehiculos, RepositorioLugares, Repositori
             currentUser.delete().await()
 
             return usuario
-        }
-        catch (e: FirebaseAuthRecentLoginRequiredException) {
+        } catch (e: FirebaseAuthRecentLoginRequiredException) {
             e.printStackTrace()
             throw UserException("Esta operación es delicada y require un login reciente, cierra sesión y vuelve a iniciarla para confirmar tu identidad")
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             throw UserException("No se pudo eliminar el usuario o sus datos.")
         }
     }
 
-    companion object{
+    companion object {
         private lateinit var repositorioFirebase: RepositorioFirebase
-        fun getInstance(): RepositorioFirebase{
-            if (!this::repositorioFirebase.isInitialized){
+        fun getInstance(): RepositorioFirebase {
+            if (!this::repositorioFirebase.isInitialized) {
                 repositorioFirebase = RepositorioFirebase()
             }
             return repositorioFirebase

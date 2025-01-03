@@ -5,26 +5,27 @@ enum class TipoVehiculo {
     Gasolina95 {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Combustible
     },
-    Gasolina98{
+    Gasolina98 {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Combustible
     },
-    Diesel{
+    Diesel {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Combustible
     },
-    Desconocido{
+    Desconocido {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Otro
     },
-    Electrico{
+    Electrico {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Electrico
     },
-    Pie{
+    Pie {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Otro
     },
-    Bici{
+    Bici {
         override val arquetipoVehiculo: ArquetipoVehiculo = ArquetipoVehiculo.Otro
     };
+
     abstract val arquetipoVehiculo: ArquetipoVehiculo
-    fun getArquetipo(): ArquetipoVehiculo{
+    fun getArquetipo(): ArquetipoVehiculo {
         return arquetipoVehiculo
     }
 }

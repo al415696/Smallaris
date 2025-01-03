@@ -6,7 +6,6 @@ import es.uji.smallaris.model.lugares.ServicioLugares
 import es.uji.smallaris.model.lugares.UbicationException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -43,6 +42,7 @@ class TestServicioLugares {
             }
         }
     }
+
     @Test
     fun addLugar_R2HU01_darDeAltaLugarOK() = runBlocking {
         // Given
@@ -69,10 +69,10 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        
-        
+
+
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -102,10 +102,9 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        
-        
+
 
         // When
         try {
@@ -126,10 +125,9 @@ class TestServicioLugares {
         var resultado: UbicationException? = null
 
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        
-        
+
 
         // When
         try {
@@ -148,9 +146,8 @@ class TestServicioLugares {
     fun getLugares_R2HU03_obtenerListaLugares1Elemento() = runBlocking {
 
         // Given
-        
-        
-        
+
+
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -175,9 +172,8 @@ class TestServicioLugares {
     @Test
     fun setFavorito_R5HU03V1_AsignarLugarNoFavoritoComoLugarInteresFavorito() = runBlocking {
         // Given
-        
-        
-        
+
+
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -197,9 +193,8 @@ class TestServicioLugares {
     fun setFavorito_R5HU03I1_AsignarLugarYaFavoritoComoLugarInteresFavorito() = runBlocking {
 
         // Given
-        
-        
-        
+
+
         servicioLugares.addLugar(
             -0.0376709,
             39.986,
@@ -247,10 +242,9 @@ class TestServicioLugares {
     @Test
     fun addLugar_R2HU02_darDeAltaLugarPorToponimoOK() = runBlocking {
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
-        
-        
+
 
         // When
         val (longitud, latitud) = servicioAPIs.getCoordenadas("Castellón de la Plana")
@@ -270,10 +264,9 @@ class TestServicioLugares {
         var excepcion: UbicationException? = null
 
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.COORDS))
-        
-        
+
 
         // When
         try {
@@ -292,10 +285,10 @@ class TestServicioLugares {
     @Test
     fun deleteLugar_R2HU04_eliminarLugarOK() = runBlocking {
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        
-        
+
+
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
 
         // When
@@ -312,16 +305,16 @@ class TestServicioLugares {
         var excepcion: UbicationException? = null
 
         // Given
-        
+
         assert(servicioAPIs.apiEnFuncionamiento(API.TOPONIMO))
-        
-        
+
+
         val lugar = servicioLugares.addLugar(-0.0376709, 39.986)
         servicioLugares.setLugarInteresFavorito(lugar, true)
 
         // When
         try {
-            val resultado = servicioLugares.deleteLugar(lugar)
+            servicioLugares.deleteLugar(lugar)
 
         } catch (e: UbicationException) {
             excepcion = e

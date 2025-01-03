@@ -4,7 +4,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,14 +39,14 @@ fun BottomListActionBar(
     showBar: Boolean = true,
     showTextOnSort: Boolean = false,
     addFunction: () -> Unit = {},
-    sortFunction: () -> String = {""}
+    sortFunction: () -> String = { "" }
 ) {
-    var showTextNow by remember{ mutableStateOf(false)}
-    var shownText by remember{ mutableStateOf("")}
+    var showTextNow by remember { mutableStateOf(false) }
+    var shownText by remember { mutableStateOf("") }
     if (showBar) {
         val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         val contentColor = MaterialTheme.colorScheme.onSurface
-        var currentAlpha by remember { mutableStateOf(1F) }
+        var currentAlpha by remember { mutableFloatStateOf(1F) }
         Row(
             modifier = modifier.padding(bottom = 5.dp, start = 5.dp, end = 5.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -55,10 +55,10 @@ fun BottomListActionBar(
             Row(Modifier.weight(1f)) {
                 FloatingActionButton(
                     onClick = {
-                        shownText ="Ordenado por " + sortFunction()
+                        shownText = "Ordenado por " + sortFunction()
                         showTextNow = true
-                        currentAlpha=1F
-                              },
+                        currentAlpha = 1F
+                    },
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(55.dp),
@@ -73,26 +73,25 @@ fun BottomListActionBar(
                     )
 
                 }
-                if (showTextOnSort && showTextNow){
+                if (showTextOnSort && showTextNow) {
 
                     val opacity = animateFloatAsState(
                         targetValue = currentAlpha,
-                        animationSpec =  tween(
-                            if(currentAlpha>0F) 0 else 1500
-                            , easing = FastOutSlowInEasing
-                        )
+                        animationSpec = tween(
+                            if (currentAlpha > 0F) 0 else 1500, easing = FastOutSlowInEasing
+                        ), label = "BottomBarFadeOut"
                     )
-                    if (opacity.value == 0F){
+                    if (opacity.value == 0F) {
                         showTextNow = false
-                    }
-                    else{
+                    } else {
                         currentAlpha = 0F
                     }
-                    Surface (modifier = Modifier
-                        .alpha(
-                            opacity.value
-                        )
-                        .align(Alignment.Bottom)
+                    Surface(
+                        modifier = Modifier
+                            .alpha(
+                                opacity.value
+                            )
+                            .align(Alignment.Bottom)
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 5.dp),
@@ -114,7 +113,6 @@ fun BottomListActionBar(
             ) {
                 Icon(
                     Icons.Filled.AddCircle,
-                    //                    ImageVector.vectorResource(R.drawable.directions_car_24px),
                     stringResource(R.string.default_description_text),
                     modifier = Modifier.fillMaxSize(),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -123,10 +121,13 @@ fun BottomListActionBar(
         }
     }
 }
+
 @Preview
 @Composable
-fun PreviewBar(){
-    BottomListActionBar(modifier = Modifier
-        .height(60.dp)
-        .fillMaxWidth())
+fun PreviewBar() {
+    BottomListActionBar(
+        modifier = Modifier
+            .height(60.dp)
+            .fillMaxWidth()
+    )
 }

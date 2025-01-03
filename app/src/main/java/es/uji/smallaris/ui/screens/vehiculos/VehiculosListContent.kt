@@ -126,7 +126,7 @@ fun LazyListVehiculos(
     state: LazyListState = rememberLazyListState(),
     items: List<Vehiculo> = vehiculoTestData,
     onSelect: (veh: Vehiculo) -> Unit,
-    checkSelected: (otro: Vehiculo) -> Boolean,// = {otro: Vehiculo -> false}
+    checkSelected: (otro: Vehiculo) -> Boolean,
     deleteFuncition: suspend (vehiculo: Vehiculo) -> String = { "" },
     favoriteFuncion: suspend (vehiculo: Vehiculo, favorito: Boolean) -> Unit = { _, _ -> },
     updateFunction: (viejo: Vehiculo) -> Unit = {}

@@ -151,7 +151,8 @@ class TestServicioVehiculos {
             servicioVehiculos.addVehiculo("Coche", 7.1, "1234BBB", TipoVehiculo.Gasolina95)
 
         //      WHEN
-        val exito = servicioVehiculos.deleteVehiculo(vehiculo, mockServicioRutas, mockServicioUsuarios)
+        val exito =
+            servicioVehiculos.deleteVehiculo(vehiculo, mockServicioRutas, mockServicioUsuarios)
 
         //      THEN
         assertNotNull(exito)
