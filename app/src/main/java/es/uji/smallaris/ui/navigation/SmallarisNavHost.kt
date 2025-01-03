@@ -39,9 +39,12 @@ fun SmallarisNavHost(
 
     var loadingServiciosObjetos by remember { mutableStateOf(true) }
     if (!usuarioViewModel.sesionIniciada) {
-        LoginScreen(
-            usuarioViewModel
-        ) { loadingServiciosObjetos = true }
+        if (!usuarioViewModel.sesionIniciada) {
+            LoginScreen(
+                viewModel = usuarioViewModel,
+                modifier = modifier // Pasar el modificador aquí
+            ) { loadingServiciosObjetos = true }
+        }
     } else if (loadingServiciosObjetos) {
         LoadingScreen(
             loadingProcess = {

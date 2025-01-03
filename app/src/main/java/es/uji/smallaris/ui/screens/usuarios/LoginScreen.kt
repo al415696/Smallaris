@@ -35,20 +35,23 @@ import es.uji.smallaris.ui.state.UsuarioViewModel
 
 @Composable
 fun LoginScreen(
+    modifier: Modifier = Modifier, // Recibir un Modifier como parámetro
     viewModel: UsuarioViewModel = viewModel<UsuarioViewModel>(),
     reloadFun: () -> Unit = {}
 ) {
     reloadFun()
     LoginScreenContent(
         funIniciarSesion = viewModel::iniciarSesion,
-        funRegistrar = viewModel::registrar
+        funRegistrar = viewModel::registrar,
+        modifier = modifier // Pasar el Modifier recibido a LoginScreenContent
     )
 }
 
 @Composable
 private fun LoginScreenContent(
+    modifier: Modifier = Modifier,
     funIniciarSesion: suspend (email: String, pass: String) -> String = { _, _ -> "" },
-    funRegistrar: suspend (email: String, pass: String) -> String = { _, _ -> "" },
+    funRegistrar: suspend (email: String, pass: String) -> String = { _, _ -> "" }
 ) {
     val loginUser = rememberSaveable { mutableStateOf("") }
     val loginUserValid = rememberSaveable { mutableStateOf(false) }
@@ -60,7 +63,7 @@ private fun LoginScreenContent(
     val registerPass = rememberSaveable { mutableStateOf("") }
     val registerPassValid = rememberSaveable { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
