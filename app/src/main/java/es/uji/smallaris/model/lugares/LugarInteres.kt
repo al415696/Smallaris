@@ -18,7 +18,8 @@ class LugarInteres(
             "longitud" to longitud,
             "latitud" to latitud,
             "nombre" to nombre,
-            "municipio" to municipio
+            "municipio" to municipio,
+            "favorito" to this.isFavorito()
         )
     }
 
