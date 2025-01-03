@@ -30,29 +30,29 @@ class TestServicioUsuarios {
             coEvery { mockRepositorioUsuarios.enFuncionamiento() } returns true
             coEvery {
                 mockRepositorioUsuarios.registrarUsuario(
-                    eq("al415647@uji.es"),
+                    eq("registrarUser@uji.es"),
                     any()
                 )
             } throws UserAlreadyExistsException()
             coEvery {
                 mockRepositorioUsuarios.registrarUsuario(
-                    eq("al415617@uji.es"),
+                    eq("registrarUser2@uji.es"),
                     any()
                 )
-            } returns Usuario(correo = "al415617@uji.es")
+            } returns Usuario(correo = "registrarUser2@uji.es")
             coEvery {
                 mockRepositorioUsuarios.iniciarSesion(
-                    eq("al415647@uji.es"),
+                    eq("registrarUser@uji.es"),
                     any()
                 )
-            } returns Usuario(correo = "al415647@uji.es")
+            } returns Usuario(correo = "registrarUser@uji.es")
             coEvery {
                 mockRepositorioUsuarios.iniciarSesion(
-                    eq("al415617@uji.es"),
+                    eq("registrarUser2@uji.es"),
                     any()
                 )
             } throws UnregisteredUserException("El usuario no está registrado")
-            coEvery { mockRepositorioUsuarios.cerrarSesion() } returns Usuario(correo = "al415647@uji.es")
+            coEvery { mockRepositorioUsuarios.cerrarSesion() } returns Usuario(correo = "registrarUser@uji.es")
         }
     }
 
@@ -64,11 +64,11 @@ class TestServicioUsuarios {
 
             // Cuando
             val usuario =
-                servicioUsuarios.registrarUsuario("al415617@uji.es", "alHugo415617")
+                servicioUsuarios.registrarUsuario("registrarUser2@uji.es", "alHugo415617")
             println(usuario)
 
             // Entonces
-            assertEquals(Usuario(correo = "al415617@uji.es"), usuario)
+            assertEquals(Usuario(correo = "registrarUser2@uji.es"), usuario)
             coVerify { mockRepositorioUsuarios.enFuncionamiento() }
             coVerify { mockRepositorioUsuarios.registrarUsuario(any(), any()) }
         }
@@ -85,7 +85,7 @@ class TestServicioUsuarios {
 
             // Cuando
             try {
-                servicioUsuarios.registrarUsuario("al415647@uji.es", "12345678")
+                servicioUsuarios.registrarUsuario("registrarUser@uji.es", "12345678")
             } catch (excepcion: UserAlreadyExistsException) {
                 resultado = excepcion
             }
@@ -106,10 +106,10 @@ class TestServicioUsuarios {
             servicioUsuarios = ServicioUsuarios(mockRepositorioUsuarios)
 
             // Cuando
-            val usuario = servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            val usuario = servicioUsuarios.iniciarSesion("registrarUser@uji.es", "12345678")
 
             // Entonces
-            assertEquals(Usuario(correo = "al415647@uji.es"), usuario)
+            assertEquals(Usuario(correo = "registrarUser@uji.es"), usuario)
             assertNotNull(servicioUsuarios.obtenerUsuarioActual())
             coVerify { mockRepositorioUsuarios.enFuncionamiento() }
             coVerify { mockRepositorioUsuarios.iniciarSesion(any(), any()) }
@@ -126,7 +126,7 @@ class TestServicioUsuarios {
 
         // Cuando
         try {
-            servicioUsuarios.iniciarSesion("al415617@uji.es", "alHugo415617")
+            servicioUsuarios.iniciarSesion("registrarUser2@uji.es", "alHugo415617")
         } catch (excepcion: UnregisteredUserException) {
             resultado = excepcion
         }
@@ -143,13 +143,13 @@ class TestServicioUsuarios {
         runBlocking {
             // Dado
             servicioUsuarios = ServicioUsuarios(mockRepositorioUsuarios)
-            servicioUsuarios.iniciarSesion("al415647@uji.es", "12345678")
+            servicioUsuarios.iniciarSesion("registrarUser@uji.es", "12345678")
 
             // Cuando
             val resultado = servicioUsuarios.cerrarSesion()
 
             // Entonces
-            assertEquals("al415647@uji.es", resultado.correo)
+            assertEquals("registrarUser@uji.es", resultado.correo)
             coVerify { mockRepositorioUsuarios.enFuncionamiento() }
             coVerify { mockRepositorioUsuarios.cerrarSesion() }
         }
