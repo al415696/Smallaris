@@ -88,7 +88,7 @@ Si deseas colaborar o tienes alguna pregunta, no dudes en ponerte en contacto co
 
 ## Licencia
 
-Este proyecto está licenciado bajo la licencia [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Este proyecto está licenciado bajo la licencia [Apache 2.0](LICENSE).
 
 ### Permisos otorgados:
 - Uso comercial
@@ -100,6 +100,7 @@ Este proyecto está licenciado bajo la licencia [Apache 2.0](https://www.apache.
 - Responsabilidad limitada
 - Sin garantías
 
-Consulta el archivo `LICENSE` en la raíz del repositorio para más detalles.
+Consulta el archivo [`LICENSE`](LICENSE) en la raíz del repositorio para más detalles.
+
 
 
