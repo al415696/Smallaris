@@ -1,19 +1,19 @@
-# Smallaris - Aplicación de Movilidad Inteligente
+# Smallaris - Aplicación de Movilidad
 
-Smallaris es una aplicación de movilidad diseñada para ofrecer una experiencia integral en la planificación de rutas. Proporciona funcionalidades avanzadas como cálculo de rutas personalizadas, estimación de costes de viaje (combustible o electricidad), y una interfaz basada en mapas para una experiencia de usuario fluida e intuitiva.
+Smallaris es una aplicación de movilidad diseñada para ofrecer una experiencia integral en la planificación de rutas. Proporciona funcionalidades avanzadas como cálculo de rutas personalizadas, estimación de costes de viaje (combustible, electricidad, pie o bicicleta), y una interfaz basada en mapas para una experiencia de usuario fluida e intuitiva.
 
 ## Descripción del Proyecto
 
-Este proyecto es parte de las asignaturas **EI1039 - Diseño de Software** y **EI1048 - Paradigmas de Software**, y tiene como objetivo implementar una aplicación Android empleando patrones de diseño, metodologías ágiles y tecnologías modernas como **Jetpack Compose**.
+Este proyecto es parte de las asignaturas **EI1039 - Diseño de Software** y **EI1048 - Paradigmas de Software** del grado de ingenieria informática en la UJI, y tiene como objetivo implementar una aplicación Android empleando patrones de diseño, la metodologías ágile ATDD y tecnologías modernas como **Jetpack Compose**.
 
 ## Características Principales
 
-- **Gestión de Usuarios**: Registro, inicio de sesión, cierre de sesión y gestión de preferencias.
+- **Gestión de Usuarios**: Registro, inicio de sesión, cierre de sesión, borrado de cuenta y cambio de contraseña.
 - **Mapas Interactivos**: Uso de **Mapbox** para seleccionar puntos y visualizar rutas.
-- **Cálculo de Rutas**: Integración con **OpenRouteService API** para obtener rutas óptimas y detalles como duración y distancia.
-- **Estimación de Costes**: Consultas a APIs públicas para obtener precios de combustibles y electricidad.
+- **Cálculo de Rutas**: Integración con **OpenRouteService API** para obtener rutas con trayectos cortos, rápidos y económicos con detalles como duración y distancia.
+- **Estimación de Costes**: Consultas a APIs públicas para obtener precios de combustibles y electricidad mediante APIs públicas.
 - **Persistencia de Datos**: Almacenamiento de usuarios, rutas, vehículos y lugares de interés mediante **Firebase Firestore**.
-- **Favoritos**: Posibilidad de marcar lugares, rutas y vehículos como favoritos para acceso rápido.
+- **Favoritos**: Posibilidad de marcar lugares, rutas y vehículos como favoritos para acceso rápido desde a interfaz de usuario.
 
 ---
 
